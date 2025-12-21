@@ -58,7 +58,7 @@ export const createUser = async (req, res) => {
       subject: "NCC Nexus Login Credentials",
       html: `
         <h3>Welcome to NCC Nexus</h3>
-        <p>Email: ${email}</p>
+        <p>${name}</p>
         <p>Temporary Password: <b>${tempPassword}</b></p>
         <p>Please reset your password after login.</p>
       `,
