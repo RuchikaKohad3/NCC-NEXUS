@@ -1,15 +1,18 @@
+// backend/src/app.js
 const dotenv = require("dotenv");
 dotenv.config();
 
 const express = require("express");
+const cors = require("cors"); 
 const db = require("./db/knex");
 const authRoutes = require("./routes/auth.routes");
 const anoRoutes = require("./routes/ano.routes");
+const chatRoutes = require("./routes/chat.routes");
 
 const app = express();
 
-// Middleware
 app.use(express.json());
+app.use(cors()); 
 
 // Health check
 app.get("/", async (req, res) => {
@@ -25,6 +28,7 @@ app.get("/", async (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/ano", anoRoutes);
+app.use("/api/chat", chatRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

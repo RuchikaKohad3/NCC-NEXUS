@@ -1,4 +1,6 @@
+// frontend/src/components/Chatbot.js
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios'; // Import Axios for API calls
 import './chatbot.css';
 
 const Chatbot = () => {
@@ -8,16 +10,40 @@ const Chatbot = () => {
   const [streamingMessage, setStreamingMessage] = useState(null);
   const chatWindowRef = useRef(null);
   
-  const hasGreeted = useRef(false);
+  // Use a ref to prevent double fetching in React Strict Mode
+  const hasFetchedHistory = useRef(false);
 
+  // 1. INITIAL LOAD: Fetch Chat History from Backend
   useEffect(() => {
-    if (!hasGreeted.current) {
-      const initGreeting = "Hello Cadet, I am your NCC NEXUS Assistant. How may I help you today?";
-      handleBotResponse(initGreeting);
-      hasGreeted.current = true;
+    if (!hasFetchedHistory.current) {
+      fetchChatHistory();
+      hasFetchedHistory.current = true;
     }
   }, []);
 
+  const fetchChatHistory = async () => {
+    try {
+      // Connects to the backend we just built
+      const response = await axios.get('http://localhost:5000/api/chat');
+      
+      // Transform Backend Data (DB columns) to Frontend Format
+      // Backend uses 'message', Frontend uses 'text'
+      const formattedMessages = response.data.map(msg => ({
+        id: msg.id,
+        sender: msg.sender,
+        text: msg.message, 
+        timestamp: msg.created_at
+      }));
+
+      setMessages(formattedMessages);
+    } catch (error) {
+      console.error("Failed to load history:", error);
+      // Fallback greeting if backend is offline
+      handleBotResponse("Jai Hind Cadet, I am unable to connect to the server right now.");
+    }
+  };
+
+  // Scroll to bottom effect
   useEffect(() => {
     if (chatWindowRef.current) {
       chatWindowRef.current.scrollTo({
@@ -27,6 +53,7 @@ const Chatbot = () => {
     }
   }, [messages, streamingMessage]);
 
+  // 2. STREAMING LOGIC (Preserved exactly as requested)
   const handleBotResponse = async (fullText) => {
     setIsLoading(true);
     const words = fullText.split(" ");
@@ -53,11 +80,13 @@ const Chatbot = () => {
     setIsLoading(false);
   };
 
-  const handleSubmit = (e) => {
+  // 3. SEND MESSAGE: Connects to Backend API
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const text = inputValue.trim();
     if (!text || isLoading) return;
 
+    // A. Optimistic Update: Show user message immediately
     const userMsg = {
       id: `user-${Date.now()}`,
       sender: 'user',
@@ -67,11 +96,31 @@ const Chatbot = () => {
 
     setMessages(prev => [...prev, userMsg]);
     setInputValue('');
+    setIsLoading(true); // Show "Thinking..." bubble immediately
 
-    setTimeout(() => {
-      const response = "I have received your request regarding: " + text + ". I am processing this according to NCC protocols.";
-      handleBotResponse(response);
-    }, 600);
+    try {
+      // B. Send to Backend
+      // Pass 'cadetId' if you have login (e.g., from localStorage)
+      const response = await axios.post('http://localhost:5000/api/chat', {
+        message: text,
+        cadetId: 1 // Default ID or fetch from Auth Context
+      });
+
+      // C. Trigger Streaming with Real AI Response
+      // The backend returns: { user: {...}, bot: { message: "..." } }
+      await handleBotResponse(response.data.bot.message);
+
+    } catch (error) {
+      console.error("Chat API Error:", error);
+      setIsLoading(false); // Stop loading if error
+      // Optional: Show error in chat
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        sender: 'bot',
+        text: "Connection error. Please check your backend server.",
+        timestamp: new Date().toISOString()
+      }]);
+    }
   };
 
   return (
