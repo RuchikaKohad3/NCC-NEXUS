@@ -26,6 +26,27 @@ body {
   flex-direction: column;
 }
 
+.cadet-topbar {
+  display: none;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 18px;
+}
+
+.cadet-sidebar-toggle {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cadet-sidebar-backdrop {
+  display: none;
+}
+
 .top-section {
   flex: 1;              /* <--- pushes logout to bottom */
   display: flex;
@@ -415,8 +436,36 @@ input {
 
 /* RESPONSIVE */
 @media (max-width: 850px) {
+  .main {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .cadet-topbar {
+    display: flex;
+  }
+
   .sidebar {
-    display: none;
+    display: flex;
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .cadet-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    border: none;
+    z-index: 9998; /* below sidebar */
+  }
+
+  .sidebar {
+    z-index: 9999;
   }
 }
 .sidebar-logo {
@@ -476,6 +525,7 @@ input {
 /* MODAL BOX */
 .nice-modal {
   width: 520px;
+  max-width: 92vw;
   background: #0d1117;
   border-radius: 25px;                  /* 🔥 rounded corners */
   padding: 40px 30px;                   /* 🔥 more padding top & bottom */

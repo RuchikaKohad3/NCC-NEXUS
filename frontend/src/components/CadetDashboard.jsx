@@ -9,14 +9,18 @@ import {
   KeyRound,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import "./dashboard.css";
 import logoImage from "./assets/ncc-logo.png";
 import Feed from "./Feed";
 import ResetPasswordModal from "./ResetPasswordModal";
 import Chatbot from "./Chatbot";
+import { closeCadetSidebar, toggleCadetSidebar } from "../features/ui/uiSlice";
 
 export default function CadetDashboard() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const isCadetSidebarOpen = useSelector((state) => state.ui.isCadetSidebarOpen);
 
   const [activeTab, setActiveTab] = useState("profile");
   const [showReset, setShowReset] = useState(false);
@@ -68,7 +72,16 @@ export default function CadetDashboard() {
 
       <div className="layout">
         {/* ================= SIDEBAR ================= */}
-        <aside className="sidebar">
+        {isCadetSidebarOpen ? (
+          <button
+            type="button"
+            className="cadet-sidebar-backdrop"
+            aria-label="Close sidebar"
+            onClick={() => dispatch(closeCadetSidebar())}
+          />
+        ) : null}
+
+        <aside className={`sidebar${isCadetSidebarOpen ? " open" : ""}`}>
           <div>
             <div className="sidebar-header">
               <img src={logoImage} className="sidebar-logo" alt="NCC Logo" />
@@ -81,7 +94,10 @@ export default function CadetDashboard() {
             <div className="nav-list">
               <button
                 className={`nav-item ${activeTab === "profile" ? "active" : ""}`}
-                onClick={() => setActiveTab("profile")}
+                onClick={() => {
+                  setActiveTab("profile");
+                  dispatch(closeCadetSidebar());
+                }}
               >
                 <User size={18} />
                 <span>Profile</span>
@@ -89,7 +105,10 @@ export default function CadetDashboard() {
 
               <button
                 className={`nav-item ${activeTab === "feed" ? "active" : ""}`}
-                onClick={() => setActiveTab("feed")}
+                onClick={() => {
+                  setActiveTab("feed");
+                  dispatch(closeCadetSidebar());
+                }}
               >
                 <MapPin size={18} />
                 <span>Feed</span>
@@ -97,7 +116,10 @@ export default function CadetDashboard() {
 
               <button
                 className={`nav-item ${activeTab === "chatbot" ? "active" : ""}`}
-                onClick={() => setActiveTab("chatbot")}
+                onClick={() => {
+                  setActiveTab("chatbot");
+                  dispatch(closeCadetSidebar());
+                }}
               >
                 🤖 <span>Chatbot</span>
               </button>
@@ -109,7 +131,10 @@ export default function CadetDashboard() {
 
               <button
                 className="nav-item"
-                onClick={() => setShowReset(true)}
+                onClick={() => {
+                  setShowReset(true);
+                  dispatch(closeCadetSidebar());
+                }}
               >
                 <KeyRound size={18} />
                 <span>Reset Password</span>
@@ -117,7 +142,13 @@ export default function CadetDashboard() {
             </div>
           </div>
 
-          <button className="logout-item" onClick={() => navigate("/")}>
+          <button
+            className="logout-item"
+            onClick={() => {
+              dispatch(closeCadetSidebar());
+              navigate("/");
+            }}
+          >
             <LogOut size={18} />
             <span>Logout</span>
           </button>
@@ -125,6 +156,16 @@ export default function CadetDashboard() {
 
         {/* ================= MAIN ================= */}
         <main className="main">
+          <div className="cadet-topbar">
+            <button
+              type="button"
+              className="cadet-sidebar-toggle"
+              aria-label="Toggle sidebar"
+              onClick={() => dispatch(toggleCadetSidebar())}
+            >
+              ☰
+            </button>
+          </div>
           {activeTab === "chatbot" && <Chatbot />}
 
           {activeTab === "feed" && (

@@ -1,0 +1,448 @@
+/* =====================================================
+   ANO DASHBOARD – COMPLETE ISOLATED STYLES
+   ===================================================== */
+
+/* ---------------- LAYOUT ---------------- */
+
+.ano-dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: #0b1220;
+  color: #ffffff;
+  overflow: hidden; /* 🔥 important */
+}
+
+.ano-dashboard-content {
+  margin-left: 260px;              /* sidebar width */
+  width: calc(100% - 260px);       /* 🔥 THIS FIXES GAP */
+  height: 100vh;
+
+  padding: 40px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.ano-topbar {
+  display: none; /* shown on mobile */
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 18px;
+}
+
+.ano-sidebar-toggle {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.ano-sidebar-backdrop {
+  display: none; /* enabled on mobile */
+}
+/* ---------------- SIDEBAR ---------------- */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 260px;
+  height: 100vh;
+
+  background: #0f1a2c;
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  z-index: 100;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.sidebar-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.sidebar-header h3 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 18px;
+}
+
+.sidebar-header span {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.menu {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-item {
+  padding: 12px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.2s;
+}
+
+.menu-item:hover,
+.menu-item.active {
+  background: #1f2937;
+  color: #a3e635;
+}
+
+.logout {
+  margin-top: auto;
+  color: #f87171;
+}
+
+/* ---------------- RESPONSIVE (MOBILE SIDEBAR DRAWER) ---------------- */
+@media (max-width: 900px) {
+  .ano-dashboard-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .ano-topbar {
+    display: flex;
+  }
+
+  .sidebar {
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .ano-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    border: none;
+    z-index: 90; /* below sidebar (100), above content */
+  }
+}
+
+/* ---------------- PAGE HEADERS ---------------- */
+
+.page-title {
+  color: #e5e7eb;
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.page-subtitle {
+  color: #9ca3af;
+  font-size: 13px;
+  margin-top: 4px;
+  margin-bottom: 40px;
+}
+
+/* ---------------- ADD CADET ---------------- */
+
+.add-cadet-container {
+  width: 100%;
+}
+
+.page-header {
+  margin-bottom: 40px;
+}
+
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.page-header p {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* Card */
+.card {
+  width: 100%;
+  max-width: 1000px;   /* 🔥 visible difference */
+  background: #0f172a;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+}
+
+/* ---------------- FORMS ---------------- */
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  color: #f5f5f5;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #8bc34a;
+  box-shadow: 0 0 0 2px rgba(139,195,74,0.35);
+}
+
+/* Select arrow */
+.form-group select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg fill='%23cbd5e1' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+}
+
+/* Button */
+.primary-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #6cb203;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  opacity: 0.9;
+}
+
+/* ---------------- MANAGE CADETS ---------------- */
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0f172a;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+.search-bar input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  width: 100%;
+  font-size: 15px;
+}
+
+.table-card {
+  background: #0f172a;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cadet-table {
+  min-width: 720px;
+}
+
+.cadet-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #e5e7eb;
+}
+
+.cadet-table th {
+  text-align: left;
+  padding: 12px;
+  color: #9ca3af;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.cadet-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* User */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info p {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Badges */
+.badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.green {
+  background: #14532d;
+  color: #4ade80;
+}
+
+.badge.blue {
+  background: #1e3a8a;
+  color: #60a5fa;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.icon-btn.edit {
+  color: #3b82f6;
+}
+
+.icon-btn.delete {
+  color: #ef4444;
+}
+
+/* ---------------- MODALS ---------------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,12,22,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  width: 420px;
+  max-width: 92vw;
+  background: #0f172a;
+  padding: 25px;
+  border-radius: 10px;
+  color: #ffffff;
+}
+
+.modal h3 {
+  margin-bottom: 25px;
+}
+
+.modal input,
+.modal select {
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: #1e293b;
+  border: 1px solid #142f5a;
+  border-radius: 6px;
+  color: #ffffff;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-actions .primary {
+  background: #22c55e;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancel-btn,
+.cancel-btnD {
+  background: #374151;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}

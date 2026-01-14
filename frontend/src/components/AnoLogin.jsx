@@ -2,17 +2,26 @@ import { useState } from "react";
 import { FaArrowLeft, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import nccLogo from "./assets/ncc-logo.png";
-import ResetPasswordModal from "./ResetPasswordModal"; // ✅ ADD
+import ResetPasswordModal from "./ResetPasswordModal";
 import "/src/index.css";
 
 const AnoLogin = ({ isModal = false }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [showReset, setShowReset] = useState(false); // ✅ ADD
+  const [showReset, setShowReset] = useState(false);
+
   const navigate = useNavigate();
+
+  // 🔥 HANDLE LOGIN
+  const handleLogin = () => {
+    // 👉 yahan future me API / auth check aayega
+
+    // ✅ Redirect to ANO Dashboard
+    navigate("/ano");
+  };
 
   return (
     <div className={isModal ? "ano-login-card" : "ano-login-page"}>
-      
+
       {/* Back button ONLY for full page */}
       {!isModal && (
         <button className="back-home" onClick={() => navigate("/")}>
@@ -64,7 +73,8 @@ const AnoLogin = ({ isModal = false }) => {
           )}
         </div>
 
-        <button className="authorize-btn">
+        {/* 🔥 LOGIN BUTTON */}
+        <button className="authorize-btn" onClick={handleLogin}>
           Authorize Access
         </button>
       </div>
@@ -74,7 +84,7 @@ const AnoLogin = ({ isModal = false }) => {
         This system is for authorized use only. All activities are monitored and logged.
       </p>
 
-      {/* ✅ RESET PASSWORD MODAL */}
+      {/* Reset Password Modal */}
       {showReset && (
         <ResetPasswordModal onClose={() => setShowReset(false)} />
       )}

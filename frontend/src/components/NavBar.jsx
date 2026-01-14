@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import logoImage from "./assets/ncc-logo.png";
 
 const NavBar = ({ onCadetLogin, onAnoLogin }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   // close dropdown on outside click
   useEffect(() => {
@@ -55,7 +56,8 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
               <button
                 onClick={() => {
                   setOpen(false);
-                  onCadetLogin();
+                  if (typeof onCadetLogin === "function") onCadetLogin();
+                  else navigate("/login");
                 }}
               >
                 Cadet Login
@@ -64,7 +66,8 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
               <button
                 onClick={() => {
                   setOpen(false);
-                  onAnoLogin();
+                  if (typeof onAnoLogin === "function") onAnoLogin();
+                  else navigate("/ano-login");
                 }}
               >
                 ANO Login

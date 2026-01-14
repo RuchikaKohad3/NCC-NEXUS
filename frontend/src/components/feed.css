@@ -163,6 +163,34 @@
   cursor: pointer;
 }
 
+.feed-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #9aa4b2;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.feed-action-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+}
+
+.feed-action-count {
+  background: rgba(143, 176, 61, 0.18);
+  border: 1px solid rgba(143, 176, 61, 0.35);
+  color: #d7f0a6;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 /* ================= THREE DOT MENU ================= */
 .menu-wrapper {
   position: relative;
@@ -243,11 +271,33 @@
 
 .edit-modal {
   width: 520px;
+  max-width: 92vw;
   background: #0d1117;
   border-radius: 22px;
   padding: 32px 28px;
   border: 1px solid #1f2937;
   animation: modalPop 0.25s ease;
+}
+
+@media (max-width: 768px) {
+  .feed-wrapper {
+    padding: 20px;
+  }
+
+  .feed-input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .feed-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .feed-media-actions {
+    justify-content: space-between;
+  }
 }
 
 .edit-modal-header {

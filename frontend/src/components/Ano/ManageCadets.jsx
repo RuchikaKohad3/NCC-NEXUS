@@ -62,7 +62,7 @@ const handleSave = () => {
         />
       </div>
 
-      <div className="table-card">
+      <div className="table-card table-responsive">
         <table className="cadet-table">
           <thead>
             <tr>
@@ -176,7 +176,7 @@ const handleSave = () => {
       />
 
       <div className="modal-actions">
-        <button class="cancel-btn" onClick={() => setSelectedCadet(null)}>Cancel</button>
+        <button className="cancel-btn" onClick={() => setSelectedCadet(null)}>Cancel</button>
         <button className="primary" onClick={handleSave}>
   Save Changes
 </button>

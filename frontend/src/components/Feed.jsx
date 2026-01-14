@@ -904,24 +904,32 @@ export default function Feed({
             {/* Post Statistics */}
             <div className="post-stats">
               <span className="stat-item">
-                <Heart size={14} fill="red" /> {p.likes} likes
-              </span>
-              <span className="stat-item">
-                <MessageCircle size={14} /> {getTotalCommentCount(p.comments)} comments
-              </span>
-              <span className="stat-item">
                 <Eye size={14} /> {p.views || 0} views
               </span>
             </div>
 
             <div className="feed-actions-row">
-              <span onClick={() => toggleLike(p.id)}>
-                <Heart size={16} fill={p.liked ? "red" : "none"} /> Like
-              </span>
+              <button
+                type="button"
+                className="feed-action-btn"
+                onClick={() => toggleLike(p.id)}
+              >
+                <Heart size={16} fill={p.liked ? "red" : "none"} />
+                <span>Like</span>
+                <span className="feed-action-count">{p.likes}</span>
+              </button>
 
-              <span onClick={() => setCommentPost(p)}>
-                <MessageCircle size={16} /> Comment
-              </span>
+              <button
+                type="button"
+                className="feed-action-btn"
+                onClick={() => setCommentPost(p)}
+              >
+                <MessageCircle size={16} />
+                <span>Comment</span>
+                <span className="feed-action-count">
+                  {getTotalCommentCount(p.comments)}
+                </span>
+              </button>
             </div>
           </div>
         ))}
