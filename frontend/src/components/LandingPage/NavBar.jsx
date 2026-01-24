@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import logoImage from "./assets/ncc-logo.png";
+import logoImage from "../assets/ncc-logo.png";
 
 const NavBar = ({ onCadetLogin, onAnoLogin }) => {
   const [open, setOpen] = useState(false);

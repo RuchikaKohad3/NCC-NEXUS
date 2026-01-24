@@ -3,9 +3,9 @@ import { FaArrowLeft, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 // ✅ FIXED IMPORT PATH
-import nccLogo from "./assets/ncc-logo.png"; 
+import nccLogo from "../assets/ncc-logo.png"; 
 
-import ResetPasswordModal from "./ResetPasswordModal"; 
+import ResetPasswordModal from "../Cadet/ResetPasswordModal";
 
 const AnoLogin = ({ isModal = false }) => {
   const navigate = useNavigate();

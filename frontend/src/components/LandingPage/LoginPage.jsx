@@ -5,7 +5,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "/src/index.css";
-import nccLogo from "./assets/ncc-logo.png";
+import nccLogo from "../assets/ncc-logo.png";
 
 const LoginPage = ({ isModal = false }) => {
   const navigate = useNavigate();

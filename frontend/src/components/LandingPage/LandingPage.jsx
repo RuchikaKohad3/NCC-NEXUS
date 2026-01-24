@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logoImage from "./assets/ncc-logo.png";
+import logoImage from "../assets/ncc-logo.png";
 import NavBar from "./NavBar";
 import LoginModal from "./LoginModal";
 import AnoLoginModal from "./AnoLoginModal"; // ✅ ADD

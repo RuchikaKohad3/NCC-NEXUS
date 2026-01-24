@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { closeAboutCard, openAboutCard } from "../features/ui/uiSlice";
+import { closeAboutCard, openAboutCard } from "../../features/ui/uiSlice";
 import NavBar from "./NavBar";
 import LoginModal from "./LoginModal";
 import AnoLoginModal from "./AnoLoginModal";

@@ -11,11 +11,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "./dashboard.css";
-import logoImage from "./assets/ncc-logo.png";
+import logoImage from "../assets/ncc-logo.png";
 import Feed from "./Feed";
 import ResetPasswordModal from "./ResetPasswordModal";
 import Chatbot from "./Chatbot";
-import { closeCadetSidebar, toggleCadetSidebar } from "../features/ui/uiSlice";
+import { closeCadetSidebar, toggleCadetSidebar } from "../../features/ui/uiSlice";
 
 export default function CadetDashboard() {
   const navigate = useNavigate();
