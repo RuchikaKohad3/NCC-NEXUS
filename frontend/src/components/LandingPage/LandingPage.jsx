@@ -1,19 +1,13 @@
 import { useState } from "react";
 import logoImage from "../assets/ncc-logo.png";
-import NavBar from "./NavBar";
-import LoginModal from "./LoginModal";
-import AnoLoginModal from "./AnoLoginModal"; // ✅ ADD
-const LandingPage = () => {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showAnoLogin, setShowAnoLogin] = useState(false); // ✅ ADD
 
+// ✅ Accept props from Home.jsx to trigger modals
+const LandingPage = ({ onCadetLogin, onAnoLogin }) => {
   return (
-    <div className="page">
-      <NavBar
-        onCadetLogin={() => setShowLogin(true)}
-        onAnoLogin={() => setShowAnoLogin(true)}
-      />
-      <main className="hero" id="home">
+    // ✅ Added ID="home" for scrolling
+    <div className="page" id="home">
+
+      <main className="hero">
         <section className="hero-content">
           <span className="hero-pill">Official Digital Command Center</span>
           <h1>NCC Nexus</h1>
@@ -27,20 +21,20 @@ const LandingPage = () => {
           </p>
 
           <div className="hero-actions">
-            {/* CADET LOGIN POPUP */}
+            {/* ✅ Calls function passed from Home.jsx */}
             <button
               className="primary"
               type="button"
-              onClick={() => setShowLogin(true)}
+              onClick={onCadetLogin}
             >
               Cadet Login
             </button>
 
-            {/* ✅ ANO LOGIN POPUP */}
+            {/* ✅ Calls function passed from Home.jsx */}
             <button
               className="secondary"
               type="button"
-              onClick={() => setShowAnoLogin(true)}
+              onClick={onAnoLogin}
             >
               ANO Login
             </button>
@@ -55,14 +49,6 @@ const LandingPage = () => {
           </div>
         </section>
       </main>
-
-      {/* CADET LOGIN MODAL */}
-      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
-
-      {/* ✅ ANO LOGIN MODAL */}
-      {showAnoLogin && (
-        <AnoLoginModal onClose={() => setShowAnoLogin(false)} />
-      )}
     </div>
   );
 };

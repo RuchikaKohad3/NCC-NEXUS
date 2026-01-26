@@ -8,7 +8,7 @@ const db = require("./db/knex");
 // Import Routes
 const authRoutes = require("./routes/auth.routes");
 const anoRoutes = require("./routes/ano.routes");
-const chatRoutes = require("./routes/chat.routes"); // Assuming this exists from your previous code
+// const chatRoutes = require("./routes/chat.routes"); // Uncomment when chat is ready
 
 const app = express();
 
@@ -41,13 +41,15 @@ app.get("/", async (req, res) => {
 // ------------------------------------------
 
 // Authentication (Login, Reset Password)
+// This mounts auth routes at /api/auth
 app.use("/api/auth", authRoutes);
 
 // ANO Dashboard (Stats, Add/Edit/Delete Cadet, Send Emails)
+// This mounts ano routes at /api/ano
 app.use("/api/ano", anoRoutes);
 
 // Chat System (Existing)
-app.use("/api/chat", chatRoutes);
+// app.use("/api/chat", chatRoutes); // Uncomment when ready
 
 // ------------------------------------------
 // 3. Global Error Handler

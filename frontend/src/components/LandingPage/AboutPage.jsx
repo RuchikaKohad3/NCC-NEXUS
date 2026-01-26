@@ -1,15 +1,10 @@
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeAboutCard, openAboutCard } from "../../features/ui/uiSlice";
-import NavBar from "./NavBar";
-import LoginModal from "./LoginModal";
-import AnoLoginModal from "./AnoLoginModal";
 
 const AboutPage = () => {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showAnoLogin, setShowAnoLogin] = useState(false);
   const dispatch = useDispatch();
   const activeCard = useSelector((state) => state.ui.activeAboutCard);
+  
   const cards = [
     {
       id: "discipline",
@@ -36,12 +31,9 @@ const AboutPage = () => {
   const selectedCard = cards.find((card) => card.id === activeCard);
 
   return (
-    <div className="page1">
-      <NavBar
-        onCadetLogin={() => setShowLogin(true)}
-        onAnoLogin={() => setShowAnoLogin(true)}
-      />
-
+    // ✅ Added ID="about" for scrolling
+    <div className="page1" id="about">
+      
       <main className="about">
         <header className="about-hero">
           <h1>About the National Cadet Corps</h1>
@@ -73,6 +65,7 @@ const AboutPage = () => {
         </section>
       </main>
 
+      {/* Detail Modal Logic (Redux controlled) - Kept Local as it's specific to About */}
       {selectedCard ? (
         <div className="modal-backdrop" onClick={() => dispatch(closeAboutCard())}>
           <div
@@ -95,11 +88,6 @@ const AboutPage = () => {
           </div>
         </div>
       ) : null}
-
-      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
-      {showAnoLogin && (
-        <AnoLoginModal onClose={() => setShowAnoLogin(false)} />
-      )}
     </div>
   );
 };
