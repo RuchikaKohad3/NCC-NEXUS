@@ -1,18 +1,18 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-// ✅ 1. LandingPage Module (Folder name is 'LandingPage')
-import LandingPage from "./components/LandingPage/LandingPage";
-import AboutPage from "./components/LandingPage/AboutPage";
-import StructurePage from "./components/LandingPage/StructurePage";
+// ✅ 1. Import the New Master Home Component
+import Home from "./components/LandingPage/Home";
+
+// ✅ 2. Auth Routes (Still needed as separate pages for direct access)
 import LoginPage from "./components/LandingPage/LoginPage";
 import AnoLogin from "./components/LandingPage/AnoLogin";
 
-// ✅ 2. Cadet Module (Folder name is 'Cadet')
+// ✅ 3. Cadet Module
 import CadetDashboard from "./components/Cadet/CadetDashboard";
 import Feed from "./components/Cadet/Feed";
 import Chatbot from "./components/Cadet/Chatbot";
 
-// ✅ 3. Ano Module (Folder name is 'Ano')
+// ✅ 4. Ano Module
 import AnoDashboard from "./components/Ano/AnoDashboard";
 import AddCadet from "./components/Ano/AddCadet";
 import ManageCadets from "./components/Ano/ManageCadets";
@@ -21,16 +21,16 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ LANDING & PUBLIC ROUTES */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/structure" element={<StructurePage />} />
+        {/* ✅ SINGLE PAGE ROUTE (Ab Home.jsx sab handle karega) */}
+        <Route path="/" element={<Home />} />
 
-        {/* ✅ AUTH ROUTES (Now inside LandingPage folder) */}
+        {/* ❌ REMOVED: /about aur /structure ab alag pages nahi hain */}
+        
+        {/* ✅ AUTH ROUTES */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/ano-login" element={<AnoLogin />} />
 
-        {/* ✅ CADET ROUTES (Now inside Cadet folder) */}
+        {/* ✅ CADET DASHBOARD ROUTES */}
         <Route path="/dashboard" element={<CadetDashboard />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/chatbot" element={<Chatbot />} />

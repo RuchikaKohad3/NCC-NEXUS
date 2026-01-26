@@ -1,13 +1,29 @@
 import { useState, useRef, useEffect } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Keep useNavigate for login redirects
 import logoImage from "../assets/ncc-logo.png";
 
 const NavBar = ({ onCadetLogin, onAnoLogin }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // close dropdown on outside click
+  // Scroll Handler
+  const scrollToSection = (id) => {
+    // If we are on the Home page ('/'), scroll. If not, go there first.
+    if (location.pathname !== '/') {
+        navigate('/');
+        setTimeout(() => {
+            const element = document.getElementById(id);
+            if (element) element.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+    } else {
+        const element = document.getElementById(id);
+        if (element) element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Close dropdown on outside click (Keep your existing logic)
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -19,8 +35,8 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
   }, []);
 
   return (
-    <header className="nav">
-      <div className="brand">
+    <header className="nav fixed top-0 w-full z-50 transition-all duration-300">
+      <div className="brand cursor-pointer" onClick={() => scrollToSection('home')}>
         <div className="brand-mark">
           <img src={logoImage} alt="NCC Nexus logo" />
         </div>
@@ -31,45 +47,23 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
       </div>
 
       <nav className="nav-links">
-        <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : undefined)}>
-          Home
-        </NavLink>
+        {/* Update these to use onClick scroll */}
+        <button onClick={() => scrollToSection('home')} className="nav-btn">Home</button>
+        <button onClick={() => scrollToSection('about')} className="nav-btn">About NCC</button>
+        <button onClick={() => scrollToSection('structure')} className="nav-btn">Structure</button>
 
-        <NavLink to="/about" className={({ isActive }) => (isActive ? "active" : undefined)}>
-          About NCC
-        </NavLink>
-
-        <Link to="/structure">Structure</Link>
-
-        {/* LOGIN DROPDOWN */}
+        {/* LOGIN DROPDOWN (Keep your existing logic) */}
         <div className="login-dropdown" ref={dropdownRef}>
-          <button
-            className="nav-login"
-            type="button"
-            onClick={() => setOpen(!open)}
-          >
+          <button className="nav-login" type="button" onClick={() => setOpen(!open)}>
             Login
           </button>
 
           {open && (
             <div className="login-menu">
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  if (typeof onCadetLogin === "function") onCadetLogin();
-                  else navigate("/login");
-                }}
-              >
+              <button onClick={() => { setOpen(false); onCadetLogin(); }}>
                 Cadet Login
               </button>
-
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  if (typeof onAnoLogin === "function") onAnoLogin();
-                  else navigate("/ano-login");
-                }}
-              >
+              <button onClick={() => { setOpen(false); onAnoLogin(); }}>
                 ANO Login
               </button>
             </div>
