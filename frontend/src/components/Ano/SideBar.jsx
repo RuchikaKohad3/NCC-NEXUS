@@ -25,8 +25,8 @@ const Sidebar = ({ isOpen = true, onClose }) => {
       <div className="sidebar-header">
         <img src={nccLogo} alt="NCC Logo" className="sidebar-logo" />
         <div>
-          <h3>NCC Nexus</h3>
-          <span>ANO Portal</span>
+          <h3>NCC NEXUS</h3>
+          <span><h4>ANO Portal</h4></span>
         </div>
       </div>
 

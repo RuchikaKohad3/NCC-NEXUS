@@ -1,23 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
 /* =====================================================
-   ANO DASHBOARD — LIGHT, MODERN, PROFESSIONAL THEME
-   Reworked for clarity, spacing, and micro-interactions
-   ===================================================== */
+    ANO DASHBOARD — LIGHT, MODERN, PROFESSIONAL THEME
+    Reworked for clarity, spacing, and micro-interactions
+    ===================================================== */
 
 /* Theme variables (match cadet dashboard) */
 :root {
-    --ncc-main-bg: hsl(0, 0%, 98%);
-    --ncc-card-bg: hsl(0, 0%, 98%);
-    --ncc-text-dark: hsl(225, 25%, 12%);
-    --ncc-text-muted: hsl(225, 15%, 40%);
-    --ncc-primary: hsl(262, 83%, 58%);
-    --ncc-accent: hsl(280, 100%, 70%);
-    --ncc-gradient: linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%));
-    --ncc-shadow: 0 4px 20px hsla(262, 83%, 58%, 0.15);
-    --ncc-shadow-card: 0 2px 12px hsla(262, 40%, 40%, 0.12);
-    --ncc-sidebar-dark: hsl(250, 30%, 12%);
-    --ncc-sidebar-text: hsl(40, 15%, 88%);
-    --ncc-sidebar-text-muted: hsl(40, 10%, 70%);
+    --ncc-main-bg: #f7fafc;
+    /* very light off-white */
+    --ncc-card-bg: #ffffff;
+    --ncc-text-dark: #0f172a;
+    /* deep slate */
+    --ncc-text-muted: #6b7280;
+    --ncc-primary: #1f6bed;
+    /* bright primary blue (matches screenshot) */
+    --ncc-primary-600: #1453d6;
+    --ncc-accent: #2563eb;
+    --ncc-gradient: linear-gradient(90deg, #1f6bed, #2563eb);
+    --ncc-shadow: 0 8px 28px rgba(31, 107, 237, 0.10);
+    --ncc-shadow-card: 0 6px 20px rgba(2, 6, 23, 0.06);
+    --ncc-sidebar-bg: #ffffff;
+    /* white sidebar like the screenshot */
+    --ncc-sidebar-border: rgba(15, 23, 42, 0.06);
+    --ncc-sidebar-item-hover: #eef6ff;
+    /* pale blue hover */
+    --ncc-sidebar-active-bg: #e6f0ff;
+    /* active item background */
+    --ncc-sidebar-active-accent: #1f6bed;
+    /* active accent bar */
+    --ncc-logout-bg: #fff1f3;
+    /* pale pink for logout */
+    --ncc-logout-text: #be123c;
     --ncc-parade-img: url("/assets/images/ncc-parade.jpg");
+}
+
+/* Logo rotation animation */
+@keyframes ncc-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Smooth oscillation between +45deg and -45deg with no holds */
+@keyframes ncc-oscillate {
+    0% {
+        transform: rotate(45deg);
+    }
+
+    50% {
+        transform: rotate(-45deg);
+    }
+
+    100% {
+        transform: rotate(45deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ano-dashboard-layout .sidebar-logo {
+        animation: none !important;
+    }
 }
 
 /* ---------------- GLOBAL SCROLLBAR (light) ---------------- */
@@ -46,14 +93,16 @@
     width: 100%;
     background: var(--ncc-main-bg);
     color: var(--ncc-text-dark);
-    font-family: "Segoe UI", sans-serif;
+    font-family: 'Poppins', "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     align-items: stretch;
     box-sizing: border-box;
 }
 
 .ano-dashboard-content {
-    margin-left: 300px;
-    width: calc(100% - 300px);
+    margin-left: 360px;
+    width: calc(100% - 360px);
     min-height: 100vh;
     padding: 30px;
     overflow-y: auto;
@@ -95,26 +144,31 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 300px;
+    width: 360px;
     height: 100vh;
-    background: linear-gradient(180deg, #7c4dff 0%, #a855f7 45%, #f472b6 100%);
-    border-right: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 28px 24px;
+    background: var(--ncc-sidebar-bg);
+    border-right:5px solid;
+    border-image: linear-gradient(
+  90deg,
+  rgba(218, 165, 32, 0.35),
+  rgba(255, 223, 120, 0.7),
+  rgba(181, 145, 52, 0.35)
+) 1;
+    padding: 0 0 28px 0;
     display: flex;
     flex-direction: column;
     z-index: 9999;
-    box-shadow: var(--ncc-shadow);
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04), -2px 0 6px rgba(218, 165, 32, 0.08), 0 0 12px rgba(255, 215, 0, 0.35);
 }
 
 .ano-dashboard-layout .sidebar::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.08);
     pointer-events: none;
 }
 
-.ano-dashboard-layout .sidebar > div,
+.ano-dashboard-layout .sidebar>div,
 .ano-dashboard-layout .sidebar .sidebar-header,
 .ano-dashboard-layout .sidebar .menu,
 .ano-dashboard-layout .sidebar .logout {
@@ -124,42 +178,100 @@
 
 .ano-dashboard-layout .sidebar-header {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 16px;
+    justify-content: flex-start;
+    gap: 30px;
     position: relative;
-    padding-bottom: 14px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+    padding: 30px 45px;
+    margin: 0 0 24px 0;
+    border-radius: 16px 16px 18px 18px;
+    /* premium branded header card with soft glassmorphism */
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.75) 0%,
+            rgba(255, 255, 255, 0.85) 50%,
+            rgba(255, 255, 255, 0.7) 100%),
+        linear-gradient(180deg,
+            rgba(37, 99, 235, 0.04) 0%,
+            rgba(37, 99, 235, 0.02) 100%);
+    backdrop-filter: blur(12px) saturate(108%);
+    border: px solid rgba(36, 81, 180, 0.1);
+    border-bottom: 5px solid;
+    border-image: linear-gradient(90deg,
+            rgba(212, 175, 55, 0.4),
+            /* soft gold */
+            rgba(255, 215, 0, 0.9),
+            /* bright gold */
+            rgba(184, 134, 11, 0.5)
+            /* dark gold */
+        ) 1;
+    /* soft shadow for elevation */
+    box-shadow:
+        0 20px 40px rgba(31, 107, 237, 0.08),
+        0 8px 20px rgba(2, 6, 23, 0.04),
+        inset 0 1px 2px rgba(255, 255, 255, 0.6),
+        0 -2px 6px rgba(192, 192, 192, 0.12),
+        0 0 12px rgba(255, 215, 0, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    will-change: box-shadow, backdrop-filter;
 }
 
 .ano-dashboard-layout .sidebar-logo {
     width: 96px;
     height: 96px;
     object-fit: contain;
-    border-radius: 10px;
+    border-radius: 12px;
     flex-shrink: 0;
     background: transparent;
-    padding: 0;
-    box-shadow: none;
+    padding: 6px;
+    /* soft glowing halo around logo (subtle, premium) */
+    box-shadow:
+        0 0 0 1px rgba(37, 99, 235, 0.08),
+        0 8px 24px rgba(31, 107, 237, 0.15),
+        0 0 32px rgba(37, 99, 235, 0.1) inset,
+        0 0 48px rgba(31, 107, 237, 0.06);
+    transform-origin: 50% 50%;
+    /* smooth oscillation without holds */
+    animation: ncc-oscillate 6s linear infinite;
+    will-change: transform;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* text wrapper: ensures proper layout of h3 + span on the right */
+.ano-dashboard-layout .sidebar-header>div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    justify-content: center;
+    flex: 1;
 }
 
 .ano-dashboard-layout .sidebar-header h3 {
     margin: 0;
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
     white-space: nowrap;
-    color: rgba(245, 245, 245, 0.95);
+    color: var(--ncc-text-dark);
+    text-shadow: 0 2px 4px rgba(2, 6, 23, 0.04);
+    line-height: 1.2;
 }
 
 .ano-dashboard-layout .sidebar-header span {
     margin: 0;
-    font-size: 14px;
-    color: rgba(230, 220, 245, 0.85);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ncc-text-muted);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    opacity: 0.8;
 }
 
 .ano-dashboard-layout .menu {
     margin-top: 22px;
-    padding-top: 6px;
+    padding: 6px 24px 0 24px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -171,55 +283,115 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 13px 12px;
+    padding: 13px 14px;
     margin-bottom: 10px;
     border-radius: 10px;
     border: none;
-    background: none;
-    color: rgba(235, 225, 250, 0.92);
+    background: transparent;
+    color: var(--ncc-text-dark);
     font-weight: 700;
     font-size: 16px;
     cursor: pointer;
     pointer-events: auto;
     text-decoration: none;
-    transition: background 0.18s ease, transform 0.16s ease, box-shadow 0.18s ease;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.22s ease, transform 0.18s cubic-bezier(.2, .9, .2, 1), box-shadow 0.22s ease;
+}
+
+/* animated left accent */
+.ano-dashboard-layout .menu-item::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%) scaleY(0);
+    width: 4px;
+    height: 60%;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.75));
+    transition: transform 0.28s cubic-bezier(.2, .9, .2, 1);
+    pointer-events: none;
+}
+
+/* subtle sliding surface */
+.ano-dashboard-layout .menu-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    left: -100%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.06));
+    transform: translateX(0);
+    transition: left 0.32s cubic-bezier(.2, .9, .2, 1);
+    pointer-events: none;
 }
 
 .ano-dashboard-layout .menu-item svg {
     font-size: 18px;
     color: currentColor;
     min-width: 18px;
+    transition: transform 0.28s cubic-bezier(.2, .9, .2, 1), filter 0.22s ease, opacity 0.18s ease;
+    transform-origin: center;
 }
 
 .ano-dashboard-layout .menu-item:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.95);
+    background: var(--ncc-sidebar-item-hover);
+    color: var(--ncc-primary-600);
+}
+
+.ano-dashboard-layout .menu-item:hover::before {
+    transform: translateY(-50%) scaleY(1);
+    background: var(--ncc-sidebar-active-accent);
+}
+
+.ano-dashboard-layout .menu-item:hover::after {
+    left: 0;
+    opacity: 0.9;
+}
+
+.ano-dashboard-layout .menu-item:hover svg {
+    transform: translateX(6px) rotate(6deg) scale(1.03);
+    filter: drop-shadow(0 4px 10px rgba(31, 107, 237, 0.08));
 }
 
 .ano-dashboard-layout .menu-item.active {
-    background: var(--ncc-gradient);
-    color: white;
-    font-weight: bold;
-    box-shadow: var(--ncc-shadow);
+    background: var(--ncc-sidebar-active-bg);
+    color: var(--ncc-primary-600);
+    font-weight: 800;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06), inset 0 -2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.ano-dashboard-layout .menu-item.active::before {
+    transform: translateY(-50%) scaleY(1);
+    background: var(--ncc-sidebar-active-accent);
+}
+
+.ano-dashboard-layout .menu-item:focus {
+    outline: none;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.12);
 }
 
 .ano-dashboard-layout .logout {
-    background: none;
+    background: transparent;
     border: none;
-    color: rgba(235, 225, 250, 0.92);
+    color: var(--ncc-logout-text);
     display: flex;
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    margin-top: auto;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    margin: auto 24px 28px 24px;
+    padding: 12px 10px;
+    border-radius: 10px;
+    border-top: 1px solid rgba(15, 23, 42, 0.04);
     font-weight: 700;
     font-size: 16px;
 }
 
 .ano-dashboard-layout .logout:hover {
-    color: rgba(255, 255, 255, 0.95);
+    background: var(--ncc-logout-bg);
+    color: var(--ncc-logout-text);
 }
 
 /* ---------------- RESPONSIVE ---------------- */
@@ -241,7 +413,7 @@
         transform: translateX(-100%);
         transition: transform 0.28s ease;
         position: fixed;
-        width: 280px;
+        width: 320px;
     }
 
     .ano-dashboard-layout .sidebar.open {
@@ -261,23 +433,23 @@
 
     /* slightly reduce sidebar on mid-large screens */
     .sidebar {
-        width: 280px;
-    }
-
-    .ano-dashboard-content {
-        margin-left: 280px;
-        width: calc(100% - 280px);
-    }
-}
-
-@media (min-width: 1601px) {
-    .sidebar {
         width: 340px;
     }
 
     .ano-dashboard-content {
         margin-left: 340px;
         width: calc(100% - 340px);
+    }
+}
+
+@media (min-width: 1601px) {
+    .sidebar {
+        width: 360px;
+    }
+
+    .ano-dashboard-content {
+        margin-left: 360px;
+        width: calc(100% - 360px);
     }
 }
 
