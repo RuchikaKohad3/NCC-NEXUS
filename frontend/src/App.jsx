@@ -25,6 +25,7 @@ import AnoDashboard from "./components/Ano/AnoDashboard";
 import AddCadet from "./components/Ano/AddCadet";
 import ManageCadets from "./components/Ano/ManageCadets";
 import AnoChat from "./components/Ano/AnoChat";
+import AnoAttendance from "./components/Ano/anoAttendance";
 
 const App = () => {
   return (
@@ -56,6 +57,7 @@ const App = () => {
           <Route index element={<AddCadet />} />
           <Route path="add-cadet" element={<AddCadet />} />
           <Route path="manage-cadets" element={<ManageCadets />} />
+          <Route path="ano-attendance" element={<AnoAttendance />} />
           <Route path="chat" element={<AnoChat />} />
         </Route>
       </Routes>

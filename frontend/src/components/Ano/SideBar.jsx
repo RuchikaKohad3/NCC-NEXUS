@@ -42,13 +42,21 @@ const Sidebar = ({ isOpen = true, onClose }) => {
           <FaUsers /> Manage Cadets
         </NavLink>
 
-        <NavLink
-          to="chat"
-          className="menu-item"
-          onClick={() => (typeof onClose === "function" ? onClose() : undefined)}
-        >
-          <FaComments /> Chat
-        </NavLink>
+          <NavLink
+            to="ano-attendance"
+            className="menu-item"
+            onClick={() => (typeof onClose === "function" ? onClose() : undefined)}
+          >
+            <FaUsers /> Attendance
+          </NavLink>
+
+          <NavLink
+            to="chat"
+            className="menu-item"
+            onClick={() => (typeof onClose === "function" ? onClose() : undefined)}
+          >
+            <FaComments /> Chat
+          </NavLink>
 
         <button
           type="button"
