@@ -1,0 +1,71 @@
+/* src/components/SUO/suoChat.css */
+
+.suo-chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #0b141a;
+  overflow: hidden;
+}
+
+/* SUO Specific Header */
+.suo-chat-header {
+  height: 70px; /* Slightly taller for admin feel */
+  min-height: 70px;
+  background-color: #1f2c34;
+  border-bottom: 1px solid #2f3b43;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  color: #e9edef;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 5; /* Ensure header stays above content */
+}
+
+.header-title h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #e9edef;
+}
+
+.header-title .subtitle {
+  font-size: 0.8rem;
+  color: #8696a0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Action Button */
+.broadcast-btn {
+  background-color: #00a884;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.broadcast-btn:hover {
+  background-color: #008f6f;
+}
+
+/* Chat Container Override */
+.suo-chat-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* * CRITICAL: Override ChatCommon's default 100vh 
+ * to fit inside this specific container 
+ */
+.suo-chat-container .ncc-chat-container {
+  height: 100% !important;
+  width: 100%;
+}

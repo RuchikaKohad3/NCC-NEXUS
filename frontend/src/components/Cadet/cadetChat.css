@@ -1,0 +1,53 @@
+/* src/components/Cadet/cadetChat.css */
+
+.cadet-chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;       /* Fills the dashboard content area */
+  width: 100%;
+  background-color: #0b141a; /* Matches chat dark theme */
+  overflow: hidden;   /* Prevents dashboard scrollbar from conflicting */
+}
+
+/* Page Header */
+.cadet-chat-header {
+  height: 60px;
+  min-height: 60px;
+  background-color: #202c33; /* Dark header */
+  border-bottom: 1px solid #2f3b43;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  color: #e9edef;
+}
+
+.cadet-chat-header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.online-status {
+  font-size: 0.85rem;
+  color: #00a884; /* WhatsApp/NCC Green */
+  background: rgba(0, 168, 132, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* Chat Container Override */
+.cadet-chat-container {
+  flex: 1; /* Takes remaining height */
+  position: relative;
+  overflow: hidden;
+}
+
+/* * CRITICAL: Override ChatCommon's default 100vh 
+ * to fit inside this specific container 
+ */
+.cadet-chat-container .ncc-chat-container {
+  height: 100% !important; 
+  width: 100%;
+}

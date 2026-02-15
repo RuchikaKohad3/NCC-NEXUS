@@ -705,17 +705,18 @@
 .cadet-dashboard .nice-save-btn:hover {
   opacity: 0.95;
 }
-/* FORCE SIDEBAR TO ALWAYS STAY ON TOP */
+/* FORCE SIDEBAR & BACKDROP STACKING (reduced z-index to allow chat-panel above)
+   Note: removed heavy !important values so chat panel can sit above the sidebar
+*/
 .cadet-dashboard .sidebar {
-  position: fixed !important;
-  z-index: 999999 !important;
-  pointer-events: auto !important;
+  position: fixed;
+  z-index: 9998;
+  pointer-events: auto;
 }
 
-/* FORCE BACKDROP TO STAY BEHIND SIDEBAR */
 .cadet-dashboard .cadet-sidebar-backdrop {
-  position: fixed !important;
-  z-index: 999998 !important;
+  position: fixed;
+  z-index: 9997;
   pointer-events: auto;
 }
 

@@ -1,0 +1,61 @@
+/* src/components/Alumni/alumniChat.css */
+
+.alumni-chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;       /* Fills the dashboard content area */
+  width: 100%;
+  background-color: #0b141a; /* Matches chat dark theme */
+  overflow: hidden;   /* Prevents dashboard scrollbar from conflicting */
+}
+
+/* Page Header */
+.alumni-chat-header {
+  height: 65px;
+  min-height: 65px;
+  background-color: #202c33;
+  border-bottom: 1px solid #2f3b43;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  color: #e9edef;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.header-left h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  color: #e9edef;
+}
+
+.header-left .subtitle {
+  font-size: 0.8rem;
+  color: #8696a0;
+  display: block;
+}
+
+.status-badge {
+  font-size: 0.8rem;
+  background-color: rgba(255, 215, 0, 0.1); /* Gold tint for Alumni */
+  color: #ffd700;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+/* Chat Container Override */
+.alumni-chat-container {
+  flex: 1; /* Takes remaining height */
+  position: relative;
+  overflow: hidden;
+}
+
+/* * CRITICAL: Override ChatCommon's default 100vh 
+ * to fit inside this specific container.
+ */
+.alumni-chat-container .ncc-chat-container {
+  height: 100% !important; 
+  width: 100%;
+}

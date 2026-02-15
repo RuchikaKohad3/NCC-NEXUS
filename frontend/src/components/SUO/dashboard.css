@@ -756,3 +756,50 @@ input {
 .reset-submit:hover {
   background: #b6d25c;
 }
+
+/* ================= CHAT PANEL (fixes 'behind sidebar' issue) ================= */
+/* The chat panel is rendered in-layout; make it fixed and above the main content */
+.suo-dashboard .chat-panel {
+  position: fixed;
+  left: 260px; /* sit directly to the right of the main sidebar */
+  top: 0;
+  bottom: 0;
+  width: 360px;
+  background: #0f1a1f;
+  border-right: 1px solid #151a28;
+  z-index: 9999; /* ensure chat panel sits above the sidebar */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.15) inset;
+}
+
+/* Ensure ChatCommon inner container stretches to fill the panel */
+.suo-dashboard .chat-panel .ncc-chat-container {
+  height: 100% !important;
+}
+
+/* When the chat panel is visible, push the main content to the right visually on wide screens */
+@media (min-width: 851px) {
+  .suo-dashboard .main {
+    margin-left: calc(260px + 360px);
+    width: calc(100vw - (260px + 360px));
+    transition: margin-left 0.18s ease, width 0.18s ease;
+  }
+}
+
+/* Mobile: chat panel becomes full-screen overlay */
+@media (max-width: 850px) {
+  .suo-dashboard .chat-panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 9999;
+  }
+  /* prevent main from being pushed on mobile */
+  .suo-dashboard .main {
+    margin-left: 0;
+    width: 100%;
+  }
+}

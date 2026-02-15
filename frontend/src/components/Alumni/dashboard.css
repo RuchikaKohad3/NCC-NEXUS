@@ -632,3 +632,40 @@ input {
   background: #a8dc5c;
 }
 
+/* ================= ALUMNI CHAT PANEL (scoped) ================= */
+.alumni-dashboard .chat-panel {
+  position: fixed;
+  left: 260px; /* sidebar width */
+  top: 0;
+  bottom: 0;
+  width: 360px;
+  background: #0f1a1f;
+  border-right: 1px solid #151a28;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+.alumni-dashboard .chat-panel .ncc-chat-container {
+  height: 100% !important;
+}
+
+@media (min-width: 851px) {
+  .alumni-dashboard .main {
+    margin-left: calc(260px + 360px);
+    width: calc(100vw - (260px + 360px));
+  }
+}
+
+@media (max-width: 850px) {
+  .alumni-dashboard .chat-panel {
+    left: 0;
+    width: 100%;
+    z-index: 9999;
+  }
+  .alumni-dashboard .main {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
