@@ -8,8 +8,6 @@ import {
   Edit2,
   KeyRound,
 } from "lucide-react";
-import { MessageSquare } from "lucide-react";
-import ChatLayout from "../ChatCommon/ChatLayout";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "./dashboard.css";
@@ -118,17 +116,6 @@ export default function CadetDashboard() {
                 🤖 <span>Chatbot</span>
               </button>
 
-              <button
-                className={`nav-item ${activeTab === "chat" ? "active" : ""}`}
-                onClick={() => {
-                  setActiveTab("chat");
-                  setSidebarOpen(true);
-                }}
-              >
-                <MessageSquare size={18} />
-                <span>Chat</span>
-              </button>
-
               <button className="nav-item" onClick={() => setSidebarOpen(false)}>
                 <ImageIcon size={18} />
                 <span>Certificates</span>
@@ -179,12 +166,6 @@ export default function CadetDashboard() {
               ☰
             </button>
           </div>
-
-          {activeTab === "chat" && (
-            <div className="chat-panel">
-              <ChatLayout userRole="cadet" />
-            </div>
-          )}
 
           {activeTab === "chatbot" && <Chatbot />}
 

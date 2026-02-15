@@ -7,9 +7,7 @@ import {
   Camera,
   Edit2,
   KeyRound,
-  MessageSquare,
 } from "lucide-react";
-import ChatLayout from "../ChatCommon/ChatLayout";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "./dashboard.css";
@@ -129,17 +127,6 @@ export default function SUODashboard() {
                 🤖 <span>Assistant</span>
               </button>
 
-              <button
-                className={`nav-item ${activeTab === "chat" ? "active" : ""}`}
-                onClick={() => {
-                  setActiveTab("chat");
-                  if (!isSUOSidebarOpen) dispatch(toggleSUOSidebar());
-                }}
-              >
-                <MessageSquare size={18} />
-                <span>Chat</span>
-              </button>
-
               <button className="nav-item">
                 <ImageIcon size={18} />
                 <span>Management</span>
@@ -182,12 +169,7 @@ export default function SUODashboard() {
               ☰
             </button>
           </div>
-          {activeTab === "chat" && (
-            <div className="chat-panel">
-              <ChatLayout userRole="suo" />
-            </div>
-          )}
-
+          
           {activeTab === "chatbot" && <Chatbot />}
 
           {activeTab === "feed" && (

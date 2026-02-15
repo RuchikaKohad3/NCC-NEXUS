@@ -1,22 +1,27 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FaUserPlus, FaUsers, FaComments, FaSignOutAlt } from "react-icons/fa";
+import { FaUserPlus, FaUsers, FaSignOutAlt } from "react-icons/fa";
 import nccLogo from "../assets/ncc-logo.png";
 
 const Sidebar = ({ isOpen = true, onClose }) => {
   const navigate = useNavigate();
 
+  // 🔥 Logout handler
   const handleLogout = () => {
+    // 1. Clear Credentials
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("user");
 
+    // 2. Close Sidebar (Mobile)
     if (typeof onClose === "function") onClose();
 
-    navigate("/");
+    // 3. Redirect to Landing Page
+    navigate("/"); 
   };
 
   return (
     <aside className={`sidebar${isOpen ? " open" : ""}`}>
+      {/* Header */}
       <div className="sidebar-header">
         <img src={nccLogo} alt="NCC Logo" className="sidebar-logo" />
         <div>
@@ -25,6 +30,7 @@ const Sidebar = ({ isOpen = true, onClose }) => {
         </div>
       </div>
 
+      {/* Menu */}
       <nav className="menu">
         <NavLink
           to="add-cadet"
@@ -42,14 +48,7 @@ const Sidebar = ({ isOpen = true, onClose }) => {
           <FaUsers /> Manage Cadets
         </NavLink>
 
-        <NavLink
-          to="chat"
-          className="menu-item"
-          onClick={() => (typeof onClose === "function" ? onClose() : undefined)}
-        >
-          <FaComments /> Chat
-        </NavLink>
-
+        {/* 🔥 Logout */}
         <button
           type="button"
           className="menu-item logout"

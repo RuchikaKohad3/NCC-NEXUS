@@ -7,9 +7,7 @@ import {
   Camera,
   Edit2,
   KeyRound,
-  MessageSquare,
 } from "lucide-react";
-import ChatLayout from "../ChatCommon/ChatLayout";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "./dashboard.css";
@@ -74,7 +72,7 @@ export default function AlumniDashboard() {
         <ResetPasswordModal onClose={() => setShowReset(false)} />
       )}
 
-      <div className="alumni-dashboard layout">
+      <div className="layout">
         {/* ================= SIDEBAR ================= */}
         {isAlumniSidebarOpen ? (
           <button
@@ -124,17 +122,6 @@ export default function AlumniDashboard() {
               </button>
 
               <button
-                className={`nav-item ${activeTab === "chat" ? "active" : ""}`}
-                onClick={() => {
-                  setActiveTab("chat");
-                  if (!isAlumniSidebarOpen) dispatch(toggleAlumniSidebar());
-                }}
-              >
-                <MessageSquare size={18} />
-                <span>Chat</span>
-              </button>
-
-              <button
                 className="nav-item"
                 onClick={() => {
                   setShowReset(true);
@@ -171,12 +158,6 @@ export default function AlumniDashboard() {
               ☰
             </button>
           </div>
-
-          {activeTab === "chat" && (
-            <div className="chat-panel">
-              <ChatLayout userRole="alumni" />
-            </div>
-          )}
 
           {activeTab === "feed" && (
             <Feed
