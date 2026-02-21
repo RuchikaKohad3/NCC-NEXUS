@@ -9,6 +9,7 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
 
   const dropdownRef = useRef(null);
   const notificationRef = useRef(null);
@@ -37,6 +38,14 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
   };
 
   useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false);
@@ -45,7 +54,6 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
         setNotificationOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
@@ -81,9 +89,7 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
     fetchInitialNotifications();
 
     const socket = connectNotificationSocket(token) || getNotificationSocket();
-    if (!socket) return () => {
-      mounted = false;
-    };
+    if (!socket) return () => { mounted = false; };
 
     const handleNewNotification = (notification) => {
       if (!mounted || !notification) return;
@@ -110,7 +116,7 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
   };
 
   return (
-    <header className="nav fixed top-0 w-full z-50 transition-all duration-300">
+    <header className={`nav${scrolled ? " scrolled" : ""}`}>
       <div className="brand cursor-pointer" onClick={() => scrollToSection("home")}>
         <div className="brand-mark">
           <img src={logoImage} alt="NCC Nexus logo" />
@@ -169,28 +175,31 @@ const NavBar = ({ onCadetLogin, onAnoLogin }) => {
                   width: "320px",
                   maxHeight: "360px",
                   overflowY: "auto",
-                  background: "#fff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "10px",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                  background: "rgba(255,255,255,0.97)",
+                  backdropFilter: "blur(20px)",
+                  border: "1px solid rgba(0,0,0,0.06)",
+                  borderRadius: "12px",
+                  boxShadow: "0 12px 40px rgba(0,0,0,0.08)",
                   padding: "8px",
                   zIndex: 1000,
                 }}
               >
                 {sortedNotifications.length === 0 ? (
-                  <div style={{ padding: "10px", color: "#6b7280" }}>No notifications yet.</div>
+                  <div style={{ padding: "12px", color: "#5a6078", fontSize: "0.88rem" }}>No notifications yet.</div>
                 ) : (
                   sortedNotifications.map((item) => (
                     <div
                       key={item.notification_id}
                       style={{
-                        padding: "10px",
+                        padding: "12px",
                         borderBottom: "1px solid #f1f5f9",
                         background: item.is_read ? "#fff" : "#f8fafc",
+                        borderRadius: "8px",
+                        marginBottom: "2px",
                       }}
                     >
-                      <div style={{ fontSize: "13px", color: "#111827" }}>{item.message}</div>
-                      <div style={{ fontSize: "11px", color: "#6b7280", marginTop: "4px" }}>
+                      <div style={{ fontSize: "0.85rem", color: "#1a1d2e" }}>{item.message}</div>
+                      <div style={{ fontSize: "0.72rem", color: "#5a6078", marginTop: "4px" }}>
                         {item.created_at ? new Date(item.created_at).toLocaleString() : "Just now"}
                       </div>
                     </div>

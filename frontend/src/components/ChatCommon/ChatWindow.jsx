@@ -35,23 +35,23 @@ const ChatWindow = ({
   return (
     <div className={`chat-window ${isHidden ? 'hidden' : ''}`}>
       <div className="chat-header">
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div className="chat-header-left">
           {isMobile && (
-            <button
-              onClick={onBack}
-              style={{ background: 'none', border: 'none', color: '#fff', marginRight: 10, fontSize: '1.2rem' }}
-            >
-              {'<'}
+            <button className="chat-back-btn" onClick={onBack}>
+              &larr;
             </button>
           )}
 
-          <div className="avatar-circle" style={{ width: 35, height: 35, fontSize: '0.8rem' }}>
-            {chatData.name.substring(0, 2).toUpperCase()}
+          <div className="chat-header-avatar">
+            <div className="avatar-circle">
+              {chatData.name.substring(0, 2).toUpperCase()}
+            </div>
+            <span className={`chat-status-dot ${chatData.online ? 'online' : 'offline'}`} />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontWeight: 500 }}>{chatData.name}</span>
-            <span style={{ fontSize: '0.75rem', color: '#8696a0' }}>
+          <div className="chat-header-info">
+            <span className="chat-header-name">{chatData.name}</span>
+            <span className={`chat-header-status ${typingUsers.length > 0 ? 'typing' : chatData.online ? 'online' : 'offline'}`}>
               {typingUsers.length > 0 ? 'Typing...' : (chatData.online ? 'Online' : 'Offline')}
             </span>
           </div>

@@ -1,20 +1,30 @@
-/* Alumni feed styles aligned with Cadet theme */
-/* ================= FEED WRAPPER ================= */
+/* ================= NCC NEXUS — ALUMNI FEED (Premium Light) ================= */
+
 .alumni-feed .feed-wrapper {
   width: 100%;
-  padding: 40px;
+  padding: 28px 32px;
 }
 
-/* ================= HEADER ================= */
+/* ── Header ── */
 .alumni-feed .feed-title {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 700;
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
+  color: var(--al-text, #1a1d2e);
+  font-family: var(--al-font-display, "Marcellus", serif);
+  margin: 0;
+  animation: sFadeSlideUp 0.5s ease both;
+}
+
+@keyframes sFadeSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .alumni-feed .feed-subtitle {
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
-  margin-bottom: 25px;
+  color: var(--al-text-muted, #8b90a8);
+  font-size: 13.5px;
+  margin: 6px 0 20px;
+  font-weight: 500;
 }
 
 .alumni-feed .feed-subtitle::after {
@@ -22,18 +32,24 @@
   display: block;
   height: 1px;
   width: 100%;
-  margin-top: 8px;
-  background: rgba(0, 0, 0, 0.12);
+  margin-top: 12px;
+  background: linear-gradient(90deg, var(--al-border, rgba(0,0,0,0.06)), transparent);
 }
 
-/* ================= CREATE POST ================= */
+/* ── Create Post Card ── */
 .alumni-feed .feed-create-card {
-  background: var(--ncc-card-bg, hsl(0, 0%, 98%));
-  border-radius: 22px;
+  background: var(--al-surface, #ffffff);
+  border-radius: 16px;
   padding: 22px;
-  margin-bottom: 30px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: var(--ncc-shadow-card, 0 2px 12px hsla(262, 40%, 40%, 0.12));
+  margin-bottom: 24px;
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
+  box-shadow: 0 2px 12px rgba(92, 107, 192, 0.05);
+  transition: all 0.3s ease;
+  animation: sFadeSlideUp 0.5s ease 0.1s both;
+}
+
+.alumni-feed .feed-create-card:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.08);
 }
 
 .alumni-feed .feed-input-row {
@@ -43,34 +59,44 @@
 }
 
 .alumni-feed .feed-avatar {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
+  border: 2px solid var(--al-border, rgba(0,0,0,0.06));
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .alumni-feed .feed-input {
   flex: 1;
-  background: hsl(0, 0%, 97%);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 14px;
+  background: var(--al-bg, #f0f2f8);
+  border: 1.5px solid var(--al-border, rgba(0,0,0,0.06));
+  border-radius: 12px;
   padding: 14px 16px;
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  font-size: 15px;
+  color: var(--al-text, #1a1d2e);
+  font-size: 14px;
+  font-family: var(--al-font, "Poppins", sans-serif);
+  transition: all 0.3s ease;
+}
+
+.alumni-feed .feed-input:focus {
+  outline: none;
+  border-color: var(--al-primary, #5C6BC0);
+  box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.08);
+  background: var(--al-surface, #ffffff);
 }
 
 .alumni-feed .feed-input::placeholder {
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--al-text-muted, #8b90a8);
 }
 
-/* ================= DIVIDER ================= */
 .alumni-feed .divider {
   width: 100%;
   height: 1px;
-  background: rgba(0, 0, 0, 0.08);
-  margin: 18px 0;
+  background: var(--al-border, rgba(0,0,0,0.06));
+  margin: 16px 0;
 }
 
-/* ================= BOTTOM ROW ================= */
 .alumni-feed .feed-bottom-row {
   display: flex;
   justify-content: space-between;
@@ -79,40 +105,71 @@
 
 .alumni-feed .feed-media-actions {
   display: flex;
-  gap: 24px;
+  gap: 20px;
 }
 
 .alumni-feed .feed-media-actions button {
   background: none;
   border: none;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--al-text-muted, #8b90a8);
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.alumni-feed .feed-media-actions button:hover {
+  background: rgba(92, 107, 192, 0.06);
+  color: var(--al-primary, #5C6BC0);
 }
 
 .alumni-feed .feed-post-btn {
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--al-primary, #5C6BC0), var(--al-navy, #1A237E));
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 14px;
+  padding: 10px 20px;
+  border-radius: 10px;
   font-weight: 600;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: var(--ncc-shadow, 0 4px 20px hsla(262, 83%, 58%, 0.15));
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 14px rgba(92, 107, 192, 0.25);
+  font-family: var(--al-font, "Poppins", sans-serif);
 }
 
-/* ================= FEED CARD ================= */
+.alumni-feed .feed-post-btn:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.4);
+  transform: translateY(-2px);
+}
+
+.alumni-feed .feed-post-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Feed Card ── */
 .alumni-feed .feed-card {
-  background: var(--ncc-card-bg, hsl(0, 0%, 98%));
-  border-radius: 22px;
+  background: var(--al-surface, #ffffff);
+  border-radius: 16px;
   padding: 22px;
-  margin-bottom: 22px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: var(--ncc-shadow-card, 0 2px 12px hsla(262, 40%, 40%, 0.12));
+  margin-bottom: 18px;
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
+  box-shadow: 0 2px 12px rgba(92, 107, 192, 0.05);
+  transition: all 0.3s ease;
+  animation: sFadeSlideUp 0.5s ease both;
+}
+
+.alumni-feed .feed-card:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.08);
 }
 
 .alumni-feed .feed-card-header {
@@ -124,116 +181,133 @@
 .alumni-feed .feed-user {
   display: flex;
   gap: 12px;
+  align-items: center;
+}
+
+.alumni-feed .feed-user h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--al-text, #1a1d2e);
 }
 
 .alumni-feed .feed-role {
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--al-primary, #5C6BC0), var(--al-navy, #1A237E));
   color: white;
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 12px;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
   margin-left: 6px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .alumni-feed .feed-meta {
   font-size: 12px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--al-text-muted, #8b90a8);
+  margin: 2px 0 0;
 }
 
 .alumni-feed .feed-text {
-  margin-top: 12px;
-  font-size: 15px;
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--al-text, #1a1d2e);
 }
 
-.alumni-feed .feed-post-image,
-.alumni-feed .feed-post-video {
+.alumni-feed .feed-media-image {
   width: 100%;
-  border-radius: 16px;
+  border-radius: 12px;
   margin-top: 14px;
 }
 
-/* ================= POST STATISTICS ================= */
+.alumni-feed .feed-media-video {
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 14px;
+}
+
+/* ── Post Stats ── */
 .alumni-feed .post-stats {
   display: flex;
   gap: 16px;
-  margin-top: 12px;
+  margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid var(--al-border, rgba(0,0,0,0.06));
   font-size: 13px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--al-text-muted, #8b90a8);
 }
 
 .alumni-feed .stat-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
-/* ================= ACTION ROW ================= */
+/* ── Action Row ── */
 .alumni-feed .feed-actions-row {
   display: flex;
-  gap: 22px;
-  margin-top: 16px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
-  cursor: pointer;
+  gap: 16px;
+  margin-top: 12px;
 }
 
 .alumni-feed .feed-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: none;
   border: none;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--al-text-muted, #8b90a8);
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 8px 14px;
   border-radius: 10px;
-  transition: background 0.2s, color 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.25s ease;
 }
 
 .alumni-feed .feed-action-btn:hover {
-  background: hsla(262, 83%, 58%, 0.08);
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  background: rgba(92, 107, 192, 0.06);
+  color: var(--al-primary, #5C6BC0);
 }
 
 .alumni-feed .feed-action-count {
-  background: hsla(262, 83%, 58%, 0.15);
-  border: 1px solid hsla(262, 83%, 58%, 0.3);
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  background: rgba(92, 107, 192, 0.08);
+  border: 1px solid rgba(92, 107, 192, 0.15);
+  color: var(--al-primary, #5C6BC0);
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 11px;
+  font-weight: 600;
 }
 
-/* ================= THREE DOT MENU ================= */
+/* ── Menu ── */
 .alumni-feed .menu-wrapper {
   position: relative;
 }
 
 .alumni-feed .menu-wrapper svg {
   cursor: pointer;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--al-text-muted, #8b90a8);
+  transition: color 0.2s;
 }
 
 .alumni-feed .menu-wrapper svg:hover {
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
+  color: var(--al-text, #1a1d2e);
 }
 
-/* ================= DROPDOWN ================= */
 .alumni-feed .menu-dropdown {
   position: absolute;
   top: 30px;
   right: 0;
   width: 150px;
-  background: var(--ncc-card-bg, hsl(0, 0%, 98%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--al-surface, #ffffff);
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
   border-radius: 12px;
   overflow: hidden;
   z-index: 999;
-  box-shadow: var(--ncc-shadow, 0 4px 20px hsla(262, 83%, 58%, 0.15));
-  animation: dropdownFade 0.15s ease;
+  box-shadow: 0 8px 32px rgba(92, 107, 192, 0.12);
+  animation: dropdownFade 0.2s ease;
 }
 
 .alumni-feed .menu-dropdown button {
@@ -241,44 +315,37 @@
   padding: 12px 16px;
   background: none;
   border: none;
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  font-size: 14px;
+  color: var(--al-text, #1a1d2e);
+  font-size: 13px;
   text-align: left;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .alumni-feed .menu-dropdown button:hover {
-  background: hsl(0, 0%, 95%);
+  background: rgba(92, 107, 192, 0.04);
 }
 
-/* DELETE */
 .alumni-feed .menu-dropdown button.danger {
-  color: #ef4444;
+  color: var(--al-red, #E53935);
 }
 
 .alumni-feed .menu-dropdown button.danger:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(229, 57, 53, 0.06);
 }
 
-/* ================= ANIMATION ================= */
 @keyframes dropdownFade {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ================= MODAL ================= */
+/* ── Modal ── */
 .alumni-feed .edit-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(3px);
+  background: rgba(240, 242, 248, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,33 +355,19 @@
 .alumni-feed .edit-modal {
   width: 520px;
   max-width: 92vw;
-  background: var(--ncc-card-bg, hsl(0, 0%, 98%));
-  border-radius: 22px;
+  background: var(--al-surface, #ffffff);
+  border-radius: 18px;
   padding: 32px 28px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  animation: modalPop 0.25s ease;
-  box-shadow: var(--ncc-shadow, 0 4px 20px hsla(262, 83%, 58%, 0.15));
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
+  animation: scaleIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 24px 64px rgba(92, 107, 192, 0.15);
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
-@media (max-width: 768px) {
-  .alumni-feed .feed-wrapper {
-    padding: 20px;
-  }
-
-  .alumni-feed .feed-input-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .alumni-feed .feed-bottom-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .alumni-feed .feed-media-actions {
-    justify-content: space-between;
-  }
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .alumni-feed .edit-modal-header {
@@ -324,6 +377,35 @@
   margin-bottom: 18px;
 }
 
+.alumni-feed .edit-modal-header h2 {
+  font-family: var(--al-font-display, "Marcellus", serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--al-text, #1a1d2e);
+  margin: 0;
+}
+
+.alumni-feed .edit-close-btn {
+  background: var(--al-bg, #f0f2f8);
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
+  color: var(--al-text-muted, #8b90a8);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.alumni-feed .edit-close-btn:hover {
+  background: linear-gradient(135deg, var(--al-primary, #5C6BC0), var(--al-navy, #1A237E));
+  color: #fff;
+  border-color: transparent;
+  transform: rotate(90deg);
+}
+
 .alumni-feed .comment-header-actions {
   display: flex;
   align-items: center;
@@ -331,101 +413,85 @@
 }
 
 .alumni-feed .comment-sort-select {
-  background: hsl(0, 0%, 97%);
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--al-bg, #f0f2f8);
+  color: var(--al-text, #1a1d2e);
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
   border-radius: 8px;
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-}
-
-.alumni-feed .comment-user-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.alumni-feed .pinned-icon {
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
-}
-
-.alumni-feed .pinned-comment {
-  background: hsla(262, 83%, 58%, 0.08);
-  border-left: 3px solid var(--ncc-primary, hsl(262, 83%, 58%));
-}
-
-.alumni-feed .view-replies-section {
-  margin-top: 8px;
-  margin-left: 20px;
-}
-
-.alumni-feed .view-replies-btn {
-  background: none;
-  border: none;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
-  font-size: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 0;
-  transition: color 0.2s;
-}
-
-.alumni-feed .view-replies-btn:hover {
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
-}
-
-/* ================= MENTIONS ================= */
-.alumni-feed .mention {
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.alumni-feed .mention:hover {
-  text-decoration: underline;
+  font-family: var(--al-font, "Poppins", sans-serif);
 }
 
 .alumni-feed .edit-textarea {
   width: 100%;
-  min-height: 140px;
-  background: hsl(0, 0%, 97%);
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 14px;
+  min-height: 120px;
+  background: var(--al-bg, #f0f2f8);
+  color: var(--al-text, #1a1d2e);
+  border: 1.5px solid var(--al-border, rgba(0,0,0,0.06));
+  border-radius: 12px;
   padding: 14px 16px;
   resize: none;
+  font-family: var(--al-font, "Poppins", sans-serif);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.alumni-feed .edit-textarea:focus {
+  outline: none;
+  border-color: var(--al-primary, #5C6BC0);
+  box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.08);
+  background: var(--al-surface, #ffffff);
 }
 
 .alumni-feed .edit-save-btn {
-  margin-top: 22px;
+  margin-top: 16px;
   width: 100%;
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--al-primary, #5C6BC0), var(--al-navy, #1A237E));
   color: white;
   border: none;
   padding: 14px;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: bold;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: var(--ncc-shadow, 0 4px 20px hsla(262, 83%, 58%, 0.15));
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 14px rgba(92, 107, 192, 0.25);
+  font-family: var(--al-font, "Poppins", sans-serif);
 }
 
-/* ================= COMMENTS ================= */
+.alumni-feed .edit-save-btn:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ── Comments ── */
 .alumni-feed .comment-popup-list {
   max-height: 400px;
   overflow-y: auto;
   margin-bottom: 16px;
 }
 
+.alumni-feed .comment-popup-list::-webkit-scrollbar {
+  width: 5px;
+}
+.alumni-feed .comment-popup-list::-webkit-scrollbar-thumb {
+  background: var(--al-primary, #5C6BC0);
+  border-radius: 10px;
+}
+
 .alumni-feed .comment-item-popup {
-  background: hsl(0, 0%, 97%);
-  border-radius: 14px;
+  background: var(--al-bg, #f0f2f8);
+  border-radius: 12px;
   padding: 14px 16px;
-  margin-bottom: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 10px;
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
+  transition: all 0.2s ease;
+}
+
+.alumni-feed .comment-item-popup:hover {
+  border-color: rgba(92, 107, 192, 0.1);
 }
 
 .alumni-feed .comment-header-row {
@@ -435,14 +501,34 @@
   margin-bottom: 6px;
 }
 
+.alumni-feed .comment-header-row b {
+  color: var(--al-text, #1a1d2e);
+  font-size: 13px;
+}
+
 .alumni-feed .comment-time {
-  font-size: 12px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  font-size: 11px;
+  color: var(--al-text-muted, #8b90a8);
+}
+
+.alumni-feed .comment-user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alumni-feed .pinned-icon {
+  color: var(--al-primary, #5C6BC0);
+}
+
+.alumni-feed .pinned-comment {
+  background: rgba(92, 107, 192, 0.06);
+  border-left: 3px solid var(--al-primary, #5C6BC0);
 }
 
 .alumni-feed .comment-actions {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   margin-top: 8px;
   align-items: center;
 }
@@ -451,28 +537,28 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  font-size: 12px;
+  color: var(--al-text-muted, #8b90a8);
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .alumni-feed .comment-action-btn:hover {
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  color: var(--al-primary, #5C6BC0);
 }
 
 .alumni-feed .comment-delete {
-  font-size: 13px;
+  font-size: 12px;
   color: #f87171;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .alumni-feed .comment-delete:hover {
-  color: #ef4444;
+  color: var(--al-red, #E53935);
 }
 
-/* ================= COMMENT EDIT MODE ================= */
+/* ── Comment Edit ── */
 .alumni-feed .comment-edit-mode {
   margin-top: 8px;
 }
@@ -480,14 +566,15 @@
 .alumni-feed .comment-edit-textarea {
   width: 100%;
   min-height: 60px;
-  background: hsl(0, 0%, 97%);
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  background: var(--al-surface, #ffffff);
+  color: var(--al-text, #1a1d2e);
+  border: 1.5px solid var(--al-border, rgba(0,0,0,0.06));
+  border-radius: 10px;
   padding: 10px 12px;
   resize: none;
-  font-size: 14px;
+  font-size: 13px;
   margin-bottom: 8px;
+  font-family: var(--al-font, "Poppins", sans-serif);
 }
 
 .alumni-feed .comment-edit-actions {
@@ -496,47 +583,93 @@
 }
 
 .alumni-feed .comment-save-btn {
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--al-primary, #5C6BC0), var(--al-navy, #1A237E));
   color: white;
   border: none;
   padding: 6px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(92, 107, 192, 0.2);
+}
+
+.alumni-feed .comment-save-btn:hover {
+  box-shadow: 0 4px 16px rgba(92, 107, 192, 0.35);
+}
+
+.alumni-feed .comment-cancel-btn {
+  background: var(--al-surface, #ffffff);
+  color: var(--al-text-muted, #8b90a8);
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.alumni-feed .comment-cancel-btn:hover {
+  border-color: var(--al-text-muted, #8b90a8);
+}
+
+/* ── View Replies ── */
+.alumni-feed .view-replies-section {
+  margin-top: 8px;
+  margin-left: 20px;
+}
+
+.alumni-feed .view-replies-btn {
+  background: none;
+  border: none;
+  color: var(--al-primary, #5C6BC0);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  transition: opacity 0.2s;
+}
+
+.alumni-feed .view-replies-btn:hover {
+  opacity: 0.75;
+}
+
+/* ── Mentions ── */
+.alumni-feed .mention {
+  color: var(--al-primary, #5C6BC0);
   font-weight: 600;
   cursor: pointer;
 }
 
-.alumni-feed .comment-cancel-btn {
-  background: hsl(0, 0%, 90%);
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  cursor: pointer;
+.alumni-feed .mention:hover {
+  text-decoration: underline;
 }
 
-/* ================= REPLIES ================= */
+/* ── Replies ── */
 .alumni-feed .replies-container {
-  margin-top: 12px;
+  margin-top: 10px;
   margin-left: 20px;
-  padding-left: 16px;
-  border-left: 2px solid hsla(262, 83%, 58%, 0.3);
+  padding-left: 14px;
+  border-left: 2px solid rgba(92, 107, 192, 0.15);
 }
 
 .alumni-feed .replies-container.nested-reply {
-  margin-left: 30px;
+  margin-left: 28px;
   margin-top: 8px;
   padding-left: 12px;
-  border-left: 2px solid hsla(262, 83%, 58%, 0.2);
+  border-left: 2px solid rgba(92, 107, 192, 0.1);
 }
 
 .alumni-feed .reply-item {
-  background: hsl(0, 0%, 98%);
+  background: var(--al-surface, #ffffff);
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
 }
 
 .alumni-feed .reply-item .comment-header-row {
@@ -544,32 +677,40 @@
 }
 
 .alumni-feed .reply-item p {
-  font-size: 14px;
+  font-size: 13px;
   margin: 4px 0;
+  color: var(--al-text, #1a1d2e);
 }
 
 .alumni-feed .reply-item .comment-actions {
   margin-top: 6px;
 }
 
-/* ================= REPLY INPUT ================= */
+/* ── Reply Input ── */
 .alumni-feed .reply-input-container {
-  margin-top: 12px;
+  margin-top: 10px;
   margin-left: 20px;
-  padding-left: 16px;
+  padding-left: 14px;
 }
 
 .alumni-feed .reply-textarea {
   width: 100%;
   min-height: 50px;
-  background: hsl(0, 0%, 97%);
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  background: var(--al-surface, #ffffff);
+  color: var(--al-text, #1a1d2e);
+  border: 1.5px solid var(--al-border, rgba(0,0,0,0.06));
+  border-radius: 10px;
   padding: 10px 12px;
   resize: none;
-  font-size: 14px;
+  font-size: 13px;
   margin-bottom: 8px;
+  font-family: var(--al-font, "Poppins", sans-serif);
+}
+
+.alumni-feed .reply-textarea:focus {
+  outline: none;
+  border-color: var(--al-primary, #5C6BC0);
+  box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.08);
 }
 
 .alumni-feed .reply-actions {
@@ -578,22 +719,50 @@
 }
 
 .alumni-feed .reply-send-btn {
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--al-primary, #5C6BC0), var(--al-navy, #1A237E));
   color: white;
   border: none;
   padding: 6px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(92, 107, 192, 0.2);
+}
+
+.alumni-feed .reply-send-btn:hover {
+  box-shadow: 0 4px 16px rgba(92, 107, 192, 0.35);
 }
 
 .alumni-feed .reply-cancel-btn {
-  background: hsl(0, 0%, 90%);
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--al-bg, #f0f2f8);
+  color: var(--al-text-muted, #8b90a8);
+  border: 1px solid var(--al-border, rgba(0,0,0,0.06));
   padding: 6px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .alumni-feed .feed-wrapper {
+    padding: 16px 14px;
+  }
+  .alumni-feed .feed-input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .alumni-feed .feed-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .alumni-feed .feed-media-actions {
+    justify-content: space-between;
+  }
+  .alumni-feed .feed-title {
+    font-size: 22px;
+  }
 }

@@ -26,6 +26,7 @@ import AddCadet from "./components/Ano/AddCadet";
 import ManageCadets from "./components/Ano/ManageCadets";
 import AnoChat from "./components/Ano/AnoChat";
 import AnoAttendance from "./components/Ano/anoAttendance";
+import AnoDashboardHome from "./components/Ano/AnoDashboardHome";
 
 const App = () => {
   return (
@@ -54,7 +55,7 @@ const App = () => {
 
         {/* ANO DASHBOARD ROUTES (Nested Layout) */}
         <Route path="/ano/*" element={<AnoDashboard />}>
-          <Route index element={<AddCadet />} />
+          <Route index element={<AnoDashboardHome />} />
           <Route path="add-cadet" element={<AddCadet />} />
           <Route path="manage-cadets" element={<ManageCadets />} />
           <Route path="ano-attendance" element={<AnoAttendance />} />

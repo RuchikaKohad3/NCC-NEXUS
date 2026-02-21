@@ -1,4 +1,5 @@
-/* SUO feed styles aligned with Cadet theme */
+/* ================= NCC NEXUS — SUO FEED (Premium Light) ================= */
+
 /* ================= FEED WRAPPER ================= */
 .suo-feed .feed-wrapper {
   width: 100%;
@@ -9,31 +10,39 @@
 .suo-feed .feed-title {
   font-size: 32px;
   font-weight: 700;
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
+  color: var(--s-text, #1a1d2e);
+  font-family: var(--s-font-display, "Marcellus", serif);
 }
 
 .suo-feed .feed-subtitle {
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
   margin-bottom: 25px;
 }
 
 .suo-feed .feed-subtitle::after {
   content: "";
   display: block;
-  height: 1px;
+  height: 3px;
   width: 100%;
   margin-top: 8px;
-  background: rgba(0, 0, 0, 0.12);
+  background: linear-gradient(90deg, var(--s-red, #E53935), var(--s-primary, #5C6BC0), var(--s-navy, #1A237E));
+  border-radius: 2px;
+  opacity: 0.4;
 }
 
 /* ================= CREATE POST ================= */
 .suo-feed .feed-create-card {
-  background: var(--ncc-card-bg, hsl(0, 0%, 98%));
-  border-radius: 22px;
+  background: var(--s-surface, #ffffff);
+  border-radius: 16px;
   padding: 22px;
   margin-bottom: 30px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: var(--ncc-shadow-card, 0 2px 12px hsla(262, 40%, 40%, 0.12));
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
+  box-shadow: 0 2px 12px rgba(92, 107, 192, 0.05);
+  transition: all 0.3s ease;
+}
+
+.suo-feed .feed-create-card:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.08);
 }
 
 .suo-feed .feed-input-row {
@@ -46,27 +55,36 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
+  border: 2px solid rgba(92, 107, 192, 0.1);
 }
 
 .suo-feed .feed-input {
   flex: 1;
-  background: hsl(0, 0%, 97%);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 14px;
+  background: var(--s-bg, #f0f2f8);
+  border: 1.5px solid var(--s-border, rgba(0, 0, 0, 0.06));
+  border-radius: 12px;
   padding: 14px 16px;
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  font-size: 15px;
+  color: var(--s-text, #1a1d2e);
+  font-size: 14px;
+  font-family: var(--s-font, "Poppins", sans-serif);
+  transition: all 0.3s ease;
+}
+
+.suo-feed .feed-input:focus {
+  outline: none;
+  border-color: var(--s-primary, #5C6BC0);
+  box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.08);
 }
 
 .suo-feed .feed-input::placeholder {
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
 }
 
 /* ================= DIVIDER ================= */
 .suo-feed .divider {
   width: 100%;
   height: 1px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--s-border, rgba(0, 0, 0, 0.06));
   margin: 18px 0;
 }
 
@@ -85,34 +103,54 @@
 .suo-feed .feed-media-actions button {
   background: none;
   border: none;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
   display: flex;
   gap: 8px;
   cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.suo-feed .feed-media-actions button:hover {
+  color: var(--s-primary, #5C6BC0);
 }
 
 .suo-feed .feed-post-btn {
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--s-primary, #5C6BC0), var(--s-navy, #1A237E));
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 14px;
+  padding: 10px 20px;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: var(--ncc-shadow, 0 4px 20px hsla(262, 83%, 58%, 0.15));
+  box-shadow: 0 3px 14px rgba(92, 107, 192, 0.25);
+  transition: all 0.3s ease;
+}
+
+.suo-feed .feed-post-btn:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.4);
+  transform: translateY(-2px);
 }
 
 /* ================= FEED CARD ================= */
 .suo-feed .feed-card {
-  background: var(--ncc-card-bg, hsl(0, 0%, 98%));
-  border-radius: 22px;
+  background: var(--s-surface, #ffffff);
+  border-radius: 16px;
   padding: 22px;
   margin-bottom: 22px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: var(--ncc-shadow-card, 0 2px 12px hsla(262, 40%, 40%, 0.12));
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
+  box-shadow: 0 2px 12px rgba(92, 107, 192, 0.04);
+  transition: all 0.3s ease;
+}
+
+.suo-feed .feed-card:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.08);
+  transform: translateY(-1px);
 }
 
 .suo-feed .feed-card-header {
@@ -127,29 +165,31 @@
 }
 
 .suo-feed .feed-role {
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--s-primary, #5C6BC0), var(--s-primary-light, #7986CB));
   color: white;
   font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: 3px 10px;
+  border-radius: 10px;
   margin-left: 6px;
+  font-weight: 600;
 }
 
 .suo-feed .feed-meta {
   font-size: 12px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
 }
 
 .suo-feed .feed-text {
   margin-top: 12px;
-  font-size: 15px;
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
+  font-size: 14px;
+  color: var(--s-text, #1a1d2e);
+  line-height: 1.6;
 }
 
-.suo-feed .feed-post-image,
-.suo-feed .feed-post-video {
+.suo-feed .feed-media-image,
+.suo-feed .feed-media-video {
   width: 100%;
-  border-radius: 16px;
+  border-radius: 14px;
   margin-top: 14px;
 }
 
@@ -159,9 +199,9 @@
   gap: 16px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
   font-size: 13px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
 }
 
 .suo-feed .stat-item {
@@ -175,7 +215,7 @@
   display: flex;
   gap: 22px;
   margin-top: 16px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
   cursor: pointer;
 }
 
@@ -185,25 +225,27 @@
   gap: 8px;
   background: none;
   border: none;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 10px;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.2s ease;
+  font-size: 13px;
 }
 
 .suo-feed .feed-action-btn:hover {
-  background: hsla(262, 83%, 58%, 0.08);
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  background: rgba(92, 107, 192, 0.06);
+  color: var(--s-primary, #5C6BC0);
 }
 
 .suo-feed .feed-action-count {
-  background: hsla(262, 83%, 58%, 0.15);
-  border: 1px solid hsla(262, 83%, 58%, 0.3);
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  background: rgba(92, 107, 192, 0.08);
+  border: 1px solid rgba(92, 107, 192, 0.15);
+  color: var(--s-primary, #5C6BC0);
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 12px;
+  font-weight: 600;
   line-height: 1.4;
 }
 
@@ -214,11 +256,12 @@
 
 .suo-feed .menu-wrapper svg {
   cursor: pointer;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
+  transition: color 0.2s;
 }
 
 .suo-feed .menu-wrapper svg:hover {
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
+  color: var(--s-text, #1a1d2e);
 }
 
 /* ================= DROPDOWN ================= */
@@ -227,12 +270,12 @@
   top: 30px;
   right: 0;
   width: 150px;
-  background: var(--ncc-card-bg, hsl(0, 0%, 98%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--s-surface, #ffffff);
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
   border-radius: 12px;
   overflow: hidden;
   z-index: 999;
-  box-shadow: var(--ncc-shadow, 0 4px 20px hsla(262, 83%, 58%, 0.15));
+  box-shadow: 0 8px 24px rgba(92, 107, 192, 0.12);
   animation: dropdownFade 0.15s ease;
 }
 
@@ -241,7 +284,7 @@
   padding: 12px 16px;
   background: none;
   border: none;
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
+  color: var(--s-text, #1a1d2e);
   font-size: 14px;
   text-align: left;
   cursor: pointer;
@@ -249,36 +292,35 @@
 }
 
 .suo-feed .menu-dropdown button:hover {
-  background: hsl(0, 0%, 95%);
+  background: rgba(92, 107, 192, 0.04);
 }
 
-/* DELETE */
 .suo-feed .menu-dropdown button.danger {
-  color: #ef4444;
+  color: var(--s-red, #E53935);
 }
 
 .suo-feed .menu-dropdown button.danger:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(229, 57, 53, 0.06);
 }
 
 /* ================= ANIMATION ================= */
 @keyframes dropdownFade {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 /* ================= MODAL ================= */
 .suo-feed .edit-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(3px);
+  background: rgba(240, 242, 248, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,33 +330,12 @@
 .suo-feed .edit-modal {
   width: 520px;
   max-width: 92vw;
-  background: var(--ncc-card-bg, hsl(0, 0%, 98%));
-  border-radius: 22px;
+  background: var(--s-surface, #ffffff);
+  border-radius: 18px;
   padding: 32px 28px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
   animation: modalPop 0.25s ease;
-  box-shadow: var(--ncc-shadow, 0 4px 20px hsla(262, 83%, 58%, 0.15));
-}
-
-@media (max-width: 768px) {
-  .suo-feed .feed-wrapper {
-    padding: 20px;
-  }
-
-  .suo-feed .feed-input-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .suo-feed .feed-bottom-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .suo-feed .feed-media-actions {
-    justify-content: space-between;
-  }
+  box-shadow: 0 24px 64px rgba(92, 107, 192, 0.15);
 }
 
 .suo-feed .edit-modal-header {
@@ -324,6 +345,26 @@
   margin-bottom: 18px;
 }
 
+.suo-feed .edit-modal-header h2 {
+  font-family: var(--s-font-display, "Marcellus", serif);
+  color: var(--s-text, #1a1d2e);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.suo-feed .edit-close-btn {
+  background: none;
+  border: none;
+  color: var(--s-text-muted, #8b90a8);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.suo-feed .edit-close-btn:hover {
+  color: var(--s-red, #E53935);
+  transform: rotate(90deg);
+}
+
 .suo-feed .comment-header-actions {
   display: flex;
   align-items: center;
@@ -331,13 +372,14 @@
 }
 
 .suo-feed .comment-sort-select {
-  background: hsl(0, 0%, 97%);
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--s-bg, #f0f2f8);
+  color: var(--s-text, #1a1d2e);
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 13px;
   cursor: pointer;
+  font-family: var(--s-font, "Poppins", sans-serif);
 }
 
 .suo-feed .comment-user-info {
@@ -347,12 +389,12 @@
 }
 
 .suo-feed .pinned-icon {
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  color: var(--s-primary, #5C6BC0);
 }
 
 .suo-feed .pinned-comment {
-  background: hsla(262, 83%, 58%, 0.08);
-  border-left: 3px solid var(--ncc-primary, hsl(262, 83%, 58%));
+  background: rgba(92, 107, 192, 0.04);
+  border-left: 3px solid var(--s-primary, #5C6BC0);
 }
 
 .suo-feed .view-replies-section {
@@ -363,7 +405,7 @@
 .suo-feed .view-replies-btn {
   background: none;
   border: none;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
   font-size: 13px;
   cursor: pointer;
   display: flex;
@@ -374,12 +416,12 @@
 }
 
 .suo-feed .view-replies-btn:hover {
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  color: var(--s-primary, #5C6BC0);
 }
 
 /* ================= MENTIONS ================= */
 .suo-feed .mention {
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  color: var(--s-primary, #5C6BC0);
   font-weight: 600;
   cursor: pointer;
 }
@@ -391,26 +433,41 @@
 .suo-feed .edit-textarea {
   width: 100%;
   min-height: 140px;
-  background: hsl(0, 0%, 97%);
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 14px;
+  background: var(--s-bg, #f0f2f8);
+  color: var(--s-text, #1a1d2e);
+  border: 1.5px solid var(--s-border, rgba(0, 0, 0, 0.06));
+  border-radius: 12px;
   padding: 14px 16px;
   resize: none;
+  font-family: var(--s-font, "Poppins", sans-serif);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.suo-feed .edit-textarea:focus {
+  outline: none;
+  border-color: var(--s-primary, #5C6BC0);
+  box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.08);
 }
 
 .suo-feed .edit-save-btn {
-  margin-top: 22px;
+  margin-top: 16px;
   width: 100%;
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--s-primary, #5C6BC0), var(--s-navy, #1A237E));
   color: white;
   border: none;
   padding: 14px;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: bold;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: var(--ncc-shadow, 0 4px 20px hsla(262, 83%, 58%, 0.15));
+  box-shadow: 0 3px 14px rgba(92, 107, 192, 0.25);
+  transition: all 0.3s ease;
+}
+
+.suo-feed .edit-save-btn:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.4);
+  transform: translateY(-2px);
 }
 
 /* ================= COMMENTS ================= */
@@ -421,11 +478,11 @@
 }
 
 .suo-feed .comment-item-popup {
-  background: hsl(0, 0%, 97%);
-  border-radius: 14px;
+  background: var(--s-bg, #f0f2f8);
+  border-radius: 12px;
   padding: 14px 16px;
   margin-bottom: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
 }
 
 .suo-feed .comment-header-row {
@@ -437,7 +494,7 @@
 
 .suo-feed .comment-time {
   font-size: 12px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
 }
 
 .suo-feed .comment-actions {
@@ -452,13 +509,13 @@
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
+  color: var(--s-text-muted, #8b90a8);
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .suo-feed .comment-action-btn:hover {
-  color: var(--ncc-primary, hsl(262, 83%, 58%));
+  color: var(--s-primary, #5C6BC0);
 }
 
 .suo-feed .comment-delete {
@@ -469,7 +526,7 @@
 }
 
 .suo-feed .comment-delete:hover {
-  color: #ef4444;
+  color: var(--s-red, #E53935);
 }
 
 /* ================= COMMENT EDIT MODE ================= */
@@ -480,14 +537,21 @@
 .suo-feed .comment-edit-textarea {
   width: 100%;
   min-height: 60px;
-  background: hsl(0, 0%, 97%);
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--s-surface, #ffffff);
+  color: var(--s-text, #1a1d2e);
+  border: 1.5px solid var(--s-border, rgba(0, 0, 0, 0.06));
   border-radius: 8px;
   padding: 10px 12px;
   resize: none;
   font-size: 14px;
   margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.suo-feed .comment-edit-textarea:focus {
+  outline: none;
+  border-color: var(--s-primary, #5C6BC0);
+  box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.08);
 }
 
 .suo-feed .comment-edit-actions {
@@ -496,7 +560,7 @@
 }
 
 .suo-feed .comment-save-btn {
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--s-primary, #5C6BC0), var(--s-navy, #1A237E));
   color: white;
   border: none;
   padding: 6px 14px;
@@ -504,16 +568,26 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.suo-feed .comment-save-btn:hover {
+  box-shadow: 0 4px 14px rgba(92, 107, 192, 0.3);
 }
 
 .suo-feed .comment-cancel-btn {
-  background: hsl(0, 0%, 90%);
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--s-bg, #f0f2f8);
+  color: var(--s-text-muted, #8b90a8);
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
   padding: 6px 14px;
   border-radius: 8px;
   font-size: 13px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suo-feed .comment-cancel-btn:hover {
+  background: var(--s-surface, #ffffff);
 }
 
 /* ================= REPLIES ================= */
@@ -521,22 +595,22 @@
   margin-top: 12px;
   margin-left: 20px;
   padding-left: 16px;
-  border-left: 2px solid hsla(262, 83%, 58%, 0.3);
+  border-left: 2px solid rgba(92, 107, 192, 0.15);
 }
 
 .suo-feed .replies-container.nested-reply {
   margin-left: 30px;
   margin-top: 8px;
   padding-left: 12px;
-  border-left: 2px solid hsla(262, 83%, 58%, 0.2);
+  border-left: 2px solid rgba(92, 107, 192, 0.1);
 }
 
 .suo-feed .reply-item {
-  background: hsl(0, 0%, 98%);
+  background: var(--s-surface, #ffffff);
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
 }
 
 .suo-feed .reply-item .comment-header-row {
@@ -562,14 +636,21 @@
 .suo-feed .reply-textarea {
   width: 100%;
   min-height: 50px;
-  background: hsl(0, 0%, 97%);
-  color: var(--ncc-text-dark, hsl(225, 25%, 12%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--s-bg, #f0f2f8);
+  color: var(--s-text, #1a1d2e);
+  border: 1.5px solid var(--s-border, rgba(0, 0, 0, 0.06));
   border-radius: 8px;
   padding: 10px 12px;
   resize: none;
   font-size: 14px;
   margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.suo-feed .reply-textarea:focus {
+  outline: none;
+  border-color: var(--s-primary, #5C6BC0);
+  box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.08);
 }
 
 .suo-feed .reply-actions {
@@ -578,7 +659,7 @@
 }
 
 .suo-feed .reply-send-btn {
-  background: var(--ncc-gradient, linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 100%, 70%)));
+  background: linear-gradient(135deg, var(--s-primary, #5C6BC0), var(--s-navy, #1A237E));
   color: white;
   border: none;
   padding: 6px 14px;
@@ -586,14 +667,43 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.suo-feed .reply-send-btn:hover {
+  box-shadow: 0 4px 14px rgba(92, 107, 192, 0.3);
 }
 
 .suo-feed .reply-cancel-btn {
-  background: hsl(0, 0%, 90%);
-  color: var(--ncc-text-muted, hsl(225, 15%, 40%));
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--s-bg, #f0f2f8);
+  color: var(--s-text-muted, #8b90a8);
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
   padding: 6px 14px;
   border-radius: 8px;
   font-size: 13px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suo-feed .reply-cancel-btn:hover {
+  background: var(--s-surface, #ffffff);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .suo-feed .feed-wrapper {
+    padding: 20px;
+  }
+  .suo-feed .feed-input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .suo-feed .feed-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .suo-feed .feed-media-actions {
+    justify-content: space-between;
+  }
 }

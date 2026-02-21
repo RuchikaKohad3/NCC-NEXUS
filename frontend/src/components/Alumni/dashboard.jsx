@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import {
   User,
   MapPin,
-  Image as ImageIcon,
   LogOut,
   Edit2,
   KeyRound,
   MessageSquare,
+  Rss,
+  BarChart3,
+  Award,
+  GraduationCap,
 } from "lucide-react";
 import ChatLayout from "../ChatCommon/ChatLayout";
 import { useNavigate } from "react-router-dom";
@@ -114,14 +117,18 @@ export default function AlumniDashboard() {
           ) : null}
 
           <aside className={`sidebar ${isAlumniSidebarOpen ? "open" : "closed"}`}>
-            <div>
+            <div className="sidebar-top">
               <div className="sidebar-header">
-                <img src={logoImage} className="sidebar-logo" alt="NCC Logo" />
-                <div className="logo-text">
+                <div className="sidebar-logo-ring">
+                  <img src={logoImage} className="sidebar-logo" alt="NCC Logo" />
+                </div>
+                <div className="sidebar-brand">
                   <h1>NCC NEXUS</h1>
                   <p>ALUMNI DASHBOARD</p>
                 </div>
               </div>
+
+              <div className="sidebar-divider" />
 
               <div className="nav-list">
                 <button
@@ -142,20 +149,15 @@ export default function AlumniDashboard() {
                     dispatch(closeAlumniSidebar());
                   }}
                 >
-                  <MapPin size={18} />
+                  <Rss size={18} />
                   <span>Network Feed</span>
-                </button>
-
-                <button className="nav-item">
-                  <ImageIcon size={18} />
-                  <span>Wall of Fame</span>
                 </button>
 
                 <button
                   className={`nav-item ${activeTab === "chat" ? "active" : ""}`}
                   onClick={() => {
                     setActiveTab("chat");
-                    if (!isAlumniSidebarOpen) dispatch(toggleAlumniSidebar());
+                    dispatch(closeAlumniSidebar());
                   }}
                 >
                   <MessageSquare size={18} />
@@ -175,24 +177,10 @@ export default function AlumniDashboard() {
               </div>
             </div>
 
-            <button
-              className="logout-item"
-              onClick={() => {
-                dispatch(closeAlumniSidebar());
-                localStorage.removeItem("token");
-                localStorage.removeItem("role");
-                localStorage.removeItem("system_role");
-                localStorage.removeItem("rank");
-                localStorage.removeItem("user");
-                navigate("/");
-              }}
-            >
-              <LogOut size={18} />
-              <span>Logout</span>
-            </button>
           </aside>
 
           <main className={`main ${isAlumniSidebarOpen ? "sidebar-open" : ""}`}>
+            <div className="tricolor-bar" />
             <div className="cadet-topbar">
               <button
                 type="button"
@@ -201,6 +189,21 @@ export default function AlumniDashboard() {
                 onClick={() => dispatch(toggleAlumniSidebar())}
               >
                 Menu
+              </button>
+              <button
+                className="topbar-logout"
+                onClick={() => {
+                  dispatch(closeAlumniSidebar());
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("role");
+                  localStorage.removeItem("system_role");
+                  localStorage.removeItem("rank");
+                  localStorage.removeItem("user");
+                  navigate("/");
+                }}
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
               </button>
             </div>
 
@@ -215,28 +218,84 @@ export default function AlumniDashboard() {
             )}
 
             {activeTab === "profile" && (
-              <>
-                {loadingProfile ? <p className="section-title">Loading profile...</p> : null}
+              <div className="profile-page">
+                {loadingProfile ? <p className="loading-text">Loading profile...</p> : null}
 
-                <div className="banner">
-                  <div className="profile-photo-wrapper">
-                    <img src={profileImage || logoImage} className="profile-photo" alt="Alumni Profile" />
+                {/* Welcome Section */}
+                <div className="welcome-card">
+                  <div className="welcome-text">
+                    <h1>Welcome back, {profileData.name ? profileData.name.split(" ")[0] : "Alumni"}!</h1>
+                    <p>Here's your dashboard overview</p>
+                  </div>
+                  <span className="welcome-motto">UNITY &amp; DISCIPLINE</span>
+                </div>
+
+                {/* Stat Cards */}
+                <div className="stat-cards">
+                  <div className="stat-card">
+                    <div className="stat-icon stat-icon-red">
+                      <User size={18} />
+                    </div>
+                    <div className="stat-info">
+                      <h3>{profileData.rank || "Alumni"}</h3>
+                      <p>Former Rank</p>
+                    </div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-icon stat-icon-blue">
+                      <BarChart3 size={18} />
+                    </div>
+                    <div className="stat-info">
+                      <h3>85%</h3>
+                      <p>Attendance</p>
+                    </div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-icon stat-icon-indigo">
+                      <Award size={18} />
+                    </div>
+                    <div className="stat-info">
+                      <h3>C Certificate</h3>
+                      <p>NCC Certificate</p>
+                    </div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-icon stat-icon-green">
+                      <GraduationCap size={18} />
+                    </div>
+                    <div className="stat-info">
+                      <h3>Alumni</h3>
+                      <p>Network Status</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="profile-details">
-                  <h1 className="profile-name">{profileData.name}</h1>
+                {/* Profile Banner */}
+                <div className="banner">
+                  <span className="banner-watermark">UNITY AND DISCIPLINE</span>
+                </div>
 
-                  <div className="profile-info">
-                    <div className="info-pill">
-                      <User size={16} />
-                      {profileData.rank}
+                {/* Profile Card */}
+                <div className="profile-card">
+                  <div className="profile-card-header">
+                    <div className="profile-photo-wrapper">
+                      <div className="profile-photo-ring">
+                        <img src={profileImage || logoImage} className="profile-photo" alt="Alumni Profile" />
+                      </div>
                     </div>
-                    <div className="info-pill">
-                      <MapPin size={16} />
-                      {profileData.location}
+
+                    <h1 className="profile-name">{profileData.name}</h1>
+                    <span className="profile-role-badge">{profileData.rank || "Alumni"}</span>
+
+                    <div className="profile-info">
+                      <div className="info-pill">
+                        <MapPin size={14} />
+                        {profileData.location}
+                      </div>
                     </div>
                   </div>
+
+                  <div className="profile-card-divider" />
 
                   <div className="bio-container">
                     {isEditingBio ? (
@@ -245,6 +304,7 @@ export default function AlumniDashboard() {
                           className="bio-edit-textarea"
                           value={tempBio}
                           onChange={(e) => setTempBio(e.target.value)}
+                          placeholder="Write something about yourself..."
                         />
                         <div className="bio-edit-actions">
                           <button className="bio-save-btn" onClick={saveBio}>
@@ -259,7 +319,7 @@ export default function AlumniDashboard() {
                       <div className="bio-display">
                         <p className="bio">"{profileData.bio || "Alumni profile bio is not editable yet."}"</p>
                         <button className="bio-edit-icon" onClick={startEditBio}>
-                          <Edit2 size={16} />
+                          <Edit2 size={14} />
                         </button>
                       </div>
                     )}
@@ -269,7 +329,7 @@ export default function AlumniDashboard() {
                 <h2 className="section-title">My Mentorship Posts</h2>
 
                 <Feed profileImage={profileImage || logoImage} profileName={profileData.name} mode="profile" />
-              </>
+              </div>
             )}
           </main>
         </div>

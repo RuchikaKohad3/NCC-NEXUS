@@ -137,7 +137,9 @@ const AddCadet = () => {
             style={{ backgroundColor: formData.role === "Alumni" || formData.role === "SUO" ? "#e9ecef" : "white" }}
           >
             <option value="">Select Rank</option>
-            {RANKS.map((rank) => (
+            {RANKS
+              .filter((rank) => formData.role !== "Cadet" || rank !== "Senior Under Officer")
+              .map((rank) => (
               <option key={rank} value={rank}>
                 {rank}
               </option>

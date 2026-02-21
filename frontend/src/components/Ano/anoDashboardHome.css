@@ -1,0 +1,399 @@
+/* ================= NCC NEXUS — ANO DASHBOARD HOME ================= */
+
+/* ── Extra Keyframes ── */
+@keyframes anoCardSweep {
+  0%   { left: -100%; opacity: 0; }
+  30%  { opacity: 1; }
+  100% { left: 150%; opacity: 0; }
+}
+
+@keyframes anoPopIn {
+  0%   { opacity: 0; transform: scale(0.5); }
+  60%  { transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes anoExpandLine {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+@keyframes anoDriftRight {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50%      { transform: translateY(-50%) translateX(12px); }
+}
+
+@keyframes anoBannerPulse {
+  0%, 100% { box-shadow: 0 4px 24px rgba(92, 107, 192, 0.12), inset 0 -40px 60px rgba(255, 255, 255, 0.08); }
+  50%      { box-shadow: 0 6px 32px rgba(92, 107, 192, 0.18), inset 0 -40px 60px rgba(255, 255, 255, 0.12); }
+}
+
+@keyframes anoCountUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ano-home {
+  padding: 28px 32px 40px;
+  width: 100%;
+}
+
+/* ── Welcome Banner ── */
+.ano-home-banner {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg,
+      #2a1f5e 0%,
+      #3d3580 20%,
+      #6b5b9a 40%,
+      #a88baf 60%,
+      #d4a5b5 75%,
+      #b8c8e0 90%,
+      #a0c4d8 100%
+    );
+  padding: 40px 36px;
+  box-shadow:
+    0 4px 24px rgba(92, 107, 192, 0.12),
+    inset 0 -40px 60px rgba(255, 255, 255, 0.08);
+  animation: anoFadeSlideUp 0.5s ease both;
+  transition: all 0.4s ease;
+}
+
+.ano-home-banner:hover {
+  box-shadow:
+    0 8px 36px rgba(92, 107, 192, 0.18),
+    inset 0 -40px 60px rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* tricolor top border on hover */
+.ano-home-banner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--a-red, #E53935), #ffffff, var(--a-primary, #5C6BC0));
+  border-radius: 18px 18px 0 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 2;
+}
+
+.ano-home-banner:hover::after {
+  opacity: 1;
+}
+
+/* shimmer across banner */
+.ano-home-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    transparent
+  );
+  animation: anoShimmer 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* watermark text */
+.ano-home-watermark {
+  position: absolute;
+  top: 50%;
+  right: 36px;
+  transform: translateY(-50%);
+  font-family: var(--a-font-display, "Marcellus", serif);
+  font-size: 20px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.18);
+  white-space: nowrap;
+  text-transform: uppercase;
+  animation: anoDriftRight 6s ease-in-out infinite;
+  z-index: 1;
+  pointer-events: none;
+  transition: color 0.4s ease;
+}
+
+.ano-home-banner:hover .ano-home-watermark {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.ano-home-banner-content {
+  position: relative;
+  z-index: 1;
+}
+
+.ano-home-banner-content h1 {
+  margin: 0;
+  font-family: var(--a-font, "Poppins", sans-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.ano-home-banner-content p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+
+.ano-home-motto {
+  display: inline-block;
+  margin-top: 12px;
+  font-family: var(--a-font-display, "Marcellus", serif);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.55);
+  font-style: italic;
+  transition: color 0.3s ease;
+}
+
+.ano-home-banner:hover .ano-home-motto {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ── Tricolor Divider ── */
+.ano-home-divider {
+  height: 3px;
+  margin: 24px 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    var(--a-red, #E53935) 0%, var(--a-red, #E53935) 33%,
+    var(--a-surface, #ffffff) 33%, var(--a-surface, #ffffff) 66%,
+    var(--a-primary, #5C6BC0) 66%, var(--a-primary, #5C6BC0) 100%
+  );
+  box-shadow: 0 2px 8px rgba(92, 107, 192, 0.1);
+  max-width: 80px;
+  animation: anoExpandLine 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+/* ── Stat Cards ── */
+.ano-home-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.ano-home-stat-card {
+  background: var(--a-surface, #ffffff);
+  border: 1px solid var(--a-border, rgba(0, 0, 0, 0.06));
+  border-radius: 16px;
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: anoFadeSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  box-shadow: 0 2px 10px rgba(92, 107, 192, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.ano-home-stat-card:nth-child(1) { animation-delay: 0.1s; }
+.ano-home-stat-card:nth-child(2) { animation-delay: 0.18s; }
+.ano-home-stat-card:nth-child(3) { animation-delay: 0.26s; }
+.ano-home-stat-card:nth-child(4) { animation-delay: 0.34s; }
+
+/* card sweep shine on load */
+.ano-home-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ano-home-stat-card:nth-child(1)::before { animation: anoCardSweep 0.7s ease-out 0.5s forwards; }
+.ano-home-stat-card:nth-child(2)::before { animation: anoCardSweep 0.7s ease-out 0.6s forwards; }
+.ano-home-stat-card:nth-child(3)::before { animation: anoCardSweep 0.7s ease-out 0.7s forwards; }
+.ano-home-stat-card:nth-child(4)::before { animation: anoCardSweep 0.7s ease-out 0.8s forwards; }
+
+/* glow ring on hover */
+.ano-home-stat-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 16px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.ano-home-stat-card:nth-child(1)::after {
+  box-shadow: inset 0 0 0 1.5px rgba(26, 35, 126, 0.2), 0 0 20px rgba(26, 35, 126, 0.08);
+}
+.ano-home-stat-card:nth-child(2)::after {
+  box-shadow: inset 0 0 0 1.5px rgba(229, 57, 53, 0.2), 0 0 20px rgba(229, 57, 53, 0.08);
+}
+.ano-home-stat-card:nth-child(3)::after {
+  box-shadow: inset 0 0 0 1.5px rgba(92, 107, 192, 0.2), 0 0 20px rgba(92, 107, 192, 0.08);
+}
+.ano-home-stat-card:nth-child(4)::after {
+  box-shadow: inset 0 0 0 1.5px rgba(26, 35, 126, 0.2), 0 0 20px rgba(26, 35, 126, 0.08);
+}
+
+.ano-home-stat-card:hover::after {
+  opacity: 1;
+}
+
+.ano-home-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 36px rgba(92, 107, 192, 0.14);
+  border-color: transparent;
+}
+
+/* ── Stat Icons ── */
+.ano-home-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* staggered icon pop-in */
+.ano-home-stat-card:nth-child(1) .ano-home-stat-icon { animation: anoPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both; }
+.ano-home-stat-card:nth-child(2) .ano-home-stat-icon { animation: anoPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both; }
+.ano-home-stat-card:nth-child(3) .ano-home-stat-icon { animation: anoPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both; }
+.ano-home-stat-card:nth-child(4) .ano-home-stat-icon { animation: anoPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both; }
+
+.ano-home-stat-card:hover .ano-home-stat-icon {
+  transform: scale(1.12);
+}
+
+/* icon colors — go from light tint to SOLID on hover */
+.ano-home-icon-navy {
+  background: rgba(26, 35, 126, 0.08);
+  color: var(--a-navy, #1A237E);
+}
+.ano-home-stat-card:hover .ano-home-icon-navy {
+  background: var(--a-navy, #1A237E);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(26, 35, 126, 0.35), 0 0 10px rgba(26, 35, 126, 0.2);
+}
+
+.ano-home-icon-red {
+  background: rgba(229, 57, 53, 0.08);
+  color: var(--a-red, #E53935);
+}
+.ano-home-stat-card:hover .ano-home-icon-red {
+  background: var(--a-red, #E53935);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(229, 57, 53, 0.35), 0 0 10px rgba(229, 57, 53, 0.2);
+}
+
+.ano-home-icon-blue {
+  background: rgba(92, 107, 192, 0.08);
+  color: var(--a-primary, #5C6BC0);
+}
+.ano-home-stat-card:hover .ano-home-icon-blue {
+  background: var(--a-primary, #5C6BC0);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(92, 107, 192, 0.35), 0 0 10px rgba(92, 107, 192, 0.2);
+}
+
+.ano-home-icon-indigo {
+  background: rgba(26, 35, 126, 0.08);
+  color: var(--a-navy, #1A237E);
+}
+.ano-home-stat-card:hover .ano-home-icon-indigo {
+  background: var(--a-navy, #1A237E);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(26, 35, 126, 0.35), 0 0 10px rgba(26, 35, 126, 0.2);
+}
+
+/* ── Stat Info ── */
+.ano-home-stat-info {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.ano-home-stat-card:hover .ano-home-stat-info {
+  transform: translateX(4px);
+}
+
+.ano-home-stat-info h3 {
+  margin: 0;
+  font-family: var(--a-font, "Poppins", sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--a-text, #1a1d2e);
+  transition: color 0.3s ease;
+  animation: anoCountUp 0.4s ease both;
+}
+
+.ano-home-stat-card:nth-child(1) .ano-home-stat-info h3 { animation-delay: 0.3s; }
+.ano-home-stat-card:nth-child(2) .ano-home-stat-info h3 { animation-delay: 0.4s; }
+.ano-home-stat-card:nth-child(3) .ano-home-stat-info h3 { animation-delay: 0.5s; }
+.ano-home-stat-card:nth-child(4) .ano-home-stat-info h3 { animation-delay: 0.6s; }
+
+.ano-home-stat-card:hover .ano-home-stat-info h3 {
+  color: var(--a-navy, #1A237E);
+}
+
+.ano-home-stat-info p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--a-text-muted, #8b90a8);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.ano-home-stat-card:hover .ano-home-stat-info p {
+  color: var(--a-text-secondary, #3d4260);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .ano-home-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ano-home {
+    padding: 20px 16px 32px;
+  }
+
+  .ano-home-banner {
+    padding: 28px 24px;
+    border-radius: 14px;
+  }
+
+  .ano-home-banner-content h1 {
+    font-size: 22px;
+  }
+
+  .ano-home-watermark {
+    display: none;
+  }
+
+  .ano-home-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}

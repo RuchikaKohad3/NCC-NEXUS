@@ -1,61 +1,66 @@
-/* src/components/Alumni/alumniChat.css */
+/* ================= NCC NEXUS — ALUMNI CHAT (Premium Light) ================= */
 
 .alumni-chat-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;       /* Fills the dashboard content area */
+  height: calc(100vh - 4px);
   width: 100%;
-  background-color: #0b141a; /* Matches chat dark theme */
-  overflow: hidden;   /* Prevents dashboard scrollbar from conflicting */
+  background: var(--al-bg, #f0f2f8);
+  overflow: hidden;
 }
 
-/* Page Header */
+/* Alumni Chat Header */
 .alumni-chat-header {
-  height: 65px;
-  min-height: 65px;
-  background-color: #202c33;
-  border-bottom: 1px solid #2f3b43;
+  height: 64px;
+  min-height: 64px;
+  background: var(--al-surface, #ffffff);
+  border-bottom: 1px solid var(--al-border, rgba(0, 0, 0, 0.06));
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  color: #e9edef;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  color: var(--al-text, #1a1d2e);
+  box-shadow: 0 2px 12px rgba(92, 107, 192, 0.04);
+  z-index: 5;
 }
 
 .header-left h1 {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   margin: 0;
-  color: #e9edef;
+  color: var(--al-navy, #1A237E);
+  font-family: var(--al-font-display, "Marcellus", serif);
 }
 
 .header-left .subtitle {
-  font-size: 0.8rem;
-  color: #8696a0;
+  font-size: 0.75rem;
+  color: var(--al-text-muted, #8b90a8);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-family: var(--al-font-tech, "Manrope", sans-serif);
+  font-weight: 600;
   display: block;
 }
 
 .status-badge {
   font-size: 0.8rem;
-  background-color: rgba(255, 215, 0, 0.1); /* Gold tint for Alumni */
-  color: #ffd700;
-  padding: 4px 12px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 215, 0, 0.2);
+  background: rgba(92, 107, 192, 0.08);
+  color: var(--al-primary, #5C6BC0);
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(92, 107, 192, 0.12);
+  font-weight: 600;
+  font-family: var(--al-font, "Poppins", sans-serif);
 }
 
-/* Chat Container Override */
+/* Chat Container */
 .alumni-chat-container {
-  flex: 1; /* Takes remaining height */
+  flex: 1;
   position: relative;
   overflow: hidden;
 }
 
-/* * CRITICAL: Override ChatCommon's default 100vh 
- * to fit inside this specific container.
- */
 .alumni-chat-container .ncc-chat-container {
-  height: 100% !important; 
+  height: 100% !important;
   width: 100%;
 }

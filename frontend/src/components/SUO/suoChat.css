@@ -1,70 +1,72 @@
-/* src/components/SUO/suoChat.css */
+/* ================= NCC NEXUS — SUO CHAT (Premium Light) ================= */
 
 .suo-chat-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100vh - 4px);
   width: 100%;
-  background-color: #0b141a;
+  background: var(--s-bg, #f0f2f8);
   overflow: hidden;
 }
 
-/* SUO Specific Header */
+/* SUO Chat Header */
 .suo-chat-header {
-  height: 70px; /* Slightly taller for admin feel */
-  min-height: 70px;
-  background-color: #1f2c34;
-  border-bottom: 1px solid #2f3b43;
+  height: 64px;
+  min-height: 64px;
+  background: var(--s-surface, #ffffff);
+  border-bottom: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  color: #e9edef;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  z-index: 5; /* Ensure header stays above content */
+  color: var(--s-text, #1a1d2e);
+  box-shadow: 0 2px 12px rgba(92, 107, 192, 0.04);
+  z-index: 5;
 }
 
 .header-title h1 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
-  color: #e9edef;
+  color: var(--s-navy, #1A237E);
+  font-family: var(--s-font-display, "Marcellus", serif);
 }
 
 .header-title .subtitle {
-  font-size: 0.8rem;
-  color: #8696a0;
+  font-size: 0.75rem;
+  color: var(--s-text-muted, #8b90a8);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.12em;
+  font-family: var(--s-font-tech, "Manrope", sans-serif);
+  font-weight: 600;
 }
 
 /* Action Button */
 .broadcast-btn {
-  background-color: #00a884;
+  background: linear-gradient(135deg, var(--s-primary, #5C6BC0), var(--s-navy, #1A237E));
   color: #fff;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 8px 18px;
+  border-radius: 10px;
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 14px rgba(92, 107, 192, 0.25);
 }
 
 .broadcast-btn:hover {
-  background-color: #008f6f;
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.4);
+  transform: translateY(-2px);
 }
 
-/* Chat Container Override */
+/* Chat Container */
 .suo-chat-container {
   flex: 1;
   position: relative;
   overflow: hidden;
 }
 
-/* * CRITICAL: Override ChatCommon's default 100vh 
- * to fit inside this specific container 
- */
 .suo-chat-container .ncc-chat-container {
   height: 100% !important;
   width: 100%;

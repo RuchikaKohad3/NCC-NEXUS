@@ -2,13 +2,18 @@ import React, { useEffect, useState, useRef } from "react";
 import {
   User,
   MapPin,
-  Image as ImageIcon,
   LogOut,
   Camera,
   Edit2,
   KeyRound,
+  Bot,
+  Rss,
+  Shield,
+  MessageSquare,
+  Award,
+  BarChart3,
+  Signal,
 } from "lucide-react";
-import { MessageSquare } from "lucide-react";
 import ChatLayout from "../ChatCommon/ChatLayout";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -181,6 +186,8 @@ export default function CadetDashboard() {
     fetchProfile(token);
   }, [navigate]);
 
+  const firstName = profileData.name ? profileData.name.split(" ")[0] : "Cadet";
+
   return (
     <>
       <div className="cadet-dashboard">
@@ -191,14 +198,18 @@ export default function CadetDashboard() {
 
         {/* ================= SIDEBAR ================= */}
         <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-          <div>
+          <div className="sidebar-top">
             <div className="sidebar-header">
-              <img src={logoImage} className="sidebar-logo" alt="NCC Logo" />
+              <div className="sidebar-logo-ring">
+                <img src={logoImage} className="sidebar-logo" alt="NCC Logo" />
+              </div>
               <div className="logo-text">
                 <h1>NCC NEXUS</h1>
                 <p>CADET DASHBOARD</p>
               </div>
             </div>
+
+            <div className="sidebar-divider" />
 
             <div className="nav-list">
               <button
@@ -219,7 +230,7 @@ export default function CadetDashboard() {
                   setSidebarOpen(false);
                 }}
               >
-                <MapPin size={18} />
+                <Rss size={18} />
                 <span>Feed</span>
               </button>
 
@@ -230,6 +241,7 @@ export default function CadetDashboard() {
                   setSidebarOpen(false);
                 }}
               >
+                <Bot size={18} />
                 <span>Chatbot</span>
               </button>
 
@@ -237,7 +249,7 @@ export default function CadetDashboard() {
                 className={`nav-item ${activeTab === "chat" ? "active" : ""}`}
                 onClick={() => {
                   setActiveTab("chat");
-                  setSidebarOpen(true);
+                  setSidebarOpen(false);
                 }}
               >
                 <MessageSquare size={18} />
@@ -245,7 +257,7 @@ export default function CadetDashboard() {
               </button>
 
               <button className="nav-item" onClick={() => setSidebarOpen(false)}>
-                <ImageIcon size={18} />
+                <Shield size={18} />
                 <span>Certificates</span>
               </button>
 
@@ -262,22 +274,9 @@ export default function CadetDashboard() {
             </div>
           </div>
 
-          <button
-            className="logout-item"
-            onClick={() => {
-              dispatch(closeCadetSidebar());
-              localStorage.removeItem("token");
-              localStorage.removeItem("role");
-              localStorage.removeItem("user");
-              navigate("/");
-            }}
-          >
-            <LogOut size={18} />
-            <span>Logout</span>
-          </button>
         </aside>
 
-        {/* ================= BACKDROP (NOW CORRECT POSITION) ================= */}
+        {/* ================= BACKDROP ================= */}
         {sidebarOpen && (
           <div
             className="cadet-sidebar-backdrop"
@@ -287,6 +286,9 @@ export default function CadetDashboard() {
 
         {/* ================= MAIN ================= */}
         <main className={`main ${sidebarOpen ? "sidebar-open" : ""}`}>
+          {/* Tricolor top stripe */}
+          <div className="tricolor-bar" />
+
           <div className="cadet-topbar">
             <button
               type="button"
@@ -295,6 +297,19 @@ export default function CadetDashboard() {
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               Menu
+            </button>
+            <button
+              className="topbar-logout"
+              onClick={() => {
+                dispatch(closeCadetSidebar());
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                localStorage.removeItem("user");
+                navigate("/");
+              }}
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
             </button>
           </div>
 
@@ -315,42 +330,100 @@ export default function CadetDashboard() {
           )}
 
           {activeTab === "profile" && (
-            <>
+            <div className="profile-page">
               {loadingProfile ? (
-                <p className="section-title">Loading profile...</p>
+                <p className="loading-text">Loading profile...</p>
               ) : null}
-              <div className="banner">
-                <div className="profile-photo-wrapper">
-                  <img src={profileImage || logoImage} className="profile-photo" alt="Cadet profile" />
-                  <button
-                    className="camera-icon"
-                    onClick={() => fileInputRef.current.click()}
-                  >
-                    <Camera size={16} />
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    hidden
-                    accept="image/*"
-                    onChange={handleProfileImageChange}
-                  />
+
+              {/* Welcome Section */}
+              <div className="welcome-card">
+                <div className="welcome-text">
+                  <h1>Welcome back, {firstName}!</h1>
+                  <p>Here's your dashboard overview</p>
+                </div>
+                <span className="welcome-motto">UNITY &amp; DISCIPLINE</span>
+              </div>
+
+              {/* Stat Cards */}
+              <div className="stat-cards">
+                <div className="stat-card">
+                  <div className="stat-icon stat-icon-red">
+                    <User size={18} />
+                  </div>
+                  <div className="stat-info">
+                    <h3>{profileData.rank || "Cadet"}</h3>
+                    <p>Current Rank</p>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon stat-icon-blue">
+                    <BarChart3 size={18} />
+                  </div>
+                  <div className="stat-info">
+                    <h3>85%</h3>
+                    <p>Attendance</p>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon stat-icon-indigo">
+                    <Award size={18} />
+                  </div>
+                  <div className="stat-info">
+                    <h3>B Certificate</h3>
+                    <p>NCC Certificate</p>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon stat-icon-pink">
+                    <Signal size={18} />
+                  </div>
+                  <div className="stat-info">
+                    <h3>Active</h3>
+                    <p>Enrollment</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="profile-details">
-                <h1 className="profile-name">{profileData.name}</h1>
+              {/* Profile Banner — gradient */}
+              <div className="banner">
+                <div className="banner-watermark">UNITY AND DISCIPLINE</div>
+              </div>
 
-                <div className="profile-info">
-                  <div className="info-pill">
-                    <User size={16} />
-                    {profileData.rank}
+              {/* Profile Card overlapping the banner */}
+              <div className="profile-card">
+                <div className="profile-card-header">
+                  <div className="profile-photo-wrapper">
+                    <div className="profile-photo-ring">
+                      <img src={profileImage || logoImage} className="profile-photo" alt="Cadet profile" />
+                    </div>
+                    <button
+                      className="camera-icon"
+                      onClick={() => fileInputRef.current.click()}
+                    >
+                      <Camera size={14} />
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      hidden
+                      accept="image/*"
+                      onChange={handleProfileImageChange}
+                    />
                   </div>
-                  <div className="info-pill">
-                    <MapPin size={16} />
-                    {profileData.location}
+
+                  <div className="profile-header-text">
+                    <h1 className="profile-name">{profileData.name}</h1>
+                    <div className="profile-meta">
+                      <span className="profile-role-badge">{profileData.rank || "Cadet"}</span>
+                      <div className="info-pill">
+                        <MapPin size={14} />
+                        {profileData.location}
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                <div className="profile-card-divider" />
 
                 <div className="bio-container">
                   {isEditingBio ? (
@@ -359,15 +432,13 @@ export default function CadetDashboard() {
                         className="bio-edit-textarea"
                         value={tempBio}
                         onChange={(e) => setTempBio(e.target.value)}
+                        placeholder="Write something about yourself..."
                       />
                       <div className="bio-edit-actions">
                         <button className="bio-save-btn" onClick={saveBio}>
                           Save
                         </button>
-                        <button
-                          className="bio-cancel-btn"
-                          onClick={cancelEditBio}
-                        >
+                        <button className="bio-cancel-btn" onClick={cancelEditBio}>
                           Cancel
                         </button>
                       </div>
@@ -375,11 +446,8 @@ export default function CadetDashboard() {
                   ) : (
                     <div className="bio-display">
                       <p className="bio">"{profileData.bio || "Add your bio using edit button."}"</p>
-                      <button
-                        className="bio-edit-icon"
-                        onClick={startEditBio}
-                      >
-                        <Edit2 size={16} />
+                      <button className="bio-edit-icon" onClick={startEditBio}>
+                        <Edit2 size={14} />
                       </button>
                     </div>
                   )}
@@ -393,7 +461,7 @@ export default function CadetDashboard() {
                 profileName={profileData.name}
                 mode="profile"
               />
-            </>
+            </div>
           )}
         </main>
         </div>
@@ -401,4 +469,3 @@ export default function CadetDashboard() {
     </>
   );
 }
-

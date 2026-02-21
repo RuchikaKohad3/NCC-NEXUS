@@ -1,23 +1,12 @@
-:root {
-  --ano-attendance-bg: #e4ebe7;
-  --ano-attendance-surface: #f7f9fb;
-  --ano-attendance-border: #c9d3dd;
-  --ano-attendance-text: #0c2440;
-  --ano-attendance-muted: #48627e;
-  --ano-attendance-primary: #2371e6;
-  --ano-attendance-present-bg: #b9e5cb;
-  --ano-attendance-present-text: #027c41;
-  --ano-attendance-absent-bg: #ebc8c8;
-  --ano-attendance-absent-text: #c71a1a;
-}
+/* ================= NCC NEXUS — ANO ATTENDANCE (Premium Light) ================= */
 
 .ano-attendance-container {
   width: 100%;
   min-height: calc(100vh - 80px);
-  padding: 24px;
-  border-radius: 14px;
-  background: var(--ano-attendance-bg);
-  color: var(--ano-attendance-text);
+  padding: 28px 32px;
+  border-radius: 0;
+  background: var(--a-bg, #f0f2f8);
+  color: var(--a-text, #1a1d2e);
   box-sizing: border-box;
   overflow-x: hidden;
 }
@@ -29,10 +18,12 @@
 
 .ano-attendance-title {
   margin: 0;
-  font-size: 2rem;
+  font-family: var(--a-font, "Poppins", sans-serif);
+  font-size: 26px;
   line-height: 1.2;
-  font-weight: 800;
-  color: #0b223d;
+  font-weight: 700;
+  color: var(--a-text, #1a1d2e);
+  animation: anoFadeSlideUp 0.5s ease both;
 }
 
 .ano-attendance-toolbar {
@@ -41,82 +32,105 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
+  animation: anoFadeSlideUp 0.5s ease 0.1s both;
 }
 
 .ano-attendance-label {
-  font-size: 1rem;
+  font-size: 14px;
   font-weight: 600;
-  color: #112b4b;
+  color: var(--a-text-secondary, #3d4260);
 }
 
 .ano-attendance-session-select {
-  min-width: 145px;
-  height: 42px;
-  padding: 0 12px;
-  border: 1px solid #bdcad6;
-  border-radius: 10px;
-  font-size: 0.95rem;
+  min-width: 150px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  font-size: 14px;
   font-weight: 500;
-  color: #132f4d;
-  background: var(--ano-attendance-surface);
+  font-family: var(--a-font, "Poppins", sans-serif);
+  color: var(--a-text, #1a1d2e);
+  background: var(--a-surface, #ffffff);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(92, 107, 192, 0.04);
 }
 
 .ano-attendance-session-select:focus {
   outline: none;
-  border-color: var(--ano-attendance-primary);
-  box-shadow: 0 0 0 2px rgba(35, 113, 230, 0.15);
+  border-color: var(--a-primary, #5C6BC0);
+  box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.08);
 }
 
 .ano-attendance-btn {
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 10px;
-  border: 1px solid transparent;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  border: none;
   display: inline-flex;
   align-items: center;
-  font-size: 0.95rem;
+  font-size: 14px;
   font-weight: 600;
+  font-family: var(--a-font, "Poppins", sans-serif);
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .ano-attendance-btn-primary {
-  background: var(--ano-attendance-primary);
+  background: linear-gradient(135deg, var(--a-primary, #5C6BC0), var(--a-navy, #1A237E));
   color: #ffffff;
+  box-shadow: 0 3px 14px rgba(92, 107, 192, 0.25);
+}
+
+.ano-attendance-btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.4);
+  transform: translateY(-2px);
 }
 
 .ano-attendance-table-card {
   margin-top: 20px;
-  border: 1px solid var(--ano-attendance-border);
-  border-radius: 12px;
-  background: var(--ano-attendance-surface);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  background: var(--a-surface, #ffffff);
   overflow-x: auto;
   width: 100%;
   -webkit-overflow-scrolling: touch;
+  box-shadow: 0 2px 12px rgba(92, 107, 192, 0.05);
+  animation: anoFadeSlideUp 0.5s ease 0.2s both;
+  transition: box-shadow 0.3s ease;
+}
+
+.ano-attendance-table-card:hover {
+  box-shadow: 0 6px 24px rgba(92, 107, 192, 0.08);
 }
 
 .ano-attendance-table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--ano-attendance-surface);
+  background: var(--a-surface, #ffffff);
 }
 
 .ano-attendance-table th,
 .ano-attendance-table td {
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--ano-attendance-border);
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   text-align: center;
-  color: var(--ano-attendance-text);
+  color: var(--a-text, #1a1d2e);
 }
 
 .ano-attendance-table thead th {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--a-text-secondary, #3d4260);
+  background: var(--a-bg, #f0f2f8);
   white-space: nowrap;
 }
 
 .ano-col-cadet {
   min-width: 190px;
-  padding-left: 16px;
+  padding-left: 18px;
   text-align: left;
 }
 
@@ -126,60 +140,81 @@
 
 .ano-drill-head {
   line-height: 1.1;
+  font-weight: 600;
 }
 
 .ano-drill-date {
   margin-top: 4px;
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--ano-attendance-muted);
+  color: var(--a-text-muted, #8b90a8);
   white-space: nowrap;
 }
 
 .ano-attendance-table tbody td {
-  font-size: 0.95rem;
-  font-weight: 600;
-  background: var(--ano-attendance-surface);
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--a-surface, #ffffff);
 }
 
 .ano-attendance-table tbody tr:last-child td {
   border-bottom: none;
 }
 
+.ano-attendance-table tbody tr:hover td {
+  background: rgba(92, 107, 192, 0.02);
+}
+
 .ano-cadet-name-cell {
-  padding-left: 16px;
+  padding-left: 18px;
   text-align: left;
   white-space: nowrap;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .ano-attendance-pill {
-  width: 44px;
-  height: 32px;
+  width: 46px;
+  height: 34px;
   border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: var(--a-font, "Poppins", sans-serif);
+}
+
+.ano-attendance-pill:hover {
+  transform: scale(1.08);
 }
 
 .ano-attendance-pill.present {
-  background: var(--ano-attendance-present-bg);
-  color: var(--ano-attendance-present-text);
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.ano-attendance-pill.present:hover {
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
 }
 
 .ano-attendance-pill.absent {
-  background: var(--ano-attendance-absent-bg);
-  color: var(--ano-attendance-absent-text);
+  background: rgba(229, 57, 53, 0.1);
+  color: var(--a-red, #E53935);
+}
+
+.ano-attendance-pill.absent:hover {
+  box-shadow: 0 0 12px rgba(229, 57, 53, 0.2);
 }
 
 .ano-total-cell {
   white-space: nowrap;
+  font-weight: 600;
 }
 
+/* ── Responsive ── */
 @media (max-width: 1024px) {
   .ano-attendance-container {
-    padding: 18px;
+    padding: 20px 18px;
   }
 
   .ano-col-cadet {
@@ -193,11 +228,11 @@
 
 @media (max-width: 768px) {
   .ano-attendance-container {
-    padding: 16px;
+    padding: 16px 14px;
   }
 
   .ano-attendance-title {
-    font-size: 1.5rem;
+    font-size: 22px;
   }
 
   .ano-attendance-toolbar {
@@ -230,7 +265,7 @@
   }
 
   .ano-attendance-title {
-    font-size: 1.3rem;
+    font-size: 20px;
   }
 
   .ano-attendance-table th,
@@ -240,8 +275,8 @@
   }
 
   .ano-attendance-pill {
-    width: 38px;
+    width: 40px;
     height: 30px;
-    font-size: 0.82rem;
+    font-size: 12px;
   }
 }

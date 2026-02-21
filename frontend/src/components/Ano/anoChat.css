@@ -1,16 +1,14 @@
-/* src/components/Ano/anoChat.css */
+/* ================= NCC NEXUS — ANO CHAT (Premium Light) ================= */
 
 .ano-chat-wrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background-color: #0b141a;
+  background-color: var(--a-bg, #f0f2f8);
   overflow: hidden;
 }
 
-/* Ensure this chat page uses the full width of the dashboard content
-   and is not constrained by the global "max-width" centering rule. */
 .ano-dashboard-content > .ano-chat-wrapper {
   max-width: none;
   width: 100%;
@@ -18,67 +16,74 @@
   padding: 0;
   display: flex;
   flex: 1;
-  height: 100%;
+  height: calc(100vh - 56px);
 }
 
-/* ANO Header - Command Style */
+/* ── Page Header ── */
 .ano-chat-header {
-  height: 70px;
-  min-height: 70px;
-  background-color: #1f2c34;
-  border-bottom: 2px solid #00a884; /* Green accent border for Officer */
+  height: 60px;
+  min-height: 60px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  color: #e9edef;
+  color: var(--a-text, #1a1d2e);
   z-index: 5;
 }
 
 .ano-title-group h1 {
-  font-size: 1.3rem;
+  font-family: var(--a-font-display, "Marcellus", serif);
+  font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.04em;
+  color: var(--a-text, #1a1d2e);
 }
 
 .encryption-note {
-  font-size: 0.75rem;
-  color: #8696a0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.06);
+  padding: 3px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(22, 163, 74, 0.1);
 }
 
 /* Action Buttons */
 .new-group-btn {
-  background-color: transparent;
-  border: 1px solid #00a884;
-  color: #00a884;
-  padding: 8px 16px;
-  border-radius: 4px;
+  background: rgba(92, 107, 192, 0.06);
+  border: 1px solid rgba(92, 107, 192, 0.15);
+  color: var(--a-primary, #5C6BC0);
+  padding: 8px 18px;
+  border-radius: 10px;
   font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  font-family: var(--a-font, "Poppins", sans-serif);
 }
 
 .new-group-btn:hover {
-  background-color: rgba(0, 168, 132, 0.1);
+  background: rgba(92, 107, 192, 0.1);
+  box-shadow: 0 3px 12px rgba(92, 107, 192, 0.12);
+  transform: translateY(-1px);
 }
 
-/* Chat Container Override */
+/* ── Chat Container ── */
 .ano-chat-container {
   flex: 1;
   position: relative;
   overflow: hidden;
 }
 
-/* * CRITICAL: Override ChatCommon's default 100vh 
- * to fit inside this specific container.
- */
 .ano-chat-container .ncc-chat-container {
-  height: 100% !important; 
+  height: 100% !important;
   width: 100%;
   flex: 1 1 auto;
-  min-width: 0; /* allow flex children to shrink and prevent overflow */
+  min-width: 0;
 }
