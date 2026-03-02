@@ -74,6 +74,25 @@
   object-fit: cover;
 }
 
+.community-logo-upload-btn {
+  border: 0;
+  background: linear-gradient(135deg, var(--community-btn-start), var(--community-btn-end));
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 6px 16px var(--community-btn-shadow);
+}
+
+.community-logo-upload-btn input {
+  display: none;
+}
+
 .community-hero h1 {
   font-size: clamp(1.55rem, 2.4vw, 1.95rem);
   font-weight: 700;
@@ -1335,6 +1354,10 @@
 
   .community-hero {
     grid-template-columns: auto 1fr;
+  }
+
+  .community-logo-upload-btn {
+    grid-column: 1 / -1;
   }
 
   .community-new-btn {

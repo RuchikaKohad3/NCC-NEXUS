@@ -13,6 +13,8 @@ import { getStoredRole } from "../../utils/authState";
 import nccLogo from "../assets/ncc-logo.png";
 import "./community.css";
 
+const COMMUNITY_LOGO_STORAGE_KEY = "community_custom_logo";
+
 function sortPosts(posts, sortBy) {
   if (sortBy === "oldest") {
     return [...posts].sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
@@ -39,6 +41,7 @@ export default function CommunityFeed() {
   const [selectedTag, setSelectedTag] = useState("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  const [communityLogo, setCommunityLogo] = useState(nccLogo);
 
   useEffect(() => {
     const saved = localStorage.getItem(COMMUNITY_STORAGE_KEY);
@@ -48,6 +51,13 @@ export default function CommunityFeed() {
       } catch {
         setPosts(defaultCommunityPosts);
       }
+    }
+  }, []);
+
+  useEffect(() => {
+    const savedLogo = localStorage.getItem(COMMUNITY_LOGO_STORAGE_KEY);
+    if (savedLogo) {
+      setCommunityLogo(savedLogo);
     }
   }, []);
 
@@ -226,13 +236,27 @@ export default function CommunityFeed() {
     );
   };
 
+  const handleLogoUpload = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      if (!result) return;
+      setCommunityLogo(result);
+      localStorage.setItem(COMMUNITY_LOGO_STORAGE_KEY, result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="community-page">
       <div className="community-layout">
         <section className="community-left-column">
           <div className="community-hero">
             <div className="community-title-icon">
-              <img src={nccLogo} alt="NCC" className="community-title-logo" />
+              <img src={communityLogo} alt="Community Logo" className="community-title-logo" />
             </div>
             <div>
               <h1>Community Updates</h1>
@@ -251,6 +275,10 @@ export default function CommunityFeed() {
                 ) : null}
               </div>
             </div>
+            <label className="community-logo-upload-btn">
+              Change Logo
+              <input type="file" accept="image/*" onChange={handleLogoUpload} />
+            </label>
             {canPost ? (
               <button type="button" className="community-new-btn" onClick={() => setShowCreateModal(true)}>
                 <Plus size={16} />
