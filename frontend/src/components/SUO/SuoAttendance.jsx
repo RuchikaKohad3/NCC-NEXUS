@@ -256,14 +256,10 @@ const SuoAttendance = () => {
     }
   };
 
-  const drills = sessionDetail?.drills || [];
-  const sortedDrills = useMemo(
-    () =>
-      drills
-        .map((drill, index) => ({ ...drill, _originalIndex: index }))
-        .sort((a, b) => getDrillSortValue(b) - getDrillSortValue(a)),
-    [drills]
-  );
+  // Reverse drills so newest appears first; build index map for attendance lookup
+  const rawDrills = sessionDetail?.drills || [];
+  const drillOrder = rawDrills.map((_, i) => i).reverse();
+  const drills = drillOrder.map((i) => rawDrills[i]);
   const cadets = sessionDetail?.cadets || [];
 
   if (loading && !sessionDetail) {
@@ -281,42 +277,48 @@ const SuoAttendance = () => {
       {error ? <p style={{ color: "crimson" }}>{error}</p> : null}
 
       <div className="attendance-toolbar">
-        <button
-          className={`attendance-btn ${activeView === "attendance" ? "attendance-btn-primary" : "attendance-btn-secondary"}`}
-          onClick={() => setActiveView("attendance")}
-          type="button"
-        >
-          <ClipboardList size={18} />
-          <span>Attendance</span>
-        </button>
-        <button
-          className={`attendance-btn ${activeView === "leave" ? "attendance-btn-primary" : "attendance-btn-secondary"}`}
-          onClick={() => {
-            setActiveView("leave");
-            loadLeaveRequests();
-          }}
-          type="button"
-        >
-          <ClipboardList size={18} />
-          <span>View Leave</span>
-        </button>
+        <div className="attendance-toolbar-row">
+          <button
+            className={`attendance-btn ${activeView === "attendance" ? "attendance-btn-primary" : "attendance-btn-secondary"}`}
+            onClick={() => setActiveView("attendance")}
+            type="button"
+          >
+            <ClipboardList size={18} />
+            <span>Attendance</span>
+          </button>
+          <button
+            className={`attendance-btn ${activeView === "leave" ? "attendance-btn-primary" : "attendance-btn-secondary"}`}
+            onClick={() => {
+              setActiveView("leave");
+              loadLeaveRequests();
+            }}
+            type="button"
+          >
+            <ClipboardList size={18} />
+            <span>View Leave</span>
+          </button>
+
+          {activeView === "attendance" && (
+            <>
+              <label className="attendance-label">Session:</label>
+              <select
+                className="attendance-session-select"
+                value={selectedSessionId}
+                onChange={(e) => setSelectedSessionId(e.target.value)}
+                disabled={actionLoading || loading}
+              >
+                {sessionOptions.map((sessionName) => (
+                  <option key={sessionName.session_id} value={sessionName.session_id}>
+                    {sessionName.session_name}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+        </div>
 
         {activeView === "attendance" && (
-          <>
-            <label className="attendance-label">Session:</label>
-            <select
-              className="attendance-session-select"
-              value={selectedSessionId}
-              onChange={(e) => setSelectedSessionId(e.target.value)}
-              disabled={actionLoading || loading}
-            >
-              {sessionOptions.map((sessionName) => (
-                <option key={sessionName.session_id} value={sessionName.session_id}>
-                  {sessionName.session_name}
-                </option>
-              ))}
-            </select>
-
+          <div className="attendance-toolbar-row">
             <button className="attendance-btn attendance-btn-secondary" onClick={createSession} disabled={actionLoading}>
               <Plus size={18} />
               <span>Add Session</span>
@@ -336,7 +338,7 @@ const SuoAttendance = () => {
               <Download size={18} />
               <span>Download Attendance</span>
             </button>
-          </>
+          </div>
         )}
       </div>
 
@@ -359,10 +361,10 @@ const SuoAttendance = () => {
                 <thead>
                   <tr>
                     <th className="col-cadet">Cadet Name</th>
-                    {sortedDrills.map((drill, drillIdx) => (
+                    {drills.map((drill, i) => (
                       <th key={drill.drill_id} className="col-drill">
                         <div className="drill-head">
-                          <span>{drill.drill_name || `Drill ${drillIdx + 1}`}</span>
+                          <span>{drill.drill_name || `Drill ${drillOrder[i] + 1}`}</span>
                           <button
                             className="drill-delete"
                             onClick={() => removeDrill(drill.drill_id)}
@@ -386,8 +388,8 @@ const SuoAttendance = () => {
                     return (
                       <tr key={cadet.regimental_no}>
                         <td className="cadet-name-cell">{cadet.name}</td>
-                        {sortedDrills.map((drill, drillIdx) => {
-                          const status = cadet.attendance?.[drill._originalIndex] ?? null;
+                        {drills.map((drill, i) => {
+                          const status = cadet.attendance?.[drillOrder[i]] ?? null;
                           return (
                             <td key={`${cadet.regimental_no}-${drill.drill_id}`}>
                               {status ? (

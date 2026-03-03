@@ -1,12 +1,6 @@
-// ------------------------------------------
-// 1. Environment Configuration
-// ------------------------------------------
 const dotenv = require("dotenv");
 dotenv.config();
 
-// ------------------------------------------
-// 2. Core Dependencies
-// ------------------------------------------
 const http = require("http");
 const express = require("express");
 const cors = require("cors");
@@ -16,28 +10,21 @@ const { initFeedSocket } = require("./sockets/feed.socket");
 const { initNotificationSocket } = require("./sockets/notification.socket");
 const db = require("./db/knex");
 
-// ------------------------------------------
-// 3. Route Imports
-// ------------------------------------------
 const authRoutes = require("./routes/auth.routes");
 const anoRoutes = require("./routes/ano.routes");
 const cadetRoutes = require("./routes/cadet.routes");
 const chatRoutes = require("./routes/chat.routes");
 const postRoutes = require("./routes/post.routes");
+const donationRoutes = require("./routes/donation.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const attendanceRoutes = require("./modules/attendance/attendance.routes");
 const quizRoutes = require("./modules/quiz/routes/quiz.routes");
 const leaveRoutes = require("./modules/leave/leave.routes");
+const meetingRoutes = require("./modules/meetings/meeting.routes");
 
-// ------------------------------------------
-// 4. App & Server Setup
-// ------------------------------------------
 const app = express();
 const server = http.createServer(app);
 
-// ------------------------------------------
-// 5. Socket.IO Setup
-// ------------------------------------------
 const io = new Server(server, {
   cors: {
     origin: process.env.SOCKET_CORS_ORIGIN || "*",
@@ -92,6 +79,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/leave", leaveRoutes);
+app.use("/api/meetings", meetingRoutes);
+app.use("/api/donations", donationRoutes);
 // 9. Global Error Handler
 // ------------------------------------------
 app.use((err, req, res, next) => {
