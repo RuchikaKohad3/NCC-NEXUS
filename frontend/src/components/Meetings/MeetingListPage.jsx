@@ -36,7 +36,7 @@ const MeetingListSection = ({ title, meetings, emptyMessage, role, currentUser, 
   </section>
 );
 
-const MeetingListPage = ({ embedded = false, basePath = "/meetings" }) => {
+const MeetingListPage = ({ embedded = false, basePath = "/meetings", hideCreateLink = false }) => {
   const dispatch = useDispatch();
   const role = getCurrentRole();
   const currentUser = getCurrentUser();
@@ -66,7 +66,7 @@ const MeetingListPage = ({ embedded = false, basePath = "/meetings" }) => {
           <p>Structured meeting management with role-based access control.</p>
         </div>
 
-        {canCreateMeeting(role) ? (
+        {canCreateMeeting(role) && !hideCreateLink ? (
           <Link className="meeting-btn meeting-btn-primary" to={`${basePath}/create`}>
             Create Meeting
           </Link>
