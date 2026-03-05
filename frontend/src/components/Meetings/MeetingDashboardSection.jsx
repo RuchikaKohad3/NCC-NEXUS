@@ -12,7 +12,7 @@ import {
 } from "./meetingUtils";
 import "./meetingModule.css";
 
-const MeetingDashboardSection = ({ sectionTitle = "Meetings", mode = "INVITED", basePath = "/meetings" }) => {
+const MeetingDashboardSection = ({ sectionTitle = "Meetings", mode = "INVITED", basePath = "/meetings", onNavigate }) => {
   const dispatch = useDispatch();
   const role = getCurrentRole();
   const user = getCurrentUser();
@@ -44,13 +44,25 @@ const MeetingDashboardSection = ({ sectionTitle = "Meetings", mode = "INVITED", 
         <h2>{sectionTitle}</h2>
         <div className="meeting-dash-head-actions">
           {canCreateMeeting(role) ? (
-            <Link className="meeting-btn meeting-btn-primary" to={`${basePath}/create`}>
-              Create Meeting
-            </Link>
+            onNavigate ? (
+              <button type="button" className="meeting-btn meeting-btn-primary" onClick={() => onNavigate("create")}>
+                Create Meeting
+              </button>
+            ) : (
+              <Link className="meeting-btn meeting-btn-primary" to={`${basePath}/create`}>
+                Create Meeting
+              </Link>
+            )
           ) : null}
-          <Link className="meeting-btn meeting-btn-secondary" to={basePath}>
-            View All
-          </Link>
+          {onNavigate ? (
+            <button type="button" className="meeting-btn meeting-btn-secondary" onClick={() => onNavigate("list")}>
+              View All
+            </button>
+          ) : (
+            <Link className="meeting-btn meeting-btn-secondary" to={basePath}>
+              View All
+            </Link>
+          )}
         </div>
       </div>
 

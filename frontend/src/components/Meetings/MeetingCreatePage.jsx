@@ -14,7 +14,7 @@ const normalizeRoleLabel = (role = "") => {
   return r;
 };
 
-const MeetingCreatePage = ({ embedded = false, basePath = "/meetings" }) => {
+const MeetingCreatePage = ({ embedded = false, basePath = "/meetings", onCreated, onCancel }) => {
   const role = getCurrentRole();
   const currentUser = getCurrentUser();
   const dispatch = useDispatch();
@@ -142,10 +142,20 @@ const MeetingCreatePage = ({ embedded = false, basePath = "/meetings" }) => {
     dispatch(createMeetingAsync(payload))
       .unwrap()
       .then((created) => {
-        navigate(`${basePath}/${created.id}`);
+        if (embedded && onCreated) {
+          setForm({ title: "", description: "", dateTime: "", meetingType: "General", restricted: false });
+          setSelectedUsers([]);
+          setSearch("");
+          setRoleFilter("ALL");
+          onCreated(created);
+        } else {
+          navigate(`${basePath}/${created.id}`);
+        }
       })
       .catch(() => {
-        navigate(basePath);
+        if (!embedded) {
+          navigate(basePath);
+        }
       });
   };
 
@@ -316,7 +326,17 @@ const MeetingCreatePage = ({ embedded = false, basePath = "/meetings" }) => {
           <button
             type="button"
             className="meeting-btn meeting-btn-secondary"
-            onClick={() => navigate(basePath)}
+            onClick={() => {
+              if (embedded && onCancel) {
+                setForm({ title: "", description: "", dateTime: "", meetingType: "General", restricted: false });
+                setSelectedUsers([]);
+                setSearch("");
+                setRoleFilter("ALL");
+                onCancel();
+              } else {
+                navigate(basePath);
+              }
+            }}
           >
             <ArrowLeft size={14} />
             Cancel

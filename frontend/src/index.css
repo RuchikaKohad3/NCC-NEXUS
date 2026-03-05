@@ -623,15 +623,7 @@ body{
 .modal p{color:var(--text-muted);line-height:1.7;font-size:.92rem}
 
 /* ── LOGIN CARDS ───────────────────────────────────────────────────── */
-.login-card{
-  width:min(100%,780px);
-  background:rgba(255,255,255,.92);backdrop-filter:blur(24px);
-  border-radius:22px;margin:24px 0;padding:52px 44px;position:relative;
-  border:1px solid rgba(0,0,0,0.06);
-  box-shadow:0 25px 60px rgba(0,0,0,.06),0 4px 20px rgba(105,111,199,.04);
-  display:flex;flex-direction:column;
-}
-.ano-card{
+.login-card,.ano-card{
   width:min(100%,440px);
   background:rgba(255,255,255,.92);backdrop-filter:blur(24px);
   border-radius:20px;margin:24px 0;padding:42px 34px;position:relative;
@@ -639,7 +631,12 @@ body{
   box-shadow:0 25px 60px rgba(0,0,0,.06),0 4px 20px rgba(105,111,199,.04);
   display:flex;flex-direction:column;
 }
-.login-page,.ano-login-page,.ano-login-card{padding:32px 0;display:flex;justify-content:center}
+.login-page,.ano-login-page{
+  min-height:100vh;min-height:100dvh;
+  padding:32px 16px;display:flex;align-items:center;justify-content:center;
+  box-sizing:border-box;
+}
+.ano-login-card{padding:32px 16px;display:flex;justify-content:center}
 .card-glow{position:absolute;top:-20%;right:-20%;width:280px;height:280px;background:radial-gradient(circle,rgba(105,111,199,.08),transparent 70%);filter:blur(50px);opacity:.6;pointer-events:none;z-index:0}
 .card-close-btn{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.06);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease;z-index:20}
 .card-close-btn:hover{background:rgba(239,68,68,.06);color:#ef4444;border-color:rgba(239,68,68,.15);transform:rotate(90deg)}
@@ -663,9 +660,10 @@ body{
 .login-card input::placeholder,.ano-card input::placeholder{color:var(--text-dim)}
 .input-group.has-icon input{padding-left:46px}
 .password-box input{padding-right:46px}
+.password-box.has-icon input{padding-left:46px}
 .login-card input:focus,.ano-card input:focus{outline:none;border-color:var(--accent-secondary);background:#fff;box-shadow:0 0 0 3px rgba(105,111,199,.08)}
 .input-icon{position:absolute;left:15px;color:var(--text-dim);font-size:1rem;transition:color .3s}
-.input-group:focus-within .input-icon{color:var(--accent-primary)}
+.input-group:focus-within .input-icon,.password-box:focus-within .input-icon{color:var(--accent-primary)}
 .password-eye{position:absolute;right:15px;color:var(--text-dim);cursor:pointer;transition:color .3s}
 .password-eye:hover{color:var(--accent-primary)}
 
@@ -859,15 +857,13 @@ body{
   .structure-grid{grid-template-columns:1fr}
   .modal-overlay,.modal-backdrop{padding:14px}
   .modal-content{width:min(100%,420px)}
-  .login-page,.ano-login-page,.ano-login-card{padding:8px 0}
+  .login-page,.ano-login-page{padding:16px 10px;min-height:100vh;min-height:100dvh}
+  .ano-login-card{padding:8px 10px}
   .login-card,.ano-card{
     width:min(100%,380px);
     border-radius:16px;
     margin:6px 0;
     padding:24px 16px 18px;
-  }
-  .login-card{
-    width:min(100%,360px);
   }
   .card-close-btn{top:10px;right:10px;width:28px;height:28px}
   .login-logo{width:56px;margin:0 auto 10px}
@@ -880,6 +876,7 @@ body{
   .login-card input,.ano-card input{height:44px;font-size:.84rem;border-radius:9px}
   .input-group.has-icon input{padding-left:40px}
   .password-box input{padding-right:40px}
+  .password-box.has-icon input{padding-left:40px}
   .input-icon{left:12px;font-size:.9rem}
   .password-eye{right:12px}
   .login-btn,.authorize-btn{
@@ -915,6 +912,20 @@ body{
     box-sizing:border-box;
     max-height:calc(100vh - 20px) !important;
     overflow-y:auto !important;
+  }
+
+  /* Cadet login modal — match ANO modal sizing */
+  .cadet-login-modal{padding:14px;align-items:flex-start}
+  .cadet-login-content{width:100%}
+  .cadet-login-modal .login-card{
+    width:min(100%,380px);
+    max-width:100%;
+    margin:4px auto;
+    padding:24px 16px 18px;
+    border-radius:16px;
+    box-sizing:border-box;
+    max-height:calc(100vh - 28px);
+    overflow-y:auto;
   }
 }
 @media(max-width:480px){
@@ -953,25 +964,70 @@ body{
   .structure-grid{grid-template-columns:1fr}
   .modal-overlay,.modal-backdrop{padding:10px}
   .modal-content{width:100%}
+  .login-page,.ano-login-page{padding:12px 8px}
   .login-card,.ano-card{
     width:min(100%,350px);
     padding:20px 12px 14px;
     border-radius:14px;
   }
-  .login-card{
-    width:min(100%,320px);
-  }
+  .login-logo{width:48px;margin:0 auto 8px}
   .login-title,.ano-header h1{font-size:1.05rem}
-  .role-select button{font-size:.66rem}
+  .role-select{padding:3px;margin-bottom:14px}
+  .role-select button{padding:7px 0;font-size:.66rem}
+  .input-wrapper{margin-bottom:10px}
   .login-card input,.ano-card input{height:40px;font-size:.8rem}
-  .login-btn,.authorize-btn{height:40px;font-size:.72rem}
+  .input-group.has-icon input{padding-left:36px}
+  .password-box.has-icon input{padding-left:36px}
+  .input-icon{left:10px;font-size:.85rem}
+  .password-eye{right:10px}
+  .login-btn,.authorize-btn{height:40px;font-size:.72rem;margin-top:4px}
+  .card-glow{width:180px;height:180px}
+  .restricted-box{font-size:.66rem;padding:7px;margin-bottom:12px}
+  .ano-icon img{width:54px}
+  .ano-footer-text{margin-top:10px;font-size:.62rem}
   .wing-row{flex-wrap:wrap;gap:14px}
 
   .modal-overlay.ano-login-modal .ano-card{
     width:min(100%,330px) !important;
     padding:18px 12px 14px !important;
   }
+
+  /* Cadet login modal */
+  .cadet-login-modal{padding:10px}
+  .cadet-login-modal .login-card{
+    width:min(100%,350px);
+    padding:20px 12px 14px;
+    border-radius:14px;
+    max-height:calc(100vh - 20px);
+  }
 }
+
+/* ── Landscape phones: prevent login card from overflowing viewport height ── */
+@media(max-height:500px) and (orientation:landscape){
+  .login-page,.ano-login-page{
+    align-items:flex-start;
+    padding:10px 16px;
+    overflow-y:auto;
+  }
+  .login-card,.ano-card{
+    padding:18px 16px 14px;
+    margin:0;
+  }
+  .login-logo{width:40px;margin:0 auto 6px}
+  .login-title,.ano-header h1{font-size:1rem;margin-bottom:4px}
+  .ano-header p{margin-bottom:8px}
+  .role-select{margin-bottom:12px}
+  .input-wrapper{margin-bottom:8px}
+  .login-card input,.ano-card input{height:38px}
+  .login-btn,.authorize-btn{height:38px;margin-top:2px}
+  .restricted-box{padding:6px;margin-bottom:10px}
+  .card-glow{display:none}
+}
+
+/* ── CADET LOGIN MODAL ─────────────────────────────────────────────── */
+.cadet-login-modal{padding:80px 24px;box-sizing:border-box;align-items:center;overflow-y:auto}
+.cadet-login-content{width:100%;display:flex;justify-content:center;border-radius:24px}
+.cadet-login-modal .login-card{border-radius:20px;margin:24px 0;padding:44px 36px;overflow:hidden}
 
 /* ── ANO MODAL ─────────────────────────────────────────────────────── */
 .modal-overlay.ano-login-modal{padding:24px;align-items:center;overflow-y:auto}
