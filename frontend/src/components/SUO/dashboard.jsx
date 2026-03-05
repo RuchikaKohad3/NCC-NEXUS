@@ -31,6 +31,7 @@ import MeetingListPage from "../Meetings/MeetingListPage";
 import MeetingCreatePage from "../Meetings/MeetingCreatePage";
 import MeetingDashboardSection from "../Meetings/MeetingDashboardSection";
 import { canCreateMeeting, getCurrentRole } from "../Meetings/meetingUtils";
+import { fetchMeetings } from "../../store/meetingSlice";
 import { closeSUOSidebar, toggleSUOSidebar } from "../../features/ui/uiSlice";
 import { API_BASE_URL } from "../../api/config";
 import QuizModule from "../quiz/QuizModule";
@@ -427,8 +428,15 @@ export default function SUODashboard() {
 
             {activeTab === "meetings" && (
               <div className="meeting-tab-shell">
-                <MeetingListPage embedded basePath="/meetings" />
-                {canCreate ? <MeetingCreatePage embedded basePath="/meetings" /> : null}
+                <MeetingListPage embedded basePath="/meetings" hideCreateLink={canCreate} />
+                {canCreate ? (
+                  <MeetingCreatePage
+                    embedded
+                    basePath="/meetings"
+                    onCreated={() => dispatch(fetchMeetings())}
+                    onCancel={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  />
+                ) : null}
               </div>
             )}
 
@@ -499,7 +507,12 @@ export default function SUODashboard() {
                   </button>
                 </div>
 
-                <MeetingDashboardSection sectionTitle="My Meetings" mode="MY" basePath="/meetings" />
+                <MeetingDashboardSection
+                  sectionTitle="My Meetings"
+                  mode="MY"
+                  basePath="/meetings"
+                  onNavigate={() => setActiveTab("meetings")}
+                />
 
                 <div className="banner">
                   <span className="banner-watermark">UNITY AND DISCIPLINE</span>
