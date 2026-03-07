@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Download, Plus, Trash2, ClipboardList, Check, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, Plus, Trash2, ClipboardList, Check, X, ChevronDown, ChevronUp, CalendarDays, Clock3 } from "lucide-react";
 import "./suoAttendance.css";
 import { attendanceApi } from "../../api/attendanceApi";
 import { leaveApi } from "../../api/leaveApi";
+
+const SESSION_FINE_STORAGE_KEY = "ncc_suo_session_fine_v1";
+const PENALTY_RECORD_STORAGE_KEY = "ncc_suo_penalty_records_v1";
 
 const calculateAttendance = (attendance, totalDrills) => {
   const attended = attendance.filter((v) => v === "P").length;
@@ -33,6 +36,43 @@ const toDisplayDateTime = (value) => {
   }).format(dt);
 };
 
+const toDisplayDate = (value) => {
+  const raw = String(value || "").trim();
+  if (!raw) return "--";
+
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) {
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(parsed);
+  }
+
+  const dateOnly = raw.includes("T") ? raw.split("T")[0] : raw;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)) {
+    const [yyyy, mm, dd] = dateOnly.split("-");
+    return `${dd}-${mm}-${yyyy}`;
+  }
+
+  return dateOnly;
+};
+
+const toDisplayTime = (timeValue, fallbackDateValue) => {
+  const fallbackRaw = String(fallbackDateValue || "");
+  const raw = String(timeValue || "").trim() || (fallbackRaw.includes("T") ? fallbackRaw.split("T")[1] || "" : "");
+  if (!raw) return "--";
+
+  const matched = raw.match(/(\d{2}):(\d{2})/);
+  if (!matched) return raw.slice(0, 5);
+
+  const hh = Number(matched[1]);
+  const mm = matched[2];
+  const suffix = hh >= 12 ? "PM" : "AM";
+  const hour = hh % 12 || 12;
+  return `${String(hour).padStart(2, "0")}:${mm} ${suffix}`;
+};
+
 const getDrillSortValue = (drill = {}) => {
   const createdAt = new Date(drill.created_at || "").getTime();
   if (!Number.isNaN(createdAt) && createdAt > 0) return createdAt;
@@ -47,6 +87,35 @@ const getDrillSortValue = (drill = {}) => {
   return Number.isNaN(scheduledAt) ? 0 : scheduledAt;
 };
 
+const loadJsonFromStorage = (key, fallbackValue = {}) => {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallbackValue;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : fallbackValue;
+  } catch {
+    return fallbackValue;
+  }
+};
+
+const parseFineAmount = (value) => {
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount < 0) return null;
+  return Math.round(amount * 100) / 100;
+};
+
+const getLeaveStatusForCadetDrill = (leaveRequests, cadetRegimentalNo, drillId) => {
+  const normalizedCadetRegNo = String(cadetRegimentalNo || "");
+  const normalizedDrillId = String(drillId || "");
+  const found = leaveRequests.find((leave) => {
+    const leaveCadetRegNo = String(leave?.regimental_no || leave?.cadet_key || "");
+    const leaveDrillId = String(leave?.drill_id || "");
+    if (!leaveCadetRegNo || !leaveDrillId) return false;
+    return leaveCadetRegNo === normalizedCadetRegNo && leaveDrillId === normalizedDrillId;
+  });
+  return String(found?.status || "").toLowerCase();
+};
+
 const SuoAttendance = () => {
   const [activeView, setActiveView] = useState("attendance");
   const [sessionOptions, setSessionOptions] = useState([]);
@@ -57,6 +126,12 @@ const SuoAttendance = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
+  const [sessionFineById, setSessionFineById] = useState(() =>
+    loadJsonFromStorage(SESSION_FINE_STORAGE_KEY, {})
+  );
+  const [penaltyRecordsBySession, setPenaltyRecordsBySession] = useState(() =>
+    loadJsonFromStorage(PENALTY_RECORD_STORAGE_KEY, {})
+  );
 
   const nextDrillDate = useMemo(() => {
     const today = new Date();
@@ -65,6 +140,16 @@ const SuoAttendance = () => {
     const dd = String(today.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd} 09:00`;
   }, []);
+  const selectedSessionFine = Number(sessionFineById?.[String(selectedSessionId)] || 0);
+  const currentSessionPenaltyRecords = penaltyRecordsBySession?.[String(selectedSessionId)] || {};
+
+  useEffect(() => {
+    localStorage.setItem(SESSION_FINE_STORAGE_KEY, JSON.stringify(sessionFineById));
+  }, [sessionFineById]);
+
+  useEffect(() => {
+    localStorage.setItem(PENALTY_RECORD_STORAGE_KEY, JSON.stringify(penaltyRecordsBySession));
+  }, [penaltyRecordsBySession]);
 
   const loadLeaveRequests = async () => {
     try {
@@ -153,6 +238,19 @@ const SuoAttendance = () => {
     setError("");
     try {
       await attendanceApi.deleteSession(selectedSessionId);
+      const sessionKey = String(selectedSessionId);
+      setSessionFineById((prev) => {
+        if (!Object.prototype.hasOwnProperty.call(prev, sessionKey)) return prev;
+        const next = { ...prev };
+        delete next[sessionKey];
+        return next;
+      });
+      setPenaltyRecordsBySession((prev) => {
+        if (!Object.prototype.hasOwnProperty.call(prev, sessionKey)) return prev;
+        const next = { ...prev };
+        delete next[sessionKey];
+        return next;
+      });
       await loadSessions();
     } catch (err) {
       window.alert(err?.response?.data?.message || "Unable to delete session.");
@@ -203,9 +301,15 @@ const SuoAttendance = () => {
     }
   };
 
-  const toggleAttendance = async (cadetRegimentalNo, drillId, currentStatus) => {
-    const nextStatus = currentStatus === "P" ? "A" : "P";
+  const updateAttendanceStatus = async (cadetRegimentalNo, drillId, nextUiStatus) => {
+    const backendStatus = nextUiStatus === "P" ? "P" : "A";
+    const penaltyType = nextUiStatus === "AP" ? "AP" : nextUiStatus === "A" ? "A" : null;
     const prev = sessionDetail;
+    const prevPenaltyRecords = penaltyRecordsBySession;
+    const sessionKey = String(selectedSessionId);
+    const cadetKey = String(cadetRegimentalNo);
+    const drillKey = String(drillId);
+
     const optimistic = {
       ...sessionDetail,
       cadets: sessionDetail.cadets.map((cadet) =>
@@ -214,21 +318,57 @@ const SuoAttendance = () => {
           : {
               ...cadet,
               attendance: sessionDetail.drills.map((drill, idx) =>
-                Number(drill.drill_id) === Number(drillId) ? nextStatus : cadet.attendance[idx]
+                Number(drill.drill_id) === Number(drillId) ? backendStatus : cadet.attendance[idx]
               ),
             }
       ),
     };
 
     setSessionDetail(optimistic);
+    setPenaltyRecordsBySession((prevRecords) => {
+      const sessionRecords = { ...(prevRecords?.[sessionKey] || {}) };
+      const cadetRecords = { ...(sessionRecords?.[cadetKey] || {}) };
+      if (backendStatus === "P") {
+        delete cadetRecords[drillKey];
+      } else if (penaltyType) {
+        cadetRecords[drillKey] = penaltyType;
+      }
+      if (Object.keys(cadetRecords).length === 0) {
+        delete sessionRecords[cadetKey];
+      } else {
+        sessionRecords[cadetKey] = cadetRecords;
+      }
+      return {
+        ...prevRecords,
+        [sessionKey]: sessionRecords,
+      };
+    });
+
     try {
       await attendanceApi.patchRecords({
-        updates: [{ drill_id: drillId, regimental_no: cadetRegimentalNo, status: nextStatus }],
+        updates: [{ drill_id: drillId, regimental_no: cadetRegimentalNo, status: backendStatus }],
       });
     } catch (err) {
       setSessionDetail(prev);
+      setPenaltyRecordsBySession(prevPenaltyRecords);
       window.alert(err?.response?.data?.message || "Unable to update attendance.");
     }
+  };
+
+  const setSessionFineAmount = () => {
+    if (!selectedSessionId) return;
+    const currentValue = sessionFineById?.[String(selectedSessionId)] ?? 0;
+    const amountInput = window.prompt("Enter fine amount per AP (in INR):", String(currentValue));
+    if (amountInput === null) return;
+    const parsed = parseFineAmount(amountInput);
+    if (parsed === null) {
+      window.alert("Please enter a valid non-negative amount.");
+      return;
+    }
+    setSessionFineById((prev) => ({
+      ...prev,
+      [String(selectedSessionId)]: parsed,
+    }));
   };
 
   const downloadCSV = async () => {
@@ -344,10 +484,26 @@ const SuoAttendance = () => {
               <span>Add Drill</span>
             </button>
 
+            <button
+              className="attendance-btn attendance-btn-secondary"
+              onClick={setSessionFineAmount}
+              disabled={actionLoading || !selectedSessionId}
+            >
+              <Plus size={18} />
+              <span>Set Fine</span>
+            </button>
+
             <button className="attendance-btn attendance-btn-primary" onClick={downloadCSV} disabled={actionLoading}>
               <Download size={18} />
               <span>Download Attendance</span>
             </button>
+
+            <div className="fine-pill-display" title="Session fine amount used for AP status">
+              Fine/AP: Rs. {selectedSessionFine.toFixed(2)}
+            </div>
+            <div className="fine-pill-display fine-pill-note" title="Attendance status mapping">
+              AP = absent with penalty, A = absent without penalty
+            </div>
           </div>
         )}
       </div>
@@ -373,42 +529,94 @@ const SuoAttendance = () => {
                     <th className="col-cadet">Cadet Name</th>
                     {drills.map((drill, i) => (
                       <th key={drill.drill_id} className="col-drill">
-                        <div className="drill-head">
-                          <span>{drill.drill_name || `Drill ${sortedDrillEntries[i].originalIndex + 1}`}</span>
-                          <button
-                            className="drill-delete"
-                            onClick={() => removeDrill(drill.drill_id)}
-                            title="Remove Drill"
-                            aria-label={`Remove ${drill.drill_name || `Drill ${sortedDrillEntries[i].originalIndex + 1}`}`}
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                        <div className="drill-card">
+                          <div className="drill-head">
+                            <span className="drill-title">{drill.drill_name || `Drill ${sortedDrillEntries[i].originalIndex + 1}`}</span>
+                            <button
+                              className="drill-delete"
+                              onClick={() => removeDrill(drill.drill_id)}
+                              title="Remove Drill"
+                              aria-label={`Remove ${drill.drill_name || `Drill ${sortedDrillEntries[i].originalIndex + 1}`}`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                          <div className="drill-meta-line">
+                            <CalendarDays size={12} />
+                            <span className="drill-meta-item">{toDisplayDate(drill.drill_date)}</span>
+                          </div>
+                          <div className="drill-meta-line">
+                            <Clock3 size={12} />
+                            <span className="drill-meta-item">{toDisplayTime(drill.drill_time, drill.drill_date)}</span>
+                          </div>
                         </div>
-                        <div className="drill-date">{`${drill.drill_date} ${String(drill.drill_time).slice(0, 5)}`}</div>
                       </th>
                     ))}
                     <th>Total Drills</th>
                     <th>Total Attendance</th>
                     <th>Percentage</th>
+                    <th>Total Fine</th>
                   </tr>
                 </thead>
                 <tbody>
                   {cadets.map((cadet) => {
                     const { attended, total, percent } = calculateAttendance(cadet.attendance || [], drills.length);
+                    const cadetPenaltyMap = currentSessionPenaltyRecords?.[String(cadet.regimental_no)] || {};
+                    const apCount = drills.reduce((count, drill, i) => {
+                      const rawStatus = cadet.attendance?.[sortedDrillEntries[i].originalIndex] ?? null;
+                      if (rawStatus !== "A") return count;
+                      const penaltyChoice = cadetPenaltyMap?.[String(drill.drill_id)];
+                      const leaveStatus = getLeaveStatusForCadetDrill(
+                        leaveRequests,
+                        cadet.regimental_no,
+                        drill.drill_id
+                      );
+                      const uiStatus = penaltyChoice === "AP" || leaveStatus === "rejected" ? "AP" : "A";
+                      return uiStatus === "AP" ? count + 1 : count;
+                    }, 0);
+                    const totalFine = selectedSessionFine * apCount;
                     return (
                       <tr key={cadet.regimental_no}>
                         <td className="cadet-name-cell">{cadet.name}</td>
                         {drills.map((drill, i) => {
-                          const status = cadet.attendance?.[sortedDrillEntries[i].originalIndex] ?? null;
+                          const rawStatus = cadet.attendance?.[sortedDrillEntries[i].originalIndex] ?? null;
+                          const leaveStatus = getLeaveStatusForCadetDrill(
+                            leaveRequests,
+                            cadet.regimental_no,
+                            drill.drill_id
+                          );
+                          const penaltyChoice = cadetPenaltyMap?.[String(drill.drill_id)];
+                          const uiStatus =
+                            rawStatus === "P"
+                              ? "P"
+                              : rawStatus === "A"
+                              ? penaltyChoice === "AP"
+                                ? "AP"
+                                : leaveStatus === "rejected"
+                                ? "AP"
+                                : "A"
+                              : null;
+                          const leaveHint =
+                            leaveStatus === "approved"
+                              ? "Leave approved - choose A (without penalty)"
+                              : leaveStatus === "rejected"
+                              ? "Leave rejected - choose AP (with penalty)"
+                              : "Choose AP for penalty or A for no penalty";
                           return (
                             <td key={`${cadet.regimental_no}-${drill.drill_id}`}>
-                              {status ? (
-                                <button
-                                  className={`attendance-pill ${status === "P" ? "present" : "absent"}`}
-                                  onClick={() => toggleAttendance(cadet.regimental_no, drill.drill_id, status)}
+                              {uiStatus ? (
+                                <select
+                                  className={`attendance-status-select ${uiStatus === "P" ? "present" : "absent"}`}
+                                  value={uiStatus}
+                                  onChange={(e) =>
+                                    updateAttendanceStatus(cadet.regimental_no, drill.drill_id, e.target.value)
+                                  }
+                                  title={leaveHint}
                                 >
-                                  {status}
-                                </button>
+                                  <option value="P">P</option>
+                                  <option value="AP">AP</option>
+                                  <option value="A">A</option>
+                                </select>
                               ) : (
                                 <span className="attendance-pill">--</span>
                               )}
@@ -418,6 +626,7 @@ const SuoAttendance = () => {
                         <td className="total-cell">{total}</td>
                         <td className="total-cell">{attended}</td>
                         <td className="total-cell">{percent}%</td>
+                        <td className="total-cell fine-cell">Rs. {totalFine.toFixed(2)}</td>
                       </tr>
                     );
                   })}

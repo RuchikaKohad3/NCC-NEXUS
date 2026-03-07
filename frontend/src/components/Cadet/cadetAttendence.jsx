@@ -18,10 +18,25 @@ import {
   TrendingUp,
   Loader2,
   Info,
+  Wallet,
 } from "lucide-react";
 import "./cadetAttendene.css";
 import { attendanceApi } from "../../api/attendanceApi";
 import { leaveApi } from "../../api/leaveApi";
+
+const SESSION_FINE_STORAGE_KEY = "ncc_suo_session_fine_v1";
+const PENALTY_RECORD_STORAGE_KEY = "ncc_suo_penalty_records_v1";
+
+const readStorageObject = (key) => {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+};
 
 function getStatusIcon(status) {
   switch (status) {
@@ -209,6 +224,40 @@ export default function CadetAttendance() {
       ? Number(stats.percent).toFixed(1)
       : "0.0";
 
+  const totalFineAmount = useMemo(() => {
+    if (!regimentalNo || !Array.isArray(sessions) || sessions.length === 0) return 0;
+
+    const sessionFineById = readStorageObject(SESSION_FINE_STORAGE_KEY);
+    const penaltyRecordsBySession = readStorageObject(PENALTY_RECORD_STORAGE_KEY);
+    const rejectedLeaveDrillIds = new Set(
+      (leaveApplications || [])
+        .filter((item) => String(item?.status || "").toLowerCase() === "rejected")
+        .map((item) => String(item?.drill_id || ""))
+        .filter(Boolean)
+    );
+
+    return sessions.reduce((sum, session) => {
+      const sessionId = String(session?.session_id || "");
+      const sessionFine = Number(sessionFineById?.[sessionId] || 0);
+      if (!sessionId || !Number.isFinite(sessionFine) || sessionFine <= 0) return sum;
+
+      const sessionPenaltyRows = penaltyRecordsBySession?.[sessionId] || {};
+      const cadetPenaltyMap =
+        sessionPenaltyRows?.[String(regimentalNo)] || sessionPenaltyRows?.[String(cadetKey)] || {};
+
+      const apCount = (session?.drills || []).reduce((count, drill) => {
+        if (String(drill?.status || "") !== "A") return count;
+        const drillId = String(drill?.drill_id || "");
+        if (!drillId) return count;
+        const penaltyChoice = String(cadetPenaltyMap?.[drillId] || "");
+        const isAP = penaltyChoice === "AP" || (!penaltyChoice && rejectedLeaveDrillIds.has(drillId));
+        return isAP ? count + 1 : count;
+      }, 0);
+
+      return sum + apCount * sessionFine;
+    }, 0);
+  }, [sessions, leaveApplications, regimentalNo, cadetKey]);
+
   return (
     <div className="ca-root">
       <div className="ca-header">
@@ -266,6 +315,15 @@ export default function CadetAttendance() {
           <div className="ca-stat-info">
             <span className="ca-stat-number">{attendancePercent}%</span>
             <span className="ca-stat-label">Attendance</span>
+          </div>
+        </div>
+        <div className="ca-stat-card ca-stat-fine">
+          <div className="ca-stat-icon ca-stat-icon--amber">
+            <Wallet size={22} />
+          </div>
+          <div className="ca-stat-info">
+            <span className="ca-stat-number ca-stat-number--money">Rs. {totalFineAmount.toFixed(2)}</span>
+            <span className="ca-stat-label">Total Fine</span>
           </div>
         </div>
       </div>

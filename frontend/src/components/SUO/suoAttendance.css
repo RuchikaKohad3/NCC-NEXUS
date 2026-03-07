@@ -207,6 +207,15 @@
   min-width: 150px;
 }
 
+.drill-card {
+  border: 1px solid var(--s-border, rgba(0, 0, 0, 0.06));
+  border-radius: 12px;
+  background: var(--s-surface, #ffffff);
+  padding: 8px 8px 6px;
+  min-width: 132px;
+  margin: 0 auto;
+}
+
 .drill-head {
   display: flex;
   align-items: center;
@@ -214,6 +223,14 @@
   gap: 6px;
   line-height: 1.1;
   font-weight: 600;
+}
+
+.drill-title {
+  white-space: nowrap;
+  color: var(--s-primary, #5C6BC0);
+  text-transform: none;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .drill-delete {
@@ -232,12 +249,25 @@
   color: var(--s-red, #E53935);
 }
 
-.drill-date {
-  margin-top: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--s-text-muted, #8b90a8);
+.drill-meta-line {
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5a6078;
   white-space: nowrap;
+}
+
+.drill-meta-item {
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.drill-meta-line svg {
+  opacity: 0.85;
 }
 
 .attendance-table tbody td {
@@ -299,9 +329,61 @@
   box-shadow: 0 0 12px rgba(229, 57, 53, 0.2);
 }
 
+.attendance-status-select {
+  width: 52px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--s-font, "Poppins", sans-serif);
+  text-align: center;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+}
+
+.attendance-status-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.2);
+}
+
+.attendance-status-select.present {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.attendance-status-select.absent {
+  background: rgba(229, 57, 53, 0.1);
+  color: var(--s-red, #E53935);
+}
+
 .total-cell {
   white-space: nowrap;
   font-weight: 600;
+}
+
+.fine-cell {
+  color: #b45309;
+}
+
+.fine-pill-display {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fine-pill-note {
+  background: rgba(92, 107, 192, 0.08);
+  border-color: rgba(92, 107, 192, 0.2);
+  color: #374151;
 }
 
 .leave-table-card {
@@ -518,25 +600,32 @@
     padding-left: 10px;
   }
   .col-drill {
-    min-width: 76px;
+    min-width: 88px;
+  }
+  .drill-card {
+    min-width: 96px;
+    border-radius: 8px;
+    padding: 5px 5px 4px;
   }
   .drill-head {
     gap: 4px;
   }
-  .drill-head > span {
+  .drill-title {
     font-size: 10px;
     line-height: 1.15;
     display: inline-block;
-    max-width: 46px;
+    max-width: 56px;
     white-space: normal;
     word-break: break-word;
   }
-  .drill-date {
-    font-size: 10px;
+  .drill-meta-line {
     margin-top: 2px;
-    max-width: 66px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    gap: 4px;
+    font-size: 9px;
+  }
+  .drill-meta-line svg {
+    width: 10px;
+    height: 10px;
   }
   .cadet-name-cell {
     padding-left: 10px;
@@ -548,8 +637,20 @@
     font-size: 10px;
     border-radius: 6px;
   }
+  .attendance-status-select {
+    width: 40px;
+    height: 24px;
+    font-size: 10px;
+    border-radius: 6px;
+  }
   .total-cell {
     font-size: 11px;
+  }
+  .fine-pill-display {
+    min-height: 28px;
+    font-size: 10px;
+    padding: 0 8px;
+    border-radius: 7px;
   }
   .leave-row {
     flex-direction: column;
@@ -613,7 +714,11 @@
     font-size: 11px;
   }
   .col-drill {
-    min-width: 68px;
+    min-width: 82px;
+  }
+  .drill-card {
+    min-width: 88px;
+    padding: 4px 4px 3px;
   }
   .attendance-pill {
     width: 28px;
@@ -621,7 +726,23 @@
     font-size: 9px;
     border-radius: 6px;
   }
-  .drill-date {
-    display: none;
+  .attendance-status-select {
+    width: 34px;
+    height: 22px;
+    font-size: 9px;
+    border-radius: 6px;
+  }
+  .fine-pill-display {
+    font-size: 9px;
+    min-height: 26px;
+    padding: 0 7px;
+  }
+  .drill-meta-line {
+    font-size: 8px;
+    gap: 3px;
+  }
+  .drill-meta-line svg {
+    width: 9px;
+    height: 9px;
   }
 }
