@@ -38,6 +38,7 @@ import QuizModule from "./components/quiz/QuizModule";
 import QuizLayout from "./components/quiz/QuizLayout";
 import Community from "./pages/Community";
 import CommunityFeed from "./components/community/CommunityFeed";
+import AnoDonationOverview from "./components/Donations/AnoDonationOverview";
 
 const App = () => {
   return (
@@ -89,6 +90,7 @@ const App = () => {
           <Route path="ano-attendance" element={<AnoAttendance />} />
           <Route path="chat" element={<AnoChat />} />
           <Route path="community" element={<CommunityFeed />} />
+          <Route path="donations" element={<AnoDonationOverview />} />
           <Route path="meetings" element={<MeetingListPage basePath="/ano/meetings" />} />
           <Route path="meetings/create" element={<MeetingCreatePage basePath="/ano/meetings" />} />
           <Route path="meetings/:meetingId" element={<MeetingDetailsPage basePath="/ano/meetings" />} />

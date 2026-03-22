@@ -13,6 +13,7 @@ import {
   Video,
   Camera,
   Users,
+  Heart,
 } from "lucide-react";
 import ChatLayout from "../ChatCommon/ChatLayout";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +30,7 @@ import MeetingRoomPage from "../Meetings/MeetingRoomPage";
 import MeetingDashboardSection from "../Meetings/MeetingDashboardSection";
 
 import CommunityFeed from "../community/CommunityFeed";
+import AlumniDonations from "../Donations/AlumniDonations";
 import { closeAlumniSidebar, toggleAlumniSidebar } from "../../features/ui/uiSlice";
 import { API_BASE_URL } from "../../api/config";
 import { clearAuthStorage, hasAuthFor } from "../../utils/authState";
@@ -37,7 +39,7 @@ import { resolveProfileImage } from "../../utils/profileImage";
 
 export default function AlumniDashboard() {
   const ALUMNI_TAB_STORAGE_KEY = "alumni_dashboard_active_tab";
-  const ALUMNI_ALLOWED_TABS = ["profile", "feed", "meetings", "chat", "community"];
+  const ALUMNI_ALLOWED_TABS = ["profile", "feed", "meetings", "chat", "community", "donations"];
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -331,6 +333,17 @@ const startEditBio = () => {
                 </button>
 
                 <button
+                  className={`nav-item ${activeTab === "donations" ? "active" : ""}`}
+                  onClick={() => {
+                    setActiveTab("donations");
+                    dispatch(closeAlumniSidebar());
+                  }}
+                >
+                  <Heart size={18} />
+                  <span>Donations</span>
+                </button>
+
+                <button
                   className="nav-item"
                   onClick={() => {
                     setShowReset(true);
@@ -421,6 +434,10 @@ const startEditBio = () => {
             )}
 
             {activeTab === "community" && <CommunityFeed />}
+
+            {activeTab === "donations" && (
+              <AlumniDonations profileName={profileData.name} />
+            )}
 
             {activeTab === "profile" && (
               <div className="profile-page">
