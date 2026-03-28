@@ -6,9 +6,9 @@ import { fetchMeetings } from "../../store/meetingSlice";
 import {
   MEETING_STATUS,
   canCreateMeeting,
+  getDashboardVisibleMeetings,
   getCurrentRole,
   getCurrentUser,
-  getVisibleMeetings,
 } from "./meetingUtils";
 import "./meetingModule.css";
 
@@ -23,7 +23,7 @@ const MeetingDashboardSection = ({ sectionTitle = "Meetings", mode = "INVITED", 
     dispatch(fetchMeetings());
   }, [dispatch]);
 
-  const visible = getVisibleMeetings(meetings, role, user.id);
+  const visible = getDashboardVisibleMeetings(meetings, role, user.id);
   const liveMeeting = visible.find((meeting) => meeting.status === MEETING_STATUS.LIVE);
 
   const listByMode = {

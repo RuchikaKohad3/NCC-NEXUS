@@ -21,15 +21,21 @@ const DonationModal = ({ need, needs = [], onClose, onSuccess }) => {
   const [donationResult, setDonationResult] = useState(null);
 
   const selectedNeed = need || needs.find((n) => n.id === form.needId);
-  const remaining = selectedNeed ? selectedNeed.targetAmount - selectedNeed.raisedAmount : 0;
-  const isValid = form.needId && form.amount && Number(form.amount) > 0;
+  const minimumAmount = selectedNeed?.minimumAmount || 0;
+  const remaining = selectedNeed && selectedNeed.targetAmount > 0
+    ? Math.max(selectedNeed.targetAmount - selectedNeed.raisedAmount, 0)
+    : null;
+  const isValid = form.needId
+    && form.amount
+    && Number(form.amount) > 0
+    && Number(form.amount) >= minimumAmount;
 
   const handleChange = (field, value) => {
     setForm((prev) => {
       const updated = { ...prev, [field]: value };
       if (field === "needId") {
-        const n = needs.find((x) => x.id === value);
-        updated.needTitle = n?.title || "";
+        const nextNeed = needs.find((item) => item.id === value);
+        updated.needTitle = nextNeed?.title || "";
       }
       return updated;
     });
@@ -45,12 +51,10 @@ const DonationModal = ({ need, needs = [], onClose, onSuccess }) => {
         amount: Number(form.amount),
         paymentMethod: form.paymentMethod,
         message: form.message,
-        unitName: "XYZ Engineering College NCC",
+        unitName: "NCC Unit",
       })).unwrap();
       setDonationResult(result);
       setShowSuccess(true);
-    } catch {
-      // error handled by slice
     } finally {
       setSubmitting(false);
     }
@@ -71,7 +75,7 @@ const DonationModal = ({ need, needs = [], onClose, onSuccess }) => {
             <h2>Donation Successful!</h2>
             <p>
               Your donation of <strong>Rs {Number(form.amount).toLocaleString("en-IN")}</strong> towards{" "}
-              <strong>{form.needTitle}</strong> has been received securely.
+              <strong>{form.needTitle}</strong> has been recorded successfully.
             </p>
             {donationResult?.id && (
               <p style={{ fontSize: 12, color: "var(--don-text-muted)" }}>
@@ -80,7 +84,10 @@ const DonationModal = ({ need, needs = [], onClose, onSuccess }) => {
             )}
             <button
               className="don-btn don-btn-primary"
-              onClick={() => { onSuccess?.(); onClose(); }}
+              onClick={() => {
+                onSuccess?.();
+                onClose();
+              }}
             >
               Done
             </button>
@@ -91,16 +98,21 @@ const DonationModal = ({ need, needs = [], onClose, onSuccess }) => {
 
             <div className="don-trust-banner">
               <ShieldCheck size={18} />
-              Funds are secured in escrow until verified utilization.
+              Payment is verified by the backend before the donation is recorded.
             </div>
 
             {selectedNeed && (
               <div className="don-modal-need-info">
                 <h4>{selectedNeed.title}</h4>
                 <p>
-                  Rs {selectedNeed.raisedAmount.toLocaleString("en-IN")} raised of Rs{" "}
-                  {selectedNeed.targetAmount.toLocaleString("en-IN")}
-                  {remaining > 0 && ` — Rs ${remaining.toLocaleString("en-IN")} remaining`}
+                  Rs {selectedNeed.raisedAmount.toLocaleString("en-IN")} raised
+                  {selectedNeed.targetAmount > 0 && (
+                    <> of Rs {selectedNeed.targetAmount.toLocaleString("en-IN")}</>
+                  )}
+                  {remaining !== null && remaining > 0 && ` | Rs ${remaining.toLocaleString("en-IN")} remaining`}
+                </p>
+                <p style={{ margin: "6px 0 0", fontSize: 12, color: "var(--don-text-muted)" }}>
+                  Minimum donation: Rs {minimumAmount.toLocaleString("en-IN")}
                 </p>
               </div>
             )}
@@ -110,8 +122,8 @@ const DonationModal = ({ need, needs = [], onClose, onSuccess }) => {
                 <span>Select Need</span>
                 <select value={form.needId} onChange={(e) => handleChange("needId", e.target.value)}>
                   <option value="">Choose a need...</option>
-                  {needs.filter((n) => n.status === "active").map((n) => (
-                    <option key={n.id} value={n.id}>{n.title}</option>
+                  {needs.filter((item) => item.status === "active").map((item) => (
+                    <option key={item.id} value={item.id}>{item.title}</option>
                   ))}
                 </select>
               </label>
@@ -121,18 +133,24 @@ const DonationModal = ({ need, needs = [], onClose, onSuccess }) => {
               <span>Amount (Rs)</span>
               <input
                 type="number"
-                min="1"
+                min={Math.max(1, minimumAmount)}
                 placeholder="Enter amount"
                 value={form.amount}
                 onChange={(e) => handleChange("amount", e.target.value)}
               />
             </label>
 
+            {selectedNeed && Number(form.amount || 0) > 0 && Number(form.amount) < minimumAmount && (
+              <p style={{ margin: "-6px 0 10px", fontSize: 12, color: "#b42318" }}>
+                Amount must be at least Rs {minimumAmount.toLocaleString("en-IN")}.
+              </p>
+            )}
+
             <label className="don-form-field">
               <span>Payment Method</span>
               <select value={form.paymentMethod} onChange={(e) => handleChange("paymentMethod", e.target.value)}>
-                {PAYMENT_METHODS.map((m) => (
-                  <option key={m} value={m}>{m}</option>
+                {PAYMENT_METHODS.map((method) => (
+                  <option key={method} value={method}>{method}</option>
                 ))}
               </select>
             </label>

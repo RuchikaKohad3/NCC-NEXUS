@@ -301,6 +301,10 @@ const ChatLayout = ({ userRole = 'cadet' }) => {
       });
     };
 
+    const handleInboxUpdate = () => {
+      fetchAndSetList(activeTabRef.current, { silent: true });
+    };
+
     bindChatSocketEvents({
       onConnect: () => {
         if (selectedRoomRef.current) {
@@ -316,6 +320,7 @@ const ChatLayout = ({ userRole = 'cadet' }) => {
       onMessageDeleted: handleMessageDeleted,
       onReadUpdate: handleReadUpdate,
       onTyping: handleTyping,
+      onInboxUpdate: handleInboxUpdate,
     });
 
     return () => {

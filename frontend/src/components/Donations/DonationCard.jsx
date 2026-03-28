@@ -1,7 +1,8 @@
-import { CalendarDays, Upload } from "lucide-react";
+import { CalendarDays, Upload, AlertTriangle } from "lucide-react";
 import "./donationModule.css";
 
 const STATUS_MAP = {
+  AWAITING_PAYMENT: { label: "Awaiting Payment", className: "don-status-awaiting" },
   AWAITING_UTILIZATION: { label: "Awaiting Utilization", className: "don-status-awaiting" },
   PROOF_UPLOADED: { label: "Proof Uploaded", className: "don-status-proof-uploaded" },
   UNDER_VERIFICATION: { label: "Under Verification", className: "don-status-under-verification" },
@@ -17,7 +18,7 @@ const formatDate = (dateStr) => {
   return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(d);
 };
 
-const DonationCard = ({ donation, role = "alumni", onViewDetail, onUploadProof }) => {
+const DonationCard = ({ donation, role = "alumni", onViewDetail, onUploadProof, onReportIssue }) => {
   const statusInfo = STATUS_MAP[donation.status] || { label: donation.status, className: "" };
 
   return (
@@ -49,6 +50,11 @@ const DonationCard = ({ donation, role = "alumni", onViewDetail, onUploadProof }
         {onViewDetail && (
           <button className="don-btn don-btn-secondary" onClick={() => onViewDetail(donation.id)}>
             Details
+          </button>
+        )}
+        {role === "alumni" && onReportIssue && (
+          <button className="don-btn don-btn-danger" onClick={() => onReportIssue(donation.id)} type="button">
+            <AlertTriangle size={14} /> Report Issue
           </button>
         )}
         {role === "suo" && donation.status === "AWAITING_UTILIZATION" && onUploadProof && (

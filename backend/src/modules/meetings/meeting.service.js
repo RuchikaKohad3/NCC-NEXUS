@@ -1,5 +1,109 @@
 const db = require("../../db/knex");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+
+const SCHEDULED_START_GRACE_MINUTES = 60;
+
+const addMinutes = (date, minutes) =>
+  new Date(date.getTime() + minutes * 60 * 1000);
+
+const canStartScheduledMeeting = (meeting) => {
+  const scheduledAt = new Date(meeting?.scheduled_at);
+  if (Number.isNaN(scheduledAt.getTime())) return false;
+  return new Date() <= addMinutes(scheduledAt, SCHEDULED_START_GRACE_MINUTES);
+};
+
+const isAno = (user = {}) => String(user.role || "").toUpperCase() === "ANO";
+
+const isSuo = (user = {}) =>
+  String(user.role || "").toUpperCase() === "CADET" &&
+  String(user.rank || "").trim().toLowerCase() === "senior under officer";
+
+const isAuthorityUser = (user = {}) => isAno(user) || isSuo(user);
+
+const isInvitedUser = (meeting = {}, user = {}) => {
+  if (isAno(user)) return true;
+
+  const inviteUserIds = Array.isArray(meeting.invite_user_ids)
+    ? meeting.invite_user_ids.map((id) => Number(id))
+    : [];
+
+  return inviteUserIds.includes(Number(user.user_id));
+};
+
+const normalizePrivateKey = (value = "") =>
+  String(value || "")
+    .replace(/\\n/g, "\n")
+    .trim();
+
+const getJitsiEnv = () => {
+  const appId = String(process.env.JITSI_APP_ID || "").trim();
+  const keyId = String(process.env.JITSI_KEY_ID || "").trim();
+  const privateKey = normalizePrivateKey(process.env.JITSI_PRIVATE_KEY || "");
+
+  if (!appId || !keyId || !privateKey) {
+    throw new Error(
+      "Jitsi configuration missing. Set JITSI_APP_ID, JITSI_KEY_ID, and JITSI_PRIVATE_KEY in backend/.env."
+    );
+  }
+
+  return { appId, keyId, privateKey };
+};
+
+const resolveMeetingRoomAccess = async (meetingId, user) => {
+  const { college_id, user_id } = user;
+
+  const meeting = await db("meetings")
+    .where({
+      meeting_id: meetingId,
+      college_id,
+    })
+    .whereNull("deleted_at")
+    .first();
+
+  if (!meeting) {
+    throw new Error("Meeting not found");
+  }
+
+  if (meeting.status !== "LIVE") {
+    throw new Error("Meeting is not live");
+  }
+
+  if (!isInvitedUser(meeting, user)) {
+    throw new Error("Forbidden");
+  }
+
+  const isHost = Number(meeting.created_by_user_id) === Number(user_id);
+  if (isHost || isAuthorityUser(user)) {
+    return { meeting, isHost };
+  }
+
+  const activeSession = await db("meeting_participant_sessions")
+    .where({
+      meeting_id: meetingId,
+      user_id,
+    })
+    .whereNull("leave_time")
+    .first();
+
+  if (activeSession) {
+    return { meeting, isHost: false };
+  }
+
+  const admitted = await db("meeting_waiting_room")
+    .where({
+      meeting_id: meetingId,
+      user_id,
+      status: "ADMITTED",
+    })
+    .first();
+
+  if (!admitted) {
+    throw new Error("User is not admitted to this meeting room");
+  }
+
+  return { meeting, isHost: false };
+};
 
 const generateRoomName = (collegeShortName) => {
   const timestamp = Date.now();
@@ -48,6 +152,8 @@ const getMeetingById = async (meetingId, user) => {
 
   const meeting = await db("meetings")
     .leftJoin("users as cu", "cu.user_id", "meetings.created_by_user_id")
+    .leftJoin("cadet_profiles as ccp", "ccp.user_id", "cu.user_id")
+    .leftJoin("cadet_ranks as cr", "cr.id", "ccp.rank_id")
     .where({
       "meetings.meeting_id": meetingId,
       "meetings.college_id": college_id,
@@ -56,7 +162,8 @@ const getMeetingById = async (meetingId, user) => {
     .select(
       "meetings.*",
       "cu.username as created_by_name",
-      "cu.role as created_by_role"
+      "cu.role as created_by_role",
+      "cr.rank_name as created_by_rank"
     )
     .first();
 
@@ -97,13 +204,16 @@ const listMeetings = async (user) => {
 
   const meetings = await db("meetings")
     .leftJoin("users as cu", "cu.user_id", "meetings.created_by_user_id")
+    .leftJoin("cadet_profiles as ccp", "ccp.user_id", "cu.user_id")
+    .leftJoin("cadet_ranks as cr", "cr.id", "ccp.rank_id")
     .where({ "meetings.college_id": college_id })
     .whereNull("meetings.deleted_at")
     .orderBy("meetings.scheduled_at", "desc")
     .select(
       "meetings.*",
       "cu.username as created_by_name",
-      "cu.role as created_by_role"
+      "cu.role as created_by_role",
+      "cr.rank_name as created_by_rank"
     );
 
   const now = new Date();
@@ -147,6 +257,12 @@ const startMeeting = async (meetingId, user) => {
 
   if (meeting.status !== "SCHEDULED") {
     throw new Error("Only scheduled meetings can be started");
+  }
+
+  if (!canStartScheduledMeeting(meeting)) {
+    throw new Error(
+      `Meeting start window expired. Meetings can be started up to ${SCHEDULED_START_GRACE_MINUTES} minutes after the scheduled time.`
+    );
   }
 
   // 2️⃣ Update status to LIVE
@@ -625,6 +741,57 @@ const leaveMeeting = async (meetingId, user) => {
   return { message: "Left meeting successfully" };
 };
 
+const generateJitsiToken = async (meetingId, user) => {
+  const { appId, keyId, privateKey } = getJitsiEnv();
+  const { meeting, isHost } = await resolveMeetingRoomAccess(meetingId, user);
+
+  const now = Math.floor(Date.now() / 1000);
+  const expiresAt = now + 60 * 15;
+  const moderator = isHost || isAuthorityUser(user);
+  const userName =
+    String(user.name || user.username || "").trim() ||
+    `User ${user.user_id}`;
+
+  const token = jwt.sign(
+    {
+      aud: "jitsi",
+      iss: "chat",
+      sub: appId,
+      room: "*",
+      nbf: now - 5,
+      exp: expiresAt,
+      context: {
+        user: {
+          id: String(user.user_id),
+          name: userName,
+          moderator,
+        },
+        features: {
+          livestreaming: true,
+          recording: true,
+          transcription: true,
+          "outbound-call": true,
+        },
+      },
+    },
+    privateKey,
+    {
+      algorithm: "RS256",
+      header: {
+        kid: `${appId}/${keyId}`,
+        typ: "JWT",
+      },
+    }
+  );
+
+  return {
+    token,
+    roomName: meeting.jitsi_room_name,
+    appId,
+    expiresAt,
+  };
+};
+
 module.exports = {
   createMeeting,
   getMeetingById,
@@ -637,4 +804,5 @@ module.exports = {
   leaveMeeting,
   endMeeting,
   getMeetingReport,
+  generateJitsiToken,
 };

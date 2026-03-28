@@ -52,7 +52,11 @@ startCommunityPollNotifier(io);
 // 6. Middleware
 // ------------------------------------------
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = Buffer.from(buf);
+  },
+}));
 
 // ------------------------------------------
 // 7. Health Check Route

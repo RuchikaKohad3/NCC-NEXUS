@@ -12,7 +12,7 @@ const formatDate = (dateStr) => {
   return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(d);
 };
 
-const DonationDetailPage = ({ donationId, onBack }) => {
+const DonationDetailPage = ({ donationId, onBack, openReportOnLoad = false }) => {
   const dispatch = useDispatch();
   const donation = useSelector((state) => state.donations.currentDonation);
   const loading = useSelector((state) => state.donations.loading);
@@ -25,6 +25,12 @@ const DonationDetailPage = ({ donationId, onBack }) => {
     if (donationId) dispatch(fetchDonationById(donationId));
     return () => { dispatch(clearCurrentDonation()); };
   }, [donationId, dispatch]);
+
+  useEffect(() => {
+    if (openReportOnLoad && donation) {
+      setShowReport(true);
+    }
+  }, [openReportOnLoad, donation]);
 
   const handleReport = async () => {
     if (!reportText.trim()) return;
@@ -175,6 +181,7 @@ const DonationDetailPage = ({ donationId, onBack }) => {
 
 /* ── Status Helpers ── */
 const STATUS_MAP = {
+  AWAITING_PAYMENT: { label: "Awaiting Payment", className: "don-status-awaiting" },
   AWAITING_UTILIZATION: { label: "Awaiting Utilization", className: "don-status-awaiting" },
   PROOF_UPLOADED: { label: "Proof Uploaded", className: "don-status-proof-uploaded" },
   UNDER_VERIFICATION: { label: "Under Verification", className: "don-status-under-verification" },

@@ -2,7 +2,8 @@ import { Heart } from "lucide-react";
 import "./donationModule.css";
 
 const NeedCard = ({ need, onDonate }) => {
-  const percentage = need.targetAmount > 0
+  const hasTarget = need.targetAmount > 0;
+  const percentage = hasTarget
     ? Math.min(100, Math.round((need.raisedAmount / need.targetAmount) * 100))
     : 0;
 
@@ -23,12 +24,14 @@ const NeedCard = ({ need, onDonate }) => {
       <p className="don-need-description">{need.description}</p>
 
       <div className="don-progress-section">
-        <div className="don-progress-bar">
-          <div className="don-progress-fill" style={{ width: `${percentage}%` }} />
-        </div>
+        {hasTarget && (
+          <div className="don-progress-bar">
+            <div className="don-progress-fill" style={{ width: `${percentage}%` }} />
+          </div>
+        )}
         <div className="don-progress-meta">
-          <span className="don-progress-raised">Rs {need.raisedAmount.toLocaleString("en-IN")}</span>
-          <span>Rs {need.targetAmount.toLocaleString("en-IN")}</span>
+          <span className="don-progress-raised">Rs {need.raisedAmount.toLocaleString("en-IN")} raised</span>
+          <span>{hasTarget ? `Goal Rs ${need.targetAmount.toLocaleString("en-IN")}` : "Open goal"}</span>
         </div>
       </div>
 

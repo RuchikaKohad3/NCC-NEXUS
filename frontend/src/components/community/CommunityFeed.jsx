@@ -9,7 +9,9 @@ import { useRole } from "../../context/RoleContext";
 import { COMMUNITY_TAGS } from "../../data/communityData";
 import { getStoredRole } from "../../utils/authState";
 import { communityApi } from "../../api/communityApi";
+import { donationApi } from "../../api/donationApi";
 import nccLogo from "../assets/ncc-logo.png";
+import LeaderboardSection from "../Donations/LeaderboardSection";
 import "./community.css";
 
 const COMMUNITY_LOGO_STORAGE_KEY = "community_custom_logo";
@@ -194,9 +196,22 @@ export default function CommunityFeed() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [communityLogo, setCommunityLogo] = useState(nccLogo);
+  const [communityTab, setCommunityTab] = useState("feed");
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [feedError, setFeedError] = useState("");
   const [userReactions, setUserReactions] = useState({});
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [leaderboardError, setLeaderboardError] = useState("");
+
+  const currentUserName = useMemo(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return user?.username || user?.name || "";
+    } catch {
+      return "";
+    }
+  }, []);
 
   const refreshFeed = async () => {
     try {
@@ -229,6 +244,26 @@ export default function CommunityFeed() {
   useEffect(() => {
     refreshFeed();
   }, []);
+
+  useEffect(() => {
+    if (communityTab !== "leaderboard") return;
+
+    const refreshLeaderboard = async () => {
+      try {
+        setLoadingLeaderboard(true);
+        setLeaderboardError("");
+        const response = await donationApi.getLeaderboard();
+        setLeaderboard(response.data || []);
+      } catch (error) {
+        setLeaderboard([]);
+        setLeaderboardError(error.message || "Failed to load donation leaderboard.");
+      } finally {
+        setLoadingLeaderboard(false);
+      }
+    };
+
+    refreshLeaderboard();
+  }, [communityTab]);
 
   useEffect(() => {
     const savedLogo = localStorage.getItem(COMMUNITY_LOGO_STORAGE_KEY);
@@ -427,74 +462,103 @@ export default function CommunityFeed() {
             ) : null}
           </div>
 
-          <FilterBar
-            filter={filter}
-            search={search}
-            sortBy={sortBy}
-            selectedTag={selectedTag}
-            tags={COMMUNITY_TAGS}
-            onFilterChange={setFilter}
-            onSearchChange={setSearch}
-            onSortChange={setSortBy}
-            onTagChange={setSelectedTag}
-          />
+          <div className="don-subtab-bar" style={{ marginBottom: 20 }}>
+            <button
+              className={communityTab === "feed" ? "active" : ""}
+              onClick={() => setCommunityTab("feed")}
+              type="button"
+            >
+              Community Feed
+            </button>
+            <button
+              className={communityTab === "leaderboard" ? "active" : ""}
+              onClick={() => setCommunityTab("leaderboard")}
+              type="button"
+            >
+              Donor Wall
+            </button>
+          </div>
 
-          {canModerate ? <ModerationQueue posts={pendingPosts} onApprove={handleApprove} onReject={handleReject} /> : null}
-
-          <section className="community-post-stack">
-            {loadingFeed ? <p className="community-muted-text">Loading community feed...</p> : null}
-            {!loadingFeed && feedError ? <p className="community-muted-text">{feedError}</p> : null}
-
-            {pinnedPosts.map((post) => (
-              <PinnedPost
-                key={post.id}
-                post={post}
-                role={effectiveRole}
-                canEdit={post.canEdit}
-                canDelete={post.canDelete}
-                canPost={canPost}
-                canComment={canComment}
-                activeReaction={userReactions[post.id] || null}
-                onEdit={(value) => {
-                  setEditingPost(value);
-                  setShowCreateModal(true);
-                }}
-                onDelete={handleDelete}
-                onPin={handlePinToggle}
-                onReact={handleReact}
-                onVote={handleVote}
-                onAddComment={handleAddComment}
-                onAddReply={handleAddReply}
+          {communityTab === "feed" ? (
+            <>
+              <FilterBar
+                filter={filter}
+                search={search}
+                sortBy={sortBy}
+                selectedTag={selectedTag}
+                tags={COMMUNITY_TAGS}
+                onFilterChange={setFilter}
+                onSearchChange={setSearch}
+                onSortChange={setSortBy}
+                onTagChange={setSelectedTag}
               />
-            ))}
 
-            {normalPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                role={effectiveRole}
-                canEdit={post.canEdit}
-                canDelete={post.canDelete}
-                canPost={canPost}
-                canComment={canComment}
-                activeReaction={userReactions[post.id] || null}
-                onEdit={(value) => {
-                  setEditingPost(value);
-                  setShowCreateModal(true);
-                }}
-                onDelete={handleDelete}
-                onPin={handlePinToggle}
-                onReact={handleReact}
-                onVote={handleVote}
-                onAddComment={handleAddComment}
-                onAddReply={handleAddReply}
-              />
-            ))}
+              {canModerate ? <ModerationQueue posts={pendingPosts} onApprove={handleApprove} onReject={handleReject} /> : null}
 
-            {!loadingFeed && !visiblePosts.length ? (
-              <p className="community-muted-text">No posts found for selected filters.</p>
-            ) : null}
-          </section>
+              <section className="community-post-stack">
+                {loadingFeed ? <p className="community-muted-text">Loading community feed...</p> : null}
+                {!loadingFeed && feedError ? <p className="community-muted-text">{feedError}</p> : null}
+
+                {pinnedPosts.map((post) => (
+                  <PinnedPost
+                    key={post.id}
+                    post={post}
+                    role={effectiveRole}
+                    canEdit={post.canEdit}
+                    canDelete={post.canDelete}
+                    canPost={canPost}
+                    canComment={canComment}
+                    activeReaction={userReactions[post.id] || null}
+                    onEdit={(value) => {
+                      setEditingPost(value);
+                      setShowCreateModal(true);
+                    }}
+                    onDelete={handleDelete}
+                    onPin={handlePinToggle}
+                    onReact={handleReact}
+                    onVote={handleVote}
+                    onAddComment={handleAddComment}
+                    onAddReply={handleAddReply}
+                  />
+                ))}
+
+                {normalPosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    role={effectiveRole}
+                    canEdit={post.canEdit}
+                    canDelete={post.canDelete}
+                    canPost={canPost}
+                    canComment={canComment}
+                    activeReaction={userReactions[post.id] || null}
+                    onEdit={(value) => {
+                      setEditingPost(value);
+                      setShowCreateModal(true);
+                    }}
+                    onDelete={handleDelete}
+                    onPin={handlePinToggle}
+                    onReact={handleReact}
+                    onVote={handleVote}
+                    onAddComment={handleAddComment}
+                    onAddReply={handleAddReply}
+                  />
+                ))}
+
+                {!loadingFeed && !visiblePosts.length ? (
+                  <p className="community-muted-text">No posts found for selected filters.</p>
+                ) : null}
+              </section>
+            </>
+          ) : (
+            <section className="community-post-stack">
+              {loadingLeaderboard ? <p className="community-muted-text">Loading donation leaderboard...</p> : null}
+              {!loadingLeaderboard && leaderboardError ? <p className="community-muted-text">{leaderboardError}</p> : null}
+              {!loadingLeaderboard && !leaderboardError ? (
+                <LeaderboardSection leaderboard={leaderboard} currentUserName={currentUserName} />
+              ) : null}
+            </section>
+          )}
         </section>
 
         <aside className="community-right-column">
@@ -504,7 +568,7 @@ export default function CommunityFeed() {
               Recent Updates
             </h3>
             <div className="community-recent-list">
-              {visiblePosts.slice(0, 5).map((post) => (
+              {communityTab === "feed" && visiblePosts.slice(0, 5).map((post) => (
                 <div key={post.id} className="community-recent-item">
                   <div className="community-recent-avatar">
                     {post.authorAvatar ? (
@@ -520,7 +584,12 @@ export default function CommunityFeed() {
                   </div>
                 </div>
               ))}
-              {!loadingFeed && !visiblePosts.length ? (
+              {communityTab === "leaderboard" ? (
+                <p className="community-muted-text" style={{ fontSize: "0.82rem", textAlign: "center", padding: "12px 0" }}>
+                  The donor wall is shared across all unit members here.
+                </p>
+              ) : null}
+              {communityTab === "feed" && !loadingFeed && !visiblePosts.length ? (
                 <p className="community-muted-text" style={{ fontSize: "0.82rem", textAlign: "center", padding: "12px 0" }}>No recent updates</p>
               ) : null}
             </div>

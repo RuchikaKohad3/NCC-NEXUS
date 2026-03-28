@@ -35,7 +35,7 @@ const SuoDonations = () => {
       <div className="don-page-head">
         <div>
           <h1>Donation Management</h1>
-          <p>Upload utilization proof for received donations.</p>
+          <p>Upload utilization proof for received donations. New donation campaigns are created by the ANO.</p>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ const SuoDonations = () => {
             ))}
           </div>
         ) : (
-          <div className="don-empty">No pending donations requiring utilization proof.</div>
+          <div className="don-empty">The backend does not expose a utilization workflow yet, so there are no pending items to manage here.</div>
         )
       )}
 
@@ -93,7 +93,7 @@ const SuoDonations = () => {
             ))}
           </div>
         ) : (
-          <div className="don-empty">No tracked utilizations yet.</div>
+          <div className="don-empty">Tracked utilization history will appear here once the backend support is added.</div>
         )
       )}
 

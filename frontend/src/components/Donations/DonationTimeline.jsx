@@ -2,11 +2,11 @@ import { CheckCircle } from "lucide-react";
 import "./donationModule.css";
 
 const DEFAULT_TIMELINE = [
-  { step: 1, label: "Donation Received", status: "pending", date: null },
-  { step: 2, label: "Funds in Escrow", status: "pending", date: null },
-  { step: 3, label: "Awaiting SUO Utilization", status: "pending", date: null },
-  { step: 4, label: "Verification Pending", status: "pending", date: null },
-  { step: 5, label: "Reimbursement Completed", status: "pending", date: null },
+  { step: 1, label: "Donation Created", status: "pending", date: null },
+  { step: 2, label: "Payment Verified", status: "pending", date: null },
+  { step: 3, label: "Recorded in Donation History", status: "pending", date: null },
+  { step: 4, label: "Campaign Total Updated", status: "pending", date: null },
+  { step: 5, label: "Unit Notified", status: "pending", date: null },
 ];
 
 const formatDate = (dateStr) => {

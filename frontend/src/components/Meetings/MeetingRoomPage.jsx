@@ -12,6 +12,7 @@ import {
   fetchMeetingById,
   fetchParticipants,
 } from "../../store/meetingSlice";
+import { meetingApi } from "../../api/meetingApi";
 
 import {
   joinMeetingRoom,
@@ -21,6 +22,8 @@ import {
 
 import {
   MEETING_STATUS,
+  getMeetingTiming,
+  canManageMeeting,
   getCurrentRole,
   getCurrentUser,
   isAuthority,
@@ -35,11 +38,74 @@ import BriefingBanner from "./BriefingBanner";
 
 import "./meetingModule.css";
 
-const JITSI_DOMAIN = import.meta.env.VITE_JITSI_DOMAIN || "meet.jit.si";
+const DEFAULT_JITSI_DOMAIN = "meet.jit.si";
+const CONFIGURED_JITSI_DOMAIN =
+  import.meta.env.VITE_JITSI_DOMAIN || DEFAULT_JITSI_DOMAIN;
 const JITSI_APP_ID = import.meta.env.VITE_JITSI_APP_ID || "";
-const JITSI_JWT = import.meta.env.VITE_JITSI_JWT || "";
-const JITSI_SCRIPT_URL = `https://${JITSI_DOMAIN}/external_api.js`;
-const isJaasDomain = JITSI_DOMAIN.includes("8x8.vc");
+const STATIC_JITSI_JWT = import.meta.env.VITE_JITSI_JWT || "";
+
+const decodeJwtPayload = (token) => {
+  if (!token) return null;
+
+  try {
+    const [, payload = ""] = String(token).split(".");
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      "="
+    );
+    return JSON.parse(window.atob(padded));
+  } catch {
+    return null;
+  }
+};
+
+const getUsableJitsiJwt = (token) => {
+  if (!token) return "";
+
+  const payload = decodeJwtPayload(token);
+  const exp = Number(payload?.exp || 0);
+  if (!exp) return token;
+
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  const refreshBufferSeconds = 60;
+  return exp > nowInSeconds + refreshBufferSeconds ? token : "";
+};
+
+const buildJitsiConfig = (roomName, token = "") => {
+  const trimmedRoomName = String(roomName || "").trim();
+  const configuredDomain = String(CONFIGURED_JITSI_DOMAIN || DEFAULT_JITSI_DOMAIN).trim();
+  const usableJwt = getUsableJitsiJwt(token || STATIC_JITSI_JWT);
+  const isConfiguredJaas = configuredDomain.includes("8x8.vc");
+
+  if (isConfiguredJaas && JITSI_APP_ID && usableJwt) {
+    return {
+      domain: configuredDomain,
+      roomName: `${JITSI_APP_ID}/${trimmedRoomName}`,
+      jwt: usableJwt,
+      usedFallback: false,
+    };
+  }
+
+  if (isConfiguredJaas && !usableJwt) {
+    console.warn(
+      "Jitsi JWT is missing or expired. Falling back to meet.jit.si for meeting access."
+    );
+  }
+
+  return {
+    domain: isConfiguredJaas ? DEFAULT_JITSI_DOMAIN : configuredDomain,
+    roomName: trimmedRoomName,
+    jwt: usableJwt || undefined,
+    usedFallback: isConfiguredJaas,
+  };
+};
+
+const buildFallbackIframeUrl = ({ roomName, displayName }) => {
+  const roomPath = encodeURIComponent(String(roomName || "").trim());
+  const name = encodeURIComponent(String(displayName || "Guest").trim());
+  return `https://${DEFAULT_JITSI_DOMAIN}/${roomPath}#config.prejoinPageEnabled=false&userInfo.displayName="${name}"`;
+};
 
 const formatTimer = (seconds) => {
   const hh = String(Math.floor(seconds / 3600)).padStart(2, "0");
@@ -71,6 +137,7 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
 
   const meeting = meetings.find((item) => item.id === meetingId);
   const participants = participantsMap[meetingId] || [];
+  const invited = meeting ? isInvitedToMeeting(meeting, currentUser.id, role) : false;
 
   const [seconds, setSeconds] = useState(0);
   const [activePanel, setActivePanel] = useState(authority ? "controls" : null);
@@ -81,30 +148,57 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
     active: false,
     deadlineAt: null,
   });
+  const [jitsiJwt, setJitsiJwt] = useState("");
+  const [isJitsiTokenLoading, setIsJitsiTokenLoading] = useState(false);
+  const [hasResolvedJitsiTokenRequest, setHasResolvedJitsiTokenRequest] = useState(false);
 
   const jitsiContainerRef = useRef(null);
   const jitsiApiRef = useRef(null);
   const initializedMeetingIdRef = useRef(null);
+  const jitsiRuntimeConfig = buildJitsiConfig(meeting?.jitsi_room_name, jitsiJwt);
+  const jitsiScriptUrl = `https://${jitsiRuntimeConfig.domain}/external_api.js`;
+  const fallbackIframeUrl = buildFallbackIframeUrl({
+    roomName: meeting?.jitsi_room_name,
+    displayName: currentUser.name,
+  });
 
   const isAdmitted = admittedUsers.includes(Number(currentUser.id));
   const hasActiveSession = participants.some(
     (p) => Number(p.userId) === Number(currentUser.id) && !p.leftAt
   );
   const host = meeting ? isMeetingHost(meeting, currentUser.id) : false;
+  const canManage = canManageMeeting(meeting, role);
   const canEnterDirectly = authority || host || hasActiveSession;
+  const timing = getMeetingTiming(meeting);
+  const shouldRequestJitsiToken =
+    CONFIGURED_JITSI_DOMAIN.includes("8x8.vc") &&
+    Boolean(meeting?.id) &&
+    Boolean(meeting?.jitsi_room_name) &&
+    invited &&
+    meeting?.status === MEETING_STATUS.LIVE &&
+    (canEnterDirectly || isAdmitted);
+  const isAwaitingSecureToken =
+    shouldRequestJitsiToken && !hasResolvedJitsiTokenRequest;
 
   useEffect(() => {
-    setActivePanel(authority ? "controls" : null);
-  }, [authority]);
+    setActivePanel(authority && canManage ? "controls" : null);
+  }, [authority, canManage]);
 
   useEffect(() => {
+    if (jitsiRuntimeConfig.usedFallback) {
+      setIsJitsiScriptReady(false);
+      return undefined;
+    }
+
+    setIsJitsiScriptReady(false);
+
     if (window.JitsiMeetExternalAPI) {
       setIsJitsiScriptReady(true);
       return;
     }
 
     const existingScript = document.querySelector(
-      `script[src="${JITSI_SCRIPT_URL}"]`
+      `script[src="${jitsiScriptUrl}"]`
     );
 
     const markReady = () => setIsJitsiScriptReady(true);
@@ -117,7 +211,7 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
     }
 
     const script = document.createElement("script");
-    script.src = JITSI_SCRIPT_URL;
+    script.src = jitsiScriptUrl;
     script.async = true;
     script.addEventListener("load", markReady);
     document.body.appendChild(script);
@@ -125,7 +219,7 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
     return () => {
       script.removeEventListener("load", markReady);
     };
-  }, []);
+  }, [jitsiRuntimeConfig.usedFallback, jitsiScriptUrl]);
 
   useEffect(() => {
     if (meetingId) {
@@ -133,6 +227,41 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
       dispatch(fetchParticipants(meetingId));
     }
   }, [dispatch, meetingId]);
+
+  useEffect(() => {
+    if (!shouldRequestJitsiToken) {
+      setJitsiJwt("");
+      setIsJitsiTokenLoading(false);
+      setHasResolvedJitsiTokenRequest(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+    setIsJitsiTokenLoading(true);
+    setHasResolvedJitsiTokenRequest(false);
+
+    meetingApi
+      .getJitsiToken(meeting.id)
+      .then((response) => {
+        if (cancelled) return;
+        setJitsiJwt(String(response.data?.token || ""));
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error("Failed to fetch Jitsi token:", error);
+        setJitsiJwt("");
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsJitsiTokenLoading(false);
+          setHasResolvedJitsiTokenRequest(true);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [meeting?.id, shouldRequestJitsiToken]);
 
   useEffect(() => {
     if (!meeting) return;
@@ -234,6 +363,7 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
   }, [hostDisconnectedState.active]);
 
   useEffect(() => {
+    if (jitsiRuntimeConfig.usedFallback) return undefined;
     if (!meeting?.id || !meeting?.jitsi_room_name || !jitsiContainerRef.current) return;
     if (!isJitsiScriptReady || !window.JitsiMeetExternalAPI) return;
 
@@ -247,17 +377,12 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
       initializedMeetingIdRef.current = null;
     }
 
-    const computedRoomName =
-      isJaasDomain && JITSI_APP_ID
-        ? `${JITSI_APP_ID}/${meeting.jitsi_room_name}`
-        : meeting.jitsi_room_name;
-
-    const api = new window.JitsiMeetExternalAPI(JITSI_DOMAIN, {
-      roomName: computedRoomName,
+    const api = new window.JitsiMeetExternalAPI(jitsiRuntimeConfig.domain, {
+      roomName: jitsiRuntimeConfig.roomName,
       parentNode: jitsiContainerRef.current,
       width: "100%",
       height: "100%",
-      jwt: JITSI_JWT || undefined,
+      jwt: jitsiRuntimeConfig.jwt,
       userInfo: {
         displayName: currentUser.name,
       },
@@ -302,7 +427,17 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
         initializedMeetingIdRef.current = null;
       }
     };
-  }, [meeting?.id, meeting?.jitsi_room_name, currentUser.id, currentUser.name, dispatch, isJitsiScriptReady]);
+  }, [
+    currentUser.id,
+    currentUser.name,
+    dispatch,
+    isJitsiScriptReady,
+    jitsiRuntimeConfig.domain,
+    jitsiRuntimeConfig.jwt,
+    jitsiRuntimeConfig.roomName,
+    meeting?.id,
+    meeting?.jitsi_room_name,
+  ]);
 
   if (!meeting) {
     return (
@@ -311,8 +446,6 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
       </div>
     );
   }
-
-  const invited = isInvitedToMeeting(meeting, currentUser.id, role);
 
   if (!invited) {
     return (
@@ -325,7 +458,11 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
   if (meeting.status !== MEETING_STATUS.LIVE) {
     return (
       <div className="meeting-page">
-        <div className="meeting-empty">Join is enabled only when the meeting is LIVE.</div>
+        <div className="meeting-empty">
+          {timing.isMissed
+            ? "This meeting was not started within the allowed start window."
+            : "Join is enabled only when the meeting is LIVE."}
+        </div>
 
         {onViewDetails ? (
           <button type="button" className="meeting-btn meeting-btn-secondary" onClick={() => onViewDetails(meeting.id)}>
@@ -336,6 +473,14 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
             Back to Details
           </Link>
         )}
+      </div>
+    );
+  }
+
+  if (isAwaitingSecureToken || (shouldRequestJitsiToken && isJitsiTokenLoading)) {
+    return (
+      <div className="meeting-page">
+        <div className="meeting-empty">Preparing secure meeting access...</div>
       </div>
     );
   }
@@ -364,6 +509,12 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
     <div className="mr-fullscreen">
       {isBriefing && <BriefingBanner active />}
 
+      {jitsiRuntimeConfig.usedFallback ? (
+        <div className="meeting-host-disconnected-banner">
+          The configured Jitsi token is expired. Using fallback meeting access.
+        </div>
+      ) : null}
+
       {hostDisconnectedState.active ? (
         <div className="meeting-host-disconnected-banner">
           Host disconnected. Waiting for reconnection...
@@ -373,17 +524,31 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
 
       <div className="mr-video-wrap">
         <div className="mr-video">
-          <div
-            ref={jitsiContainerRef}
-            style={{
-              width: "100%",
-              height: "100%",
-              background: "#000",
-            }}
-          />
+          {jitsiRuntimeConfig.usedFallback ? (
+            <iframe
+              title={`Meeting ${meeting.id}`}
+              src={fallbackIframeUrl}
+              allow="camera; microphone; fullscreen; display-capture; autoplay"
+              style={{
+                width: "100%",
+                height: "100%",
+                border: 0,
+                background: "#000",
+              }}
+            />
+          ) : (
+            <div
+              ref={jitsiContainerRef}
+              style={{
+                width: "100%",
+                height: "100%",
+                background: "#000",
+              }}
+            />
+          )}
         </div>
 
-        {authority && activePanel === "controls" ? (
+        {authority && canManage && activePanel === "controls" ? (
           <div className="mr-drawer">
             <div className="mr-drawer-header">
               <h3>Host Controls</h3>
@@ -415,7 +580,7 @@ const MeetingRoomPage = ({ embedded = false, basePath = "/meetings", meetingIdPr
         </div>
 
         <div className="mr-toolbar-center">
-          {authority ? (
+          {authority && canManage ? (
             <button className="mr-tool-btn" onClick={() => togglePanel("controls")} title="Host Controls">
               <Shield size={20} />
               {waitingRoom.length > 0 ? (

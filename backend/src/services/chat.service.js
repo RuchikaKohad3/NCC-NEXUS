@@ -101,11 +101,11 @@ async function hasDirectKeyColumn() {
   return hasDirectKeyColumnPromise;
 }
 
-async function resolveUsersRoleMap(userIds) {
+async function resolveUsersRoleMap(userIds, trx = db) {
   const ids = [...new Set(userIds.map(Number).filter((id) => Number.isInteger(id) && id > 0))];
   if (ids.length === 0) return new Map();
 
-  const rows = await db("users as u")
+  const rows = await trx("users as u")
     .leftJoin("cadet_profiles as cp", "cp.user_id", "u.user_id")
     .leftJoin("cadet_ranks as cr", "cr.id", "cp.rank_id")
     .whereIn("u.user_id", ids)
@@ -273,7 +273,7 @@ async function findExistingDirectRoomByParticipants(userA, userB, trx = db) {
     .first();
 }
 
-async function createRoom({ creatorUserId, creatorRole, roomType = "direct", roomName, participantUserIds = [] }) {
+async function createRoom({ creatorUserId, creatorRole, roomType = "direct", roomName, participantUserIds = [], trx = null }) {
   if (!VALID_ROLES.has(creatorRole)) throw createError("Invalid creator role.", 400);
   if (!VALID_ROOM_TYPES.has(roomType)) throw createError("Invalid room type.", 400);
 
@@ -287,7 +287,8 @@ async function createRoom({ creatorUserId, creatorRole, roomType = "direct", roo
     throw createError("Group room must contain at least 2 participants.", 400);
   }
 
-  const roleMap = await resolveUsersRoleMap(mergedParticipants);
+  const executor = trx || db;
+  const roleMap = await resolveUsersRoleMap(mergedParticipants, executor);
   if (roleMap.size !== mergedParticipants.length) throw createError("One or more participants do not exist.", 404);
 
   if (roleMap.get(Number(creatorUserId)) !== creatorRole) {
@@ -305,43 +306,49 @@ async function createRoom({ creatorUserId, creatorRole, roomType = "direct", roo
     }
 
     directKey = buildDirectKey(userA, userB);
-    const existing = await findDirectRoomByKey(directKey) || await findExistingDirectRoomByParticipants(userA, userB);
+    const existing = await findDirectRoomByKey(directKey, executor) || await findExistingDirectRoomByParticipants(userA, userB, executor);
     if (existing) {
-      const participants = await getRoomParticipants(existing.room_id);
+      const participants = await getRoomParticipants(existing.room_id, executor);
       return { room: existing, participants, reused: true };
     }
   }
 
+  const createRoomInTransaction = async (txn) => {
+    const supportsDirectKey = await hasDirectKeyColumn();
+    const insertPayload = {
+      room_name: roomType === "group" ? normalizeText(roomName) || "Untitled Group" : null,
+      room_type: roomType,
+      created_by_user_id: creatorUserId,
+      created_by_role: creatorRole,
+    };
+
+    if (supportsDirectKey) {
+      insertPayload.direct_key = directKey;
+    }
+
+    const [room] = await txn("chat_rooms")
+      .insert(insertPayload)
+      .returning("*");
+
+    const participantRows = mergedParticipants.map((userId) => ({
+      room_id: room.room_id,
+      user_id: userId,
+      participant_role: roleMap.get(userId),
+      is_admin: userId === creatorUserId,
+    }));
+
+    await txn("chat_participants").insert(participantRows);
+    const participants = await getRoomParticipants(room.room_id, txn);
+
+    return { room, participants, reused: false };
+  };
+
   try {
-    return await db.transaction(async (trx) => {
-      const supportsDirectKey = await hasDirectKeyColumn();
-      const insertPayload = {
-        room_name: roomType === "group" ? normalizeText(roomName) || "Untitled Group" : null,
-        room_type: roomType,
-        created_by_user_id: creatorUserId,
-        created_by_role: creatorRole,
-      };
+    if (trx) {
+      return await createRoomInTransaction(trx);
+    }
 
-      if (supportsDirectKey) {
-        insertPayload.direct_key = directKey;
-      }
-
-      const [room] = await trx("chat_rooms")
-        .insert(insertPayload)
-        .returning("*");
-
-      const participantRows = mergedParticipants.map((userId) => ({
-        room_id: room.room_id,
-        user_id: userId,
-        participant_role: roleMap.get(userId),
-        is_admin: userId === creatorUserId,
-      }));
-
-      await trx("chat_participants").insert(participantRows);
-      const participants = await getRoomParticipants(room.room_id, trx);
-
-      return { room, participants, reused: false };
-    });
+    return await db.transaction(createRoomInTransaction);
   } catch (error) {
     if (roomType === "direct" && isUndefinedColumnError(error)) {
       throw createError("Chat schema out of date. Run latest migrations.", 500);
@@ -349,9 +356,9 @@ async function createRoom({ creatorUserId, creatorRole, roomType = "direct", roo
 
     if (roomType === "direct" && isUniqueViolation(error)) {
       const [userA, userB] = mergedParticipants;
-      const existing = await findDirectRoomByKey(directKey) || await findExistingDirectRoomByParticipants(userA, userB);
+      const existing = await findDirectRoomByKey(directKey, executor) || await findExistingDirectRoomByParticipants(userA, userB, executor);
       if (existing) {
-        const participants = await getRoomParticipants(existing.room_id);
+        const participants = await getRoomParticipants(existing.room_id, executor);
         return { room: existing, participants, reused: true };
       }
     }
@@ -543,19 +550,20 @@ async function getRoomMessages({ roomId, userId, limit = 50, beforeMessageId = n
   };
 }
 
-async function sendMessage({ roomId, senderUserId, senderRole, body, messageType = "text", metadata = null }) {
+async function sendMessage({ roomId, senderUserId, senderRole, body, messageType = "text", metadata = null, trx = null }) {
   const text = normalizeText(body);
   if (!text) throw createError("Message body is required.", 400);
   if (text.length > MAX_MESSAGE_LENGTH) throw createError(`Message exceeds ${MAX_MESSAGE_LENGTH} characters.`, 400);
   if (!VALID_MESSAGE_TYPES.has(messageType)) throw createError("Invalid message type.", 400);
 
-  const { participant } = await assertRoomAccess(roomId, senderUserId);
+  const executor = trx || db;
+  const { participant } = await assertRoomAccess(roomId, senderUserId, executor);
   if (participant.participant_role !== senderRole) {
     throw createError("Sender role does not match room participant role.", 403);
   }
 
-  return db.transaction(async (trx) => {
-    const [message] = await trx("messages")
+  const sendMessageInTransaction = async (txn) => {
+    const [message] = await txn("messages")
       .insert({
         room_id: roomId,
         sender_user_id: senderUserId,
@@ -566,7 +574,7 @@ async function sendMessage({ roomId, senderUserId, senderRole, body, messageType
       })
       .returning("*");
 
-    await trx("chat_rooms")
+    await txn("chat_rooms")
       .where("room_id", roomId)
       .whereNull("deleted_at")
       .where({ is_archived: false })
@@ -575,27 +583,27 @@ async function sendMessage({ roomId, senderUserId, senderRole, body, messageType
         last_message_at: message.created_at,
       });
 
-    await trx("message_read_status")
+    await txn("message_read_status")
       .insert({
         message_id: message.message_id,
         user_id: senderUserId,
-        read_at: trx.fn.now(),
+        read_at: txn.fn.now(),
       })
       .onConflict(["message_id", "user_id"])
       .merge({
-        read_at: trx.fn.now(),
+        read_at: txn.fn.now(),
         deleted_at: null,
       });
 
-    await trx("chat_participants")
+    await txn("chat_participants")
       .where({ room_id: roomId, user_id: senderUserId })
       .whereNull("deleted_at")
       .update({
-        last_read_at: trx.fn.now(),
+        last_read_at: txn.fn.now(),
         last_read_message_id: message.message_id,
       });
 
-    const enriched = await trx("messages as m")
+    const enriched = await txn("messages as m")
       .leftJoin("users as u", "u.user_id", "m.sender_user_id")
       .leftJoin("cadet_profiles as cp", "cp.user_id", "u.user_id")
       .where("m.message_id", message.message_id)
@@ -629,7 +637,13 @@ async function sendMessage({ roomId, senderUserId, senderRole, body, messageType
       edited_at: enriched.edited_at,
       created_at: enriched.created_at,
     };
-  });
+  };
+
+  if (trx) {
+    return sendMessageInTransaction(trx);
+  }
+
+  return db.transaction(sendMessageInTransaction);
 }
 
 async function markRoomAsRead({ roomId, userId, upToMessageId = null }) {

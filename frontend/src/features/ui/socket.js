@@ -49,7 +49,7 @@ function disconnectChatSocket() {
 function bindChatSocketEvents(handlers = {}) {
   if (!socket) return;
 
-  const { onNewMessage, onMessageDeleted, onReadUpdate, onTyping, onConnect, onError } = handlers;
+  const { onNewMessage, onMessageDeleted, onReadUpdate, onTyping, onConnect, onError, onInboxUpdate } = handlers;
 
   if (onConnect) {
     socket.off("connect", onConnect);
@@ -79,6 +79,11 @@ function bindChatSocketEvents(handlers = {}) {
   if (onTyping) {
     socket.off("chat:typing", onTyping);
     socket.on("chat:typing", onTyping);
+  }
+
+  if (onInboxUpdate) {
+    socket.off("chat:inbox_update", onInboxUpdate);
+    socket.on("chat:inbox_update", onInboxUpdate);
   }
 }
 

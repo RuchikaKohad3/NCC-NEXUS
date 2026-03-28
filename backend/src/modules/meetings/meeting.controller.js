@@ -52,6 +52,36 @@ const getMeetingById = async (req, res) => {
   }
 };
 
+const getJitsiToken = async (req, res) => {
+  try {
+    const { meetingId } = req.params;
+    const data = await meetingService.generateJitsiToken(meetingId, req.user);
+
+    return res.json({
+      message: "Jitsi token generated successfully",
+      ...data,
+    });
+  } catch (err) {
+    if (
+      err.message === "Meeting not found" ||
+      err.message === "Meeting is not live" ||
+      err.message === "Forbidden" ||
+      err.message === "User is not admitted to this meeting room"
+    ) {
+      return res.status(403).json({ message: err.message });
+    }
+
+    if (err.message.includes("Jitsi configuration missing")) {
+      return res.status(500).json({ message: err.message });
+    }
+
+    return res.status(500).json({
+      message: "Failed to generate Jitsi token",
+      error: err.message,
+    });
+  }
+};
+
 const listMeetings = async (req, res) => {
   try {
     const data = await meetingService.listMeetings(req.user);
@@ -100,6 +130,10 @@ const startMeeting = async (req, res) => {
     }
 
     if (err.message.includes("scheduled")) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    if (err.message.includes("start window expired")) {
       return res.status(400).json({ message: err.message });
     }
 
@@ -296,6 +330,7 @@ const leaveMeeting = async (req, res) => {
 module.exports = {
   createMeeting,
   getMeetingById,
+  getJitsiToken,
   listMeetings,
   startMeeting,
   requestToJoin,

@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { CalendarDays, Users, Clock } from "lucide-react";
 import {
-  MEETING_STATUS,
   formatMeetingDateTime,
+  getMeetingRelativeTimingLabel,
+  getMeetingTiming,
   getStatusClass,
   getStatusLabel,
-  getTimeUntil,
   isAuthority,
+  canManageMeeting,
   isInvitedToMeeting,
   isMeetingHost,
 } from "./meetingUtils";
@@ -15,13 +16,16 @@ const MeetingCard = ({ meeting, role, currentUser, participants = [], detailsPat
   const invited = isInvitedToMeeting(meeting, currentUser.id, role);
   const isHost = isMeetingHost(meeting, currentUser.id);
   const authority = isAuthority(role);
-  const isLive = meeting.status === MEETING_STATUS.LIVE;
-  const isScheduled = meeting.status === MEETING_STATUS.SCHEDULED;
+  const canManage = canManageMeeting(meeting, role);
+  const timing = getMeetingTiming(meeting);
+  const isLive = timing.isLive;
+  const isScheduled = timing.isUpcoming;
   const isCompleted =
-    meeting.status === MEETING_STATUS.ENDED ||
-    meeting.status === MEETING_STATUS.COMPLETED;
+    !timing.isMissed &&
+    [ "ENDED", "COMPLETED", "CANCELLED" ].includes(String(meeting.status || "").toUpperCase());
   const canJoin = invited && isLive;
-  const timeUntil = isScheduled ? getTimeUntil(meeting.dateTime) : "";
+  const showParticipantJoin = canJoin && (!authority || !canManage);
+  const timeUntil = getMeetingRelativeTimingLabel(meeting);
 
   return (
     <article className="meeting-card">
@@ -33,8 +37,8 @@ const MeetingCard = ({ meeting, role, currentUser, participants = [], detailsPat
             {isHost ? <span className="meeting-host-chip">Host</span> : null}
           </div>
         </div>
-        <span className={`meeting-status-badge ${getStatusClass(meeting.status)}`}>
-          {getStatusLabel(meeting.status)}
+        <span className={`meeting-status-badge ${getStatusClass(meeting.status, meeting)}`}>
+          {getStatusLabel(meeting.status, meeting)}
         </span>
       </div>
 
@@ -71,7 +75,7 @@ const MeetingCard = ({ meeting, role, currentUser, participants = [], detailsPat
         )}
 
         {/* Cadet actions */}
-        {!authority && isLive && canJoin ? (
+        {showParticipantJoin ? (
           onJoinRoom ? (
             <button type="button" className="meeting-btn meeting-btn-primary" onClick={() => onJoinRoom(meeting.id)}>
               Join Meeting
@@ -102,7 +106,7 @@ const MeetingCard = ({ meeting, role, currentUser, participants = [], detailsPat
         ) : null}
 
         {/* Authority actions */}
-        {authority && isLive ? (
+        {authority && canManage && isLive ? (
           onJoinRoom ? (
             <button type="button" className="meeting-btn meeting-btn-primary" onClick={() => onJoinRoom(meeting.id)}>
               Open Room
@@ -114,7 +118,7 @@ const MeetingCard = ({ meeting, role, currentUser, participants = [], detailsPat
           )
         ) : null}
 
-        {authority && isCompleted ? (
+        {authority && canManage && isCompleted ? (
           onViewReport ? (
             <button type="button" className="meeting-btn meeting-btn-completed" onClick={() => onViewReport(meeting.id)}>
               View Report

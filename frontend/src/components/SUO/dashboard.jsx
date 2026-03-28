@@ -17,7 +17,6 @@ import {
   Video,
   ClipboardCheck,
   Mic,
-  Heart,
 } from "lucide-react";
 import ChatLayout from "../ChatCommon/ChatLayout";
 import { useNavigate } from "react-router-dom";
@@ -41,14 +40,13 @@ import { API_BASE_URL } from "../../api/config";
 import QuizModule from "../quiz/QuizModule";
 import VoiceCommandsModule from "../VoiceCommands/VoiceCommandsModule";
 import CommunityFeed from "../community/CommunityFeed";
-import SuoDonations from "../Donations/SuoDonations";
 import { clearAuthStorage, hasAuthFor } from "../../utils/authState";
 import { getStoredDashboardTab, persistDashboardTab } from "../../utils/dashboardState";
 import { resolveProfileImage } from "../../utils/profileImage";
 
 export default function SUODashboard() {
   const SUO_TAB_STORAGE_KEY = "suo_dashboard_active_tab";
-  const SUO_ALLOWED_TABS = ["profile", "feed", "chatbot", "attendance", "meetings", "quiz", "voice", "chat", "community", "donations"];
+  const SUO_ALLOWED_TABS = ["profile", "feed", "chatbot", "attendance", "meetings", "quiz", "voice", "chat", "community"];
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -239,6 +237,12 @@ export default function SUODashboard() {
     persistDashboardTab(SUO_TAB_STORAGE_KEY, activeTab);
   }, [activeTab]);
 
+  useEffect(() => {
+    if (activeTab === "donations") {
+      setActiveTab("profile");
+    }
+  }, [activeTab]);
+
   const role = getCurrentRole();
   const canCreate = canCreateMeeting(role);
 
@@ -385,17 +389,6 @@ export default function SUODashboard() {
                 </button>
 
                 <button
-                  className={`nav-item ${activeTab === "donations" ? "active" : ""}`}
-                  onClick={() => {
-                    setActiveTab("donations");
-                    dispatch(closeSUOSidebar());
-                  }}
-                >
-                  <Heart size={18} />
-                  <span>Donations</span>
-                </button>
-
-                <button
                   className="nav-item"
                   onClick={() => {
                     setShowReset(true);
@@ -512,8 +505,6 @@ export default function SUODashboard() {
             )}
 
             {activeTab === "community" && <CommunityFeed />}
-
-            {activeTab === "donations" && <SuoDonations />}
 
             {activeTab === "profile" && (
               <div className="profile-page">

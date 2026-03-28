@@ -7,11 +7,15 @@ import { API_BASE_URL } from "../../api/config";
 import {
   MEETING_STATUS,
   formatMeetingDateTime,
+  canStartScheduledMeeting,
+  getMeetingTiming,
   getCurrentRole,
   getCurrentUser,
   getStatusClass,
   getStatusLabel,
   isAuthority,
+  MEETING_START_GRACE_MINUTES,
+  canManageMeeting,
   isInvitedToMeeting,
   isMeetingHost,
 } from "./meetingUtils";
@@ -152,6 +156,7 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
 
   const invited = isInvitedToMeeting(meeting, currentUser.id, role);
   const host = isMeetingHost(meeting, currentUser.id);
+  const canManage = canManageMeeting(meeting, role);
 
   if (!invited && !authority) {
     return (
@@ -162,10 +167,14 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
   }
 
   const isLive = meeting.status === MEETING_STATUS.LIVE;
-  const isScheduled = meeting.status === MEETING_STATUS.SCHEDULED;
+  const timing = getMeetingTiming(meeting);
+  const isScheduled = timing.isUpcoming;
   const isCompleted =
-    meeting.status === MEETING_STATUS.ENDED ||
-    meeting.status === MEETING_STATUS.COMPLETED;
+    !timing.isMissed &&
+    (meeting.status === MEETING_STATUS.ENDED ||
+      meeting.status === MEETING_STATUS.COMPLETED ||
+      meeting.status === MEETING_STATUS.CANCELLED);
+  const showParticipantJoin = isLive && invited && (!authority || !canManage);
 
   const saveEdit = () => {
     dispatch(
@@ -181,6 +190,7 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
   };
 
   const startMeeting = () => {
+    if (!canStartScheduledMeeting(meeting)) return;
     dispatch(updateMeetingStatusAsync({ meetingId: meeting.id, status: MEETING_STATUS.LIVE }));
     dispatch(setCurrentMeeting({ meetingId: meeting.id, userId: currentUser.id }));
     if (onJoinRoom) {
@@ -222,8 +232,8 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
           <h1>{meeting.title}</h1>
           {host ? <span className="meeting-host-chip">You are the host</span> : null}
         </div>
-        <span className={`meeting-status-badge ${getStatusClass(meeting.status)}`}>
-          {getStatusLabel(meeting.status)}
+        <span className={`meeting-status-badge ${getStatusClass(meeting.status, meeting)}`}>
+          {getStatusLabel(meeting.status, meeting)}
         </span>
       </div>
 
@@ -286,7 +296,7 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
       ) : null}
 
       {/* Authority controls for SCHEDULED meetings */}
-      {authority && isScheduled ? (
+      {authority && canManage && isScheduled ? (
         <div className="meeting-detail-actions-card">
           <h3>Meeting Actions</h3>
           <div className="meeting-detail-action-buttons">
@@ -306,8 +316,17 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
         </div>
       ) : null}
 
+      {authority && canManage && timing.isMissed ? (
+        <div className="meeting-detail-actions-card">
+          <h3>Meeting Actions</h3>
+          <p className="meeting-empty">
+            This meeting was not started within {MEETING_START_GRACE_MINUTES} minutes of the scheduled time, so it has been moved out of the active dashboard window.
+          </p>
+        </div>
+      ) : null}
+
       {/* Edit panel */}
-      {authority && editMode ? (
+      {authority && canManage && editMode ? (
         <div className="meeting-detail-edit-card">
           <h3>Edit Meeting</h3>
           <div className="meeting-create-fields">
@@ -353,7 +372,7 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
       ) : null}
 
       {/* Authority controls for LIVE meetings */}
-      {authority && isLive ? (
+      {authority && canManage && isLive ? (
         <div className="meeting-detail-live-section">
           <AuthorityControlPanel
             meeting={meeting}
@@ -367,7 +386,7 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
 
       {/* Bottom actions */}
       <div className="meeting-detail-footer">
-        {!authority && isLive ? (
+        {showParticipantJoin ? (
           onJoinRoom ? (
             <button type="button" className="meeting-btn meeting-btn-primary meeting-btn-lg" onClick={() => onJoinRoom(meeting.id)}>
               Join Meeting
@@ -379,7 +398,7 @@ const MeetingDetailsPage = ({ embedded = false, basePath = "/meetings", meetingI
           )
         ) : null}
 
-        {authority && isLive ? (
+        {authority && canManage && isLive ? (
           onJoinRoom ? (
             <button type="button" className="meeting-btn meeting-btn-primary meeting-btn-lg" onClick={() => onJoinRoom(meeting.id)}>
               Open Room

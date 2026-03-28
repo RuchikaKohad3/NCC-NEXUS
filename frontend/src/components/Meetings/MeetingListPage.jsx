@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMeetings } from "../../store/meetingSlice";
 import MeetingCard from "./MeetingCard";
 import {
-  MEETING_STATUS,
   canCreateMeeting,
+  getMeetingTiming,
   getCurrentRole,
   getCurrentUser,
   getVisibleMeetings,
@@ -53,11 +53,9 @@ const MeetingListPage = ({ embedded = false, basePath = "/meetings", hideCreateL
 
   const visibleMeetings = getVisibleMeetings(meetings, role, currentUser.id);
 
-  const ongoing = visibleMeetings.filter((meeting) => meeting.status === MEETING_STATUS.LIVE);
-  const upcoming = visibleMeetings.filter((meeting) => meeting.status === MEETING_STATUS.SCHEDULED);
-  const past = visibleMeetings.filter((meeting) =>
-    [MEETING_STATUS.ENDED, MEETING_STATUS.COMPLETED, MEETING_STATUS.CANCELLED].includes(meeting.status)
-  );
+  const ongoing = visibleMeetings.filter((meeting) => getMeetingTiming(meeting).isLive);
+  const upcoming = visibleMeetings.filter((meeting) => getMeetingTiming(meeting).isUpcoming);
+  const past = visibleMeetings.filter((meeting) => getMeetingTiming(meeting).isPast);
 
   const hasAnyMeetings = ongoing.length > 0 || upcoming.length > 0 || past.length > 0;
 

@@ -1,7 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { donationApi } from "../api/donationApi";
 
-const STORAGE_KEY = "ncc_donations";
+const STORAGE_KEY = "ncc_donations_v2";
+const LEGACY_STORAGE_KEY = "ncc_donations";
+
+try {
+  Object.keys(localStorage)
+    .filter((key) => key.startsWith(`${LEGACY_STORAGE_KEY}_`))
+    .forEach((key) => localStorage.removeItem(key));
+} catch {}
 
 const loadFromStorage = (key) => {
   try {
@@ -21,21 +28,13 @@ const saveToStorage = (key, data) => {
 /* ── Async Thunks ── */
 
 export const fetchUnitNeeds = createAsyncThunk("donations/fetchUnitNeeds", async () => {
-  try {
-    const res = await donationApi.getUnitNeeds();
-    return res.data;
-  } catch {
-    return loadFromStorage("needs") || [];
-  }
+  const res = await donationApi.getUnitNeeds();
+  return res.data;
 });
 
 export const fetchMyDonations = createAsyncThunk("donations/fetchMyDonations", async () => {
-  try {
-    const res = await donationApi.getMyDonations();
-    return res.data;
-  } catch {
-    return loadFromStorage("myDonations") || [];
-  }
+  const res = await donationApi.getMyDonations();
+  return res.data;
 });
 
 export const fetchDonationById = createAsyncThunk("donations/fetchDonationById", async (donationId) => {
@@ -53,21 +52,13 @@ export const createDonation = createAsyncThunk("donations/createDonation", async
 });
 
 export const fetchLeaderboard = createAsyncThunk("donations/fetchLeaderboard", async () => {
-  try {
-    const res = await donationApi.getLeaderboard();
-    return res.data;
-  } catch {
-    return loadFromStorage("leaderboard") || [];
-  }
+  const res = await donationApi.getLeaderboard();
+  return res.data;
 });
 
 export const fetchRecognition = createAsyncThunk("donations/fetchRecognition", async () => {
-  try {
-    const res = await donationApi.getRecognition();
-    return res.data;
-  } catch {
-    return loadFromStorage("recognition") || null;
-  }
+  const res = await donationApi.getRecognition();
+  return res.data;
 });
 
 export const reportDonationIssue = createAsyncThunk("donations/reportIssue", async (payload) => {
@@ -76,12 +67,8 @@ export const reportDonationIssue = createAsyncThunk("donations/reportIssue", asy
 });
 
 export const fetchPendingDonations = createAsyncThunk("donations/fetchPendingDonations", async () => {
-  try {
-    const res = await donationApi.getPendingDonations();
-    return res.data;
-  } catch {
-    return loadFromStorage("pending") || [];
-  }
+  const res = await donationApi.getPendingDonations();
+  return res.data;
 });
 
 export const uploadUtilization = createAsyncThunk("donations/uploadUtilization", async ({ donationId, payload, files }) => {
@@ -90,30 +77,18 @@ export const uploadUtilization = createAsyncThunk("donations/uploadUtilization",
 });
 
 export const fetchSuoStatus = createAsyncThunk("donations/fetchSuoStatus", async () => {
-  try {
-    const res = await donationApi.getSuoStatus();
-    return res.data;
-  } catch {
-    return loadFromStorage("suoTracked") || [];
-  }
+  const res = await donationApi.getSuoStatus();
+  return res.data;
 });
 
 export const fetchAnoOverview = createAsyncThunk("donations/fetchAnoOverview", async () => {
-  try {
-    const res = await donationApi.getAnoOverview();
-    return res.data;
-  } catch {
-    return loadFromStorage("anoOverview") || null;
-  }
+  const res = await donationApi.getAnoOverview();
+  return res.data;
 });
 
 export const fetchAnoProjects = createAsyncThunk("donations/fetchAnoProjects", async () => {
-  try {
-    const res = await donationApi.getAnoProjects();
-    return res.data;
-  } catch {
-    return loadFromStorage("anoProjects") || [];
-  }
+  const res = await donationApi.getAnoProjects();
+  return res.data;
 });
 
 /* ── Slice ── */
@@ -167,6 +142,9 @@ const donationSlice = createSlice({
       .addCase(fetchRecognition.fulfilled, (state, action) => {
         state.recognition = action.payload;
         saveToStorage("recognition", action.payload);
+        state.loading = false;
+      })
+      .addCase(reportDonationIssue.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(fetchPendingDonations.fulfilled, (state, action) => {

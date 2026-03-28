@@ -57,6 +57,18 @@ const toFrontendStatus = (value = "") => {
   return status || "SCHEDULED";
 };
 
+const normalizeMeetingCreatorRole = (role = "", rank = "") => {
+  const normalizedRole = String(role || "").toUpperCase();
+  const normalizedRank = String(rank || "").trim().toLowerCase();
+
+  if (normalizedRole === "ANO") return "ANO";
+  if (normalizedRole === "CADET" && normalizedRank === "senior under officer") {
+    return "SUO";
+  }
+
+  return normalizedRole || "CADET";
+};
+
 const mapMeetingToFrontend = (meeting = {}) => ({
   id: String(meeting.meeting_id || ""),
   title: meeting.title || "",
@@ -69,6 +81,11 @@ const mapMeetingToFrontend = (meeting = {}) => ({
   createdBy: Number(meeting.created_by_user_id || 0),
   createdByName: meeting.created_by_name || "",
   createdByRole: meeting.created_by_role || "",
+  createdByRank: meeting.created_by_rank || "",
+  createdByAuthorityRole: normalizeMeetingCreatorRole(
+    meeting.created_by_role,
+    meeting.created_by_rank
+  ),
   status: toFrontendStatus(meeting.status),
   startedAt: meeting.actual_start_time || null,
   endedAt: meeting.actual_end_time || null,
@@ -197,6 +214,15 @@ export const meetingApi = {
       data: Array.isArray(response.data?.participants)
         ? response.data.participants.map(mapParticipantToFrontend)
         : [],
+    };
+  },
+
+  getJitsiToken: async (meetingId) => {
+    const id = normalizeMeetingId(meetingId);
+    const response = await client.get(`/${id}/jitsi-token`);
+    return {
+      ...response,
+      data: response.data || {},
     };
   },
 
