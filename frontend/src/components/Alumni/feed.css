@@ -97,6 +97,17 @@
   flex-shrink: 0;
 }
 
+.alumni-feed .feed-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(92, 107, 192, 0.14), rgba(26, 35, 126, 0.16));
+  color: var(--al-text, #1a1d2e);
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+}
+
 .alumni-feed .feed-input {
   flex: 1;
   background: var(--al-bg, #f0f2f8);
@@ -1083,6 +1094,19 @@
   }
   .alumni-feed .feed-title {
     font-size: 22px;
+  }
+}
+
+@media (max-width: 420px) {
+  .alumni-feed .feed-post-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 13px;
+    gap: 6px;
+    border-radius: 10px;
   }
 }
 

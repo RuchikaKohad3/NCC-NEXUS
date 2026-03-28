@@ -92,6 +92,18 @@ export function createDirectRoomApi({ peerUserId, token }) {
   });
 }
 
+export function createGroupRoomApi({ roomName, participantUserIds, token }) {
+  return request("/api/chat/room", {
+    token,
+    method: "POST",
+    body: {
+      room_type: "group",
+      room_name: roomName,
+      participant_user_ids: participantUserIds,
+    },
+  });
+}
+
 export function fetchRoomMessagesApi({ roomId, token, limit = 50, beforeMessageId = null }) {
   return request(`/api/chat/messages/${roomId}`, {
     token,

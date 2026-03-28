@@ -1070,8 +1070,16 @@ select option {
     width: 100%;
   }
 
+  .ano-topbar {
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 18px;
+  }
+
   .ano-sidebar-toggle {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .ano-dashboard-layout .sidebar {
@@ -1093,6 +1101,39 @@ select option {
 }
 
 @media (max-width: 600px) {
+  .ano-topbar {
+    padding: 8px 12px;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .ano-sidebar-toggle,
+  .ano-dashboard-layout .topbar-logout {
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+    flex: 0 0 auto;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  .ano-sidebar-toggle {
+    min-width: 86px;
+    font-size: 11px;
+  }
+
+  .ano-dashboard-layout .topbar-logout {
+    margin-left: auto;
+    font-size: 11px;
+    min-width: 96px;
+  }
+
+  .ano-dashboard-layout .topbar-logout span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .add-cadet-container,
   .manage-container {
     padding: 16px 14px;
@@ -1111,5 +1152,29 @@ select option {
   .modal {
     padding: 24px 20px;
     border-radius: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .ano-topbar {
+    display: flex;
+    padding: 7px 10px;
+    gap: 8px;
+    justify-content: flex-start;
+  }
+
+  .ano-sidebar-toggle,
+  .ano-dashboard-layout .topbar-logout {
+    width: auto;
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 10.5px;
+    border-radius: 9px;
+  }
+
+  .ano-dashboard-layout .topbar-logout {
+    gap: 5px;
+    min-width: 88px;
+    margin-left: auto;
   }
 }

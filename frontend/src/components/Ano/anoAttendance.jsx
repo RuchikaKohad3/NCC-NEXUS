@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import "./anoAttendance.css";
 import { attendanceApi } from "../../api/attendanceApi";
 import { fineApi } from "../../api/fineApi";
@@ -21,6 +22,7 @@ const AnoAttendance = () => {
     total_amount: 0,
     by_status: { pending: 0, payment_submitted: 0, paid: 0, cancelled: 0 },
   });
+  const [isFineSummaryExpanded, setIsFineSummaryExpanded] = useState(true);
 
   const loadSessions = async (preferredSessionId = null) => {
     setLoading(true);
@@ -152,14 +154,51 @@ const AnoAttendance = () => {
           Download Fine Report
         </button>
       </div>
-      <div className="ano-attendance-table-card" style={{ marginTop: 12 }}>
-        <h3>Fine Summary</h3>
-        <p>Total Fines: {fineSummary.total_count}</p>
-        <p>Total Amount: Rs. {Number(fineSummary.total_amount || 0).toFixed(2)}</p>
-        <p>Pending: {fineSummary.by_status.pending || 0}</p>
-        <p>Payment Submitted: {fineSummary.by_status.payment_submitted || 0}</p>
-        <p>Paid: {fineSummary.by_status.paid || 0}</p>
-        <p>Cancelled: {fineSummary.by_status.cancelled || 0}</p>
+      <div className="ano-attendance-table-card ano-fine-summary-card" style={{ marginTop: 12 }}>
+        <div className="ano-fine-summary-accent" aria-hidden="true" />
+        <div className="ano-fine-summary-header">
+          <h3 className="ano-fine-summary-title">Fine Summary</h3>
+          <button
+            type="button"
+            className="ano-fine-summary-toggle"
+            onClick={() => setIsFineSummaryExpanded((prev) => !prev)}
+            aria-expanded={isFineSummaryExpanded}
+            aria-label={isFineSummaryExpanded ? "Collapse fine summary" : "Expand fine summary"}
+          >
+            {isFineSummaryExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
+        </div>
+        <div className={`ano-fine-summary-body${isFineSummaryExpanded ? " is-expanded" : ""}`}>
+          <div className="ano-fine-summary-body-inner">
+            <p className="ano-fine-summary-subtitle">A quick overview of issued fines and their current payment status.</p>
+            <div className="ano-fine-summary-grid">
+              <div className="ano-fine-summary-item">
+                <span className="ano-fine-summary-label">Total Fines</span>
+                <strong className="ano-fine-summary-value">{fineSummary.total_count}</strong>
+              </div>
+              <div className="ano-fine-summary-item">
+                <span className="ano-fine-summary-label">Total Amount</span>
+                <strong className="ano-fine-summary-value">Rs. {Number(fineSummary.total_amount || 0).toFixed(2)}</strong>
+              </div>
+              <div className="ano-fine-summary-item">
+                <span className="ano-fine-summary-label">Pending</span>
+                <strong className="ano-fine-summary-value">{fineSummary.by_status.pending || 0}</strong>
+              </div>
+              <div className="ano-fine-summary-item">
+                <span className="ano-fine-summary-label">Payment Submitted</span>
+                <strong className="ano-fine-summary-value">{fineSummary.by_status.payment_submitted || 0}</strong>
+              </div>
+              <div className="ano-fine-summary-item">
+                <span className="ano-fine-summary-label">Paid</span>
+                <strong className="ano-fine-summary-value">{fineSummary.by_status.paid || 0}</strong>
+              </div>
+              <div className="ano-fine-summary-item">
+                <span className="ano-fine-summary-label">Cancelled</span>
+                <strong className="ano-fine-summary-value">{fineSummary.by_status.cancelled || 0}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div className="ano-attendance-table-card">
         <table className="ano-attendance-table">
