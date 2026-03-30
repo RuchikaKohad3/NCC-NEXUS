@@ -44,6 +44,18 @@ import { clearAuthStorage, hasAuthFor } from "../../utils/authState";
 import { getStoredDashboardTab, persistDashboardTab } from "../../utils/dashboardState";
 import { resolveProfileImage } from "../../utils/profileImage";
 
+const normalizeRankLabel = (value, fallback) => {
+  const rank = String(value || "").trim();
+  if (!rank) return fallback;
+
+  const normalized = rank.toLowerCase();
+  if (normalized === "-" || normalized === "--" || normalized === "n/a" || normalized === "na" || normalized === "null" || normalized === "undefined") {
+    return fallback;
+  }
+
+  return rank;
+};
+
 export default function SUODashboard() {
   const SUO_TAB_STORAGE_KEY = "suo_dashboard_active_tab";
   const SUO_ALLOWED_TABS = ["profile", "feed", "chatbot", "attendance", "meetings", "quiz", "voice", "chat", "community"];
@@ -89,7 +101,7 @@ export default function SUODashboard() {
 
       setProfileData({
         name: data.name || "SUO",
-        rank: data.rank || "Senior Under Officer",
+        rank: normalizeRankLabel(data.rank, "Senior Under Officer"),
         location: [data.unit, data.city].filter(Boolean).join(", "),
         bio: data.bio || "Add your bio using edit button.",
       });
@@ -443,7 +455,7 @@ export default function SUODashboard() {
             {activeTab === "quiz" && (
               <QuizModule
                 participantName={profileData.name || "SUO"}
-                participantRank={profileData.rank || "Senior Under Officer"}
+                participantRank={normalizeRankLabel(profileData.rank, "Senior Under Officer")}
               />
             )}
 
@@ -524,7 +536,7 @@ export default function SUODashboard() {
                       <User size={18} />
                     </div>
                     <div className="stat-info">
-                      <h3>{profileData.rank || "SUO"}</h3>
+                      <h3>{normalizeRankLabel(profileData.rank, "SUO")}</h3>
                       <p>Current Rank</p>
                     </div>
                   </div>
@@ -631,7 +643,7 @@ export default function SUODashboard() {
                     <div className="profile-header-text">
                       <h1 className="profile-name">{profileData.name}</h1>
                       <div className="profile-meta">
-                        <span className="profile-role-badge">{profileData.rank || "SUO"}</span>
+                        <span className="profile-role-badge">{normalizeRankLabel(profileData.rank, "SUO")}</span>
                         <div className="info-pill">
                           <MapPin size={14} />
                           {profileData.location}

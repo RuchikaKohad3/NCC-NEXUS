@@ -95,6 +95,17 @@
   flex-shrink: 0;
 }
 
+.cadet-feed .feed-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(92, 107, 192, 0.14), rgba(26, 35, 126, 0.16));
+  color: var(--d-text, #1a1d2e);
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+}
+
 .cadet-feed .feed-input {
   flex: 1;
   background: rgba(244, 246, 251, 0.6);
@@ -1231,6 +1242,17 @@
 
   .cadet-feed .feed-action-btn {
     font-size: 11px;
+  }
+
+  .cadet-feed .feed-post-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 13px;
+    gap: 6px;
+    border-radius: 10px;
   }
 }
 

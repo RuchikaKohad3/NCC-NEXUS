@@ -37,6 +37,18 @@ import { clearAuthStorage, hasAuthFor } from "../../utils/authState";
 import { getStoredDashboardTab, persistDashboardTab } from "../../utils/dashboardState";
 import { resolveProfileImage } from "../../utils/profileImage";
 
+const normalizeRankLabel = (value, fallback) => {
+  const rank = String(value || "").trim();
+  if (!rank) return fallback;
+
+  const normalized = rank.toLowerCase();
+  if (normalized === "-" || normalized === "--" || normalized === "n/a" || normalized === "na" || normalized === "null" || normalized === "undefined") {
+    return fallback;
+  }
+
+  return rank;
+};
+
 export default function AlumniDashboard() {
   const ALUMNI_TAB_STORAGE_KEY = "alumni_dashboard_active_tab";
   const ALUMNI_ALLOWED_TABS = ["profile", "feed", "meetings", "chat", "community", "donations"];
@@ -92,7 +104,7 @@ export default function AlumniDashboard() {
 
       setProfileData({
         name: data.name || "Alumni",
-        rank: data.rank || "-",
+        rank: normalizeRankLabel(data.rank, "Alumni"),
         location: [data.unit, data.city].filter(Boolean).join(", "),
         bio: data.bio || "Alumni profile bio is not editable yet.",
       });
@@ -457,7 +469,7 @@ const startEditBio = () => {
                       <User size={18} />
                     </div>
                     <div className="stat-info">
-                      <h3>{profileData.rank || "Alumni"}</h3>
+                      <h3>{normalizeRankLabel(profileData.rank, "Alumni")}</h3>
                       <p>Former Rank</p>
                     </div>
                   </div>
@@ -532,7 +544,7 @@ const startEditBio = () => {
                     <div className="profile-header-text">
                       <h1 className="profile-name">{profileData.name}</h1>
                       <div className="profile-meta">
-                        <span className="profile-role-badge">{profileData.rank || "Alumni"}</span>
+                        <span className="profile-role-badge">{normalizeRankLabel(profileData.rank, "Alumni")}</span>
                         <div className="info-pill">
                           <MapPin size={14} />
                           {profileData.location}

@@ -9,6 +9,7 @@ import {
   fetchRoomMessagesApi,
   markAsReadApi,
   createDirectRoomApi,
+  createGroupRoomApi,
   sendMessageApi,
 } from '../../features/ui/chatApi';
 import {
@@ -55,7 +56,7 @@ function mergeMessages(existing, incoming) {
   return [...map.values()].sort((a, b) => Number(a.message_id) - Number(b.message_id));
 }
 
-const ChatLayout = ({ userRole = 'cadet' }) => {
+const ChatLayout = ({ userRole = 'cadet', createGroupSignal = 0 }) => {
   const [conversations, setConversations] = useState([]);
   const [messagesByRoom, setMessagesByRoom] = useState({});
   const [typingByRoom, setTypingByRoom] = useState({});
@@ -69,10 +70,18 @@ const ChatLayout = ({ userRole = 'cadet' }) => {
 
   const [loadingList, setLoadingList] = useState(false);
   const [listError, setListError] = useState('');
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+  const [groupName, setGroupName] = useState('');
+  const [groupCandidates, setGroupCandidates] = useState([]);
+  const [selectedGroupMembers, setSelectedGroupMembers] = useState([]);
+  const [loadingGroupCandidates, setLoadingGroupCandidates] = useState(false);
+  const [creatingGroup, setCreatingGroup] = useState(false);
+  const [groupError, setGroupError] = useState('');
 
   const activeTabRef = useRef('All');
   const selectedRoomRef = useRef(null);
   const joinedRoomRef = useRef(null);
+  const lastCreateGroupSignalRef = useRef(createGroupSignal);
 
   const auth = useMemo(() => getAuthContext(userRole), [userRole]);
 
@@ -83,6 +92,13 @@ const ChatLayout = ({ userRole = 'cadet' }) => {
   useEffect(() => {
     selectedRoomRef.current = selectedRoomId;
   }, [selectedRoomId]);
+
+  const closeCreateGroupModal = useCallback(() => {
+    setIsCreateGroupOpen(false);
+    setGroupName('');
+    setSelectedGroupMembers([]);
+    setGroupError('');
+  }, []);
 
   const fetchAndSetList = useCallback(async (filter, options = {}) => {
     if (!auth.token || !auth.userId) return [];
@@ -168,6 +184,53 @@ const ChatLayout = ({ userRole = 'cadet' }) => {
       console.error('Failed to load messages:', error.message);
     }
   }, [auth.token, auth.userId]);
+
+  const openCreateGroupModal = useCallback(async () => {
+    if (!auth.token || !auth.userId) {
+      setListError('Login required.');
+      return;
+    }
+
+    setIsCreateGroupOpen(true);
+    setGroupError('');
+    setLoadingGroupCandidates(true);
+
+    try {
+      const payload = await fetchCollegeUsersApi({
+        userId: auth.userId,
+        token: auth.token,
+        filter: 'all',
+      });
+
+      const seen = new Set();
+      const candidates = (payload.data?.users || [])
+        .map((item) => ({
+          id: Number(item.peer_user_id || item.user_id || 0),
+          name: item.room_name || item.name || item.full_name || 'User',
+          role: item.peer_role || item.role || '',
+          canStartChat: item.can_start_chat !== false,
+        }))
+        .filter((item) => item.id > 0 && item.id !== Number(auth.userId) && item.canStartChat !== false)
+        .filter((item) => {
+          if (seen.has(item.id)) return false;
+          seen.add(item.id);
+          return true;
+        });
+
+      setGroupCandidates(candidates);
+    } catch (error) {
+      setGroupCandidates([]);
+      setGroupError(error.message || 'Failed to load users for group creation.');
+    } finally {
+      setLoadingGroupCandidates(false);
+    }
+  }, [auth.token, auth.userId]);
+
+  useEffect(() => {
+    if (!createGroupSignal || lastCreateGroupSignalRef.current === createGroupSignal) return;
+    lastCreateGroupSignalRef.current = createGroupSignal;
+    openCreateGroupModal();
+  }, [createGroupSignal, openCreateGroupModal]);
 
   const selectRoom = useCallback(async (roomId) => {
     const entryId = `room:${Number(roomId)}`;
@@ -397,6 +460,50 @@ const ChatLayout = ({ userRole = 'cadet' }) => {
     fetchAndSetList(activeTabRef.current);
   }, [fetchAndSetList]);
 
+  const handleToggleGroupMember = useCallback((userId) => {
+    setSelectedGroupMembers((prev) => (
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+    ));
+  }, []);
+
+  const handleCreateGroup = useCallback(async () => {
+    const trimmedName = String(groupName || '').trim();
+
+    if (!trimmedName) {
+      setGroupError('Enter a group name.');
+      return;
+    }
+
+    if (selectedGroupMembers.length === 0) {
+      setGroupError('Select at least one member.');
+      return;
+    }
+
+    setCreatingGroup(true);
+    setGroupError('');
+
+    try {
+      const payload = await createGroupRoomApi({
+        roomName: trimmedName,
+        participantUserIds: selectedGroupMembers,
+        token: auth.token,
+      });
+
+      const roomId = Number(payload.data?.room?.room_id || 0);
+      await fetchAndSetList('All', { silent: true });
+      setActiveTab('All');
+      closeCreateGroupModal();
+
+      if (roomId) {
+        await selectRoom(roomId);
+      }
+    } catch (error) {
+      setGroupError(error.message || 'Failed to create group.');
+    } finally {
+      setCreatingGroup(false);
+    }
+  }, [auth.token, closeCreateGroupModal, fetchAndSetList, groupName, selectRoom, selectedGroupMembers]);
+
   const filteredBySearch = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return conversations;
@@ -453,6 +560,74 @@ const ChatLayout = ({ userRole = 'cadet' }) => {
         currentUserId={auth.userId}
         typingUsers={typingUsers}
       />
+
+      {isCreateGroupOpen && (
+        <div className="chat-modal-overlay" onClick={closeCreateGroupModal}>
+          <div
+            className="chat-group-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="chat-group-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="chat-group-modal-header">
+              <div>
+                <h3 id="chat-group-modal-title">Create New Group</h3>
+                <p>Choose a name and add members to start the group chat.</p>
+              </div>
+              <button type="button" className="chat-group-close" onClick={closeCreateGroupModal}>
+                ×
+              </button>
+            </div>
+
+            <div className="chat-group-field">
+              <label htmlFor="chat-group-name">Group Name</label>
+              <input
+                id="chat-group-name"
+                type="text"
+                className="chat-group-input"
+                placeholder="Enter group name"
+                value={groupName}
+                onChange={(event) => setGroupName(event.target.value)}
+              />
+            </div>
+
+            <div className="chat-group-field">
+              <label>Select Members</label>
+              {loadingGroupCandidates ? (
+                <div className="chat-group-empty">Loading users...</div>
+              ) : groupCandidates.length === 0 ? (
+                <div className="chat-group-empty">No eligible users found.</div>
+              ) : (
+                <div className="chat-group-member-list">
+                  {groupCandidates.map((member) => (
+                    <label key={member.id} className="chat-group-member">
+                      <input
+                        type="checkbox"
+                        checked={selectedGroupMembers.includes(member.id)}
+                        onChange={() => handleToggleGroupMember(member.id)}
+                      />
+                      <span className="chat-group-member-name">{member.name}</span>
+                      <span className="chat-group-member-role">{member.role || 'Member'}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {groupError ? <p className="chat-group-error">{groupError}</p> : null}
+
+            <div className="chat-group-actions">
+              <button type="button" className="chat-group-btn secondary" onClick={closeCreateGroupModal}>
+                Cancel
+              </button>
+              <button type="button" className="chat-group-btn primary" onClick={handleCreateGroup} disabled={creatingGroup}>
+                {creatingGroup ? 'Creating...' : 'Create Group'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

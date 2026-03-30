@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ChatLayout from '../ChatCommon/ChatLayout';
 import './anoChat.css';
 
 const ANOChat = () => {
+  const [createGroupSignal, setCreateGroupSignal] = useState(0);
+
   return (
     <div className="ano-chat-wrapper">
       {/* Dashboard Page Header */}
@@ -13,13 +15,13 @@ const ANOChat = () => {
         </div>
         
         <div className="ano-controls">
-           <button className="new-group-btn">+ New Group</button>
+           <button className="new-group-btn" type="button" onClick={() => setCreateGroupSignal((prev) => prev + 1)}>+ New Group</button>
         </div>
       </header>
 
       {/* Main Chat Container */}
       <div className="ano-chat-container">
-        <ChatLayout userRole="ano" />
+        <ChatLayout userRole="ano" createGroupSignal={createGroupSignal} />
       </div>
     </div>
   );

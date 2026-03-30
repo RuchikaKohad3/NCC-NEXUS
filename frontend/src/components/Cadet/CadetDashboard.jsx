@@ -42,6 +42,18 @@ import { clearAuthStorage, hasAuthFor } from "../../utils/authState";
 import { getStoredDashboardTab, persistDashboardTab } from "../../utils/dashboardState";
 import { resolveProfileImage } from "../../utils/profileImage";
 
+const normalizeRankLabel = (value, fallback) => {
+  const rank = String(value || "").trim();
+  if (!rank) return fallback;
+
+  const normalized = rank.toLowerCase();
+  if (normalized === "-" || normalized === "--" || normalized === "n/a" || normalized === "na" || normalized === "null" || normalized === "undefined") {
+    return fallback;
+  }
+
+  return rank;
+};
+
 export default function CadetDashboard() {
   const CADET_TAB_STORAGE_KEY = "cadet_dashboard_active_tab";
   const CADET_ALLOWED_TABS = ["profile", "feed", "attendance", "meetings", "quiz", "voice", "chatbot", "chat", "community"];
@@ -89,7 +101,7 @@ export default function CadetDashboard() {
 
       setProfileData({
         name: data.name || "Cadet",
-        rank: data.rank || "Cadet",
+        rank: normalizeRankLabel(data.rank, "Cadet"),
         location: [data.unit, data.city].filter(Boolean).join(", "),
         bio: data.bio || "Add your bio using edit button.",
       });
@@ -519,7 +531,7 @@ const [isEditingBio, setIsEditingBio] = useState(false);
           {activeTab === "quiz" && (
             <QuizModule
               participantName={profileData.name || "Cadet"}
-              participantRank={profileData.rank || "Cadet"}
+              participantRank={normalizeRankLabel(profileData.rank, "Cadet")}
             />
           )}
 
@@ -545,7 +557,7 @@ const [isEditingBio, setIsEditingBio] = useState(false);
                     <User size={18} />
                   </div>
                   <div className="stat-info">
-                    <h3>{profileData.rank || "Cadet"}</h3>
+                    <h3>{normalizeRankLabel(profileData.rank, "Cadet")}</h3>
                     <p>Current Rank</p>
                   </div>
                 </div>
@@ -627,7 +639,7 @@ const [isEditingBio, setIsEditingBio] = useState(false);
                   <div className="profile-header-text">
                     <h1 className="profile-name">{profileData.name}</h1>
                     <div className="profile-meta">
-                      <span className="profile-role-badge">{profileData.rank || "Cadet"}</span>
+                      <span className="profile-role-badge">{normalizeRankLabel(profileData.rank, "Cadet")}</span>
                       <div className="info-pill">
                         <MapPin size={14} />
                         {profileData.location}

@@ -188,6 +188,29 @@ function LikersPopup({ likeCount, liked, profileName, onClose }) {
   );
 }
 
+function FeedAvatar({ src, name = "", className = "feed-avatar" }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
+  const initial = String(name).trim().charAt(0).toUpperCase() || "N";
+
+  if (!src || hasError) {
+    return <div className={`${className} feed-avatar-fallback`}>{initial}</div>;
+  }
+
+  return (
+    <img
+      src={src}
+      className={className}
+      alt={name ? `${name} profile` : "Profile"}
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
 /* ===== RECURSIVE REPLY COMPONENT ===== */
 const ReplyItem = ({ reply, postId, commentId, profileName, formatTime, toggleReplyLike, deleteReply, setReplyingTo, replyingTo, replyText, setReplyText, addReply, depth = 0 }) => {
   const hasReplies = reply.replies && reply.replies.length > 0;
@@ -1150,7 +1173,7 @@ export default function Feed({
         {true && (
           <div className="feed-create-card">
             <div className="feed-input-row">
-              <img src={profileImage} className="feed-avatar" />
+              <FeedAvatar src={profileImage} name={profileName} />
               <input
                 className="feed-input"
                 placeholder={`Share an update, ${profileName.split(" ")[0]}...`}
@@ -1274,10 +1297,7 @@ export default function Feed({
             <div className="feed-card-content">
             <div className="feed-card-header">
               <div className="feed-user">
-                <img
-  src={p.avatar || "/default-avatar.png"}
-  className="feed-avatar"
-/>
+                <FeedAvatar src={p.avatar} name={p.name} />
                 <div>
                   <h3>
                     {p.name} <span className="feed-role">{p.role}</span>
