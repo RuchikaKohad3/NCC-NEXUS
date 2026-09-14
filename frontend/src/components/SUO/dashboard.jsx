@@ -43,7 +43,7 @@ import QuizModule from "../quiz/QuizModule";
 import VoiceCommandsModule from "../VoiceCommands/VoiceCommandsModule";
 import CommunityFeed from "../community/CommunityFeed";
 import CertificateModule from "../Certificate/CertificateModule";
-import CadetTwin from "../Command/CadetTwin";
+import CadetTwin from "../Command/DigitalTwin/DigitalTwinExperience";
 import NotificationPanel from "../Notifications/NotificationPanel";
 import { connectNotificationSocket, getNotificationSocket } from "../../features/notifications/notificationSocket";
 import { clearAuthStorage, hasAuthFor } from "../../utils/authState";

@@ -41,7 +41,7 @@ import CommunityFeed from "./components/community/CommunityFeed";
 import AnoDonationOverview from "./components/Donations/AnoDonationOverview";
 
 // 7. Command / Intelligence Module
-import CadetTwin from "./components/Command/CadetTwin";
+import DigitalTwinExperience from "./components/Command/DigitalTwin/DigitalTwinExperience";
 import CommandCenter from "./components/Command/CommandCenter";
 import CommandCadetView from "./components/Command/CommandCadetView";
 import RiskWatchlist from "./components/Command/RiskWatchlist";
@@ -81,8 +81,8 @@ const App = () => {
         <Route path="/community" element={<Community />} />
 
         {/* COMMAND / INTELLIGENCE ROUTES */}
-        <Route path="/twin" element={<CadetTwin />} />
-        <Route path="/twin/:regimentalNo" element={<CadetTwin />} />
+        <Route path="/twin" element={<DigitalTwinExperience />} />
+        <Route path="/twin/:regimentalNo" element={<DigitalTwinExperience />} />
 
         <Route
           path="/quiz/attempt/:attemptId"
