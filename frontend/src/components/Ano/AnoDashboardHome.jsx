@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaUsers, FaUserCheck, FaUserShield, FaGraduationCap } from "react-icons/fa";
 import MeetingDashboardSection from "../Meetings/MeetingDashboardSection";
+import { API_BASE_URL } from "../../api/config";
 import "./anoDashboardHome.css";
 
 const AnoDashboardHome = () => {
@@ -15,7 +16,7 @@ const AnoDashboardHome = () => {
     const fetchStats = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await fetch("http://localhost:5000/api/ano/cadets", {
+        const response = await fetch(`${API_BASE_URL}/api/ano/cadets`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {

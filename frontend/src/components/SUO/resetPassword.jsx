@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { API_BASE_URL } from "../../api/config";
 import "./resetpassword.css";
 
 const ResetPasswordModal = ({ onClose }) => {
@@ -38,7 +39,7 @@ const ResetPasswordModal = ({ onClose }) => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/reset-password", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

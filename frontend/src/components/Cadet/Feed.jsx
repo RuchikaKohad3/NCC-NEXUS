@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import "./feed.css";
 import { connectFeedSocket, getFeedSocket } from "../../features/feed/feedSocket";
+import { API_BASE_URL } from "../../api/config";
 
 /* ===== TIME FORMATTER ===== */
 const formatTime = (timestamp) => {
@@ -330,7 +331,7 @@ export default function Feed({
   const videoRef = useRef(null);
   const viewedPostIdsRef = useRef(new Set());
 
-  const FEED_API_URL = "http://localhost:5000/api/posts";
+  const FEED_API_URL = `${API_BASE_URL}/api/posts`;
 
   /* ================= POSTS STATE ================= */
   const [posts, setPosts] = useState([]);

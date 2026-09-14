@@ -3,6 +3,7 @@ import { FaArrowLeft, FaLock, FaEye, FaEyeSlash, FaTimes } from "react-icons/fa"
 import { useNavigate } from "react-router-dom";
 import nccLogo from "../assets/ncc-logo.png";
 import ResetPasswordModal from "../Cadet/ResetPasswordModal";
+import { API_BASE_URL } from "../../api/config";
 
 const AnoLogin = ({ isModal = false, onClose }) => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const AnoLogin = ({ isModal = false, onClose }) => {
 
     try {
       // ✅ CORRECT URL: Matches app.js (/api/auth) + auth.routes.js (/ano/login)
-      const response = await fetch("http://localhost:5000/api/auth/ano/login", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/ano/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
