@@ -10,7 +10,11 @@ def analyze_audio(audio_path, expected_command):
 
     metrics = extract_metrics(audio_path)
 
-    recognized_command = transcribe(audio_path, metrics["audio"])
+    recognized_command = transcribe(
+    audio_path,
+    metrics["audio"],
+    expected_command
+)
 
     command_result = compare_commands(
         expected_command,

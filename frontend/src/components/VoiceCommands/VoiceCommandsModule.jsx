@@ -13,14 +13,15 @@ import {
   Square,
 } from "lucide-react";
 import WaveSurfer from "wavesurfer.js";
-import { VOICE_AI_BASE_URL } from "../../api/config";
+// import { VOICE_AI_BASE_URL } from "../../api/config";
 import VoiceCommandCard from "./VoiceCommandCard";
 import { VOICE_COMMANDS, VOICE_COMMAND_TYPES } from "./voiceCommandsData";
 import commandAudio from "./assets/command-sample.mp3";
+import { API_BASE_URL } from "../../api/config";
 import "./voiceCommands.css";
 
 const LEARNED_STORAGE_KEY = "voice_commands_learned_v1";
-const VOICE_ANALYZE_URL = `${VOICE_AI_BASE_URL}/analyze`;
+const VOICE_ANALYZE_URL = `${API_BASE_URL}/api/voice/analyze`;
 
 const safeReadLearned = () => {
   try {

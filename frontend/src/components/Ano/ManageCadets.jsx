@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaEdit, FaTrash, FaSearch } from "react-icons/fa";
+import { API_BASE_URL } from "../../api/config";
 
 // ✅ ADDED "Alumni"
 const ROLES = ["Cadet", "SUO", "Alumni"];
@@ -23,7 +24,7 @@ const ManageCadets = () => {
   const fetchCadets = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://localhost:5000/api/ano/cadets", {
+      const response = await fetch(`${API_BASE_URL}/api/ano/cadets`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await response.json();
@@ -58,7 +59,7 @@ const ManageCadets = () => {
   const handleSave = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`http://localhost:5000/api/ano/cadets/${selectedCadet.regimental_no}`, {
+      const response = await fetch(`${API_BASE_URL}/api/ano/cadets/${selectedCadet.regimental_no}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -89,7 +90,7 @@ const ManageCadets = () => {
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`http://localhost:5000/api/ano/cadets/${showDeleteModal.regimental_no}`, {
+      const response = await fetch(`${API_BASE_URL}/api/ano/cadets/${showDeleteModal.regimental_no}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });

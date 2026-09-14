@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import "./resetPassword.css";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const ResetPasswordModal = ({ onClose }) => {
   const navigate = useNavigate();
   const [showCurrent, setShowCurrent] = useState(false);
@@ -34,7 +37,7 @@ const ResetPasswordModal = ({ onClose }) => {
     try {
       setSubmitting(true);
 
-      const response = await fetch("http://localhost:5000/api/auth/reset-password", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

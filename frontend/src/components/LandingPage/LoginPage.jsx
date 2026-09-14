@@ -5,6 +5,7 @@ import { connectChatSocket, disconnectChatSocket } from "../../features/ui/socke
 import { connectFeedSocket, disconnectFeedSocket } from "../../features/feed/feedSocket";
 import { connectNotificationSocket, disconnectNotificationSocket } from "../../features/notifications/notificationSocket";
 import nccLogo from "../assets/ncc-logo.png";
+import { API_BASE_URL } from "../../api/config";
 
 const decodeJwtPayload = (token = "") => {
   try {
@@ -46,7 +47,7 @@ const LoginPage = ({ isModal = false, onClose }) => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/cadet/login", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/cadet/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
