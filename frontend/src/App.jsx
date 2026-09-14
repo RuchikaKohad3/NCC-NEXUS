@@ -14,7 +14,7 @@ import CadetChat from "./components/Cadet/CadetChat";
 
 // 3. SUO Module
 import SUODashboard from "./components/SUO/dashboard";
-import SUOChat from "./components/SUO/SUOChat";
+import SUOChat from "./components/SUO/SuoChat";
 
 // 4. Alumni Module
 import AlumniDashboard from "./components/Alumni/dashboard";
