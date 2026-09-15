@@ -34,6 +34,14 @@ export const decisionApi = {
   getFlags: () => client.get("/flags"),
   // Mark one persisted flag acknowledged.
   acknowledge: (id) => client.patch(`/flags/${id}/acknowledge`),
+
+  // ── Auditable board rosters (M8.2b) ──
+  // Persist the current board as a confirmed run. body: { slots, reserves, profile, minReadiness }.
+  confirmSelection: (params) => client.post("/camp-selection/confirm", params),
+  // Confirmed-run history for the caller's college.
+  listRuns: () => client.get("/runs"),
+  // One confirmed run with its full roster.
+  getRun: (id) => client.get(`/runs/${id}`),
 };
 
 export default decisionApi;

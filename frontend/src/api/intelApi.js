@@ -31,6 +31,10 @@ export const intelApi = {
   getCollegeReadiness: () => client.get("/readiness"),
   // Recompute every cadet in the caller's college (staff only).
   recomputeCollege: () => client.post("/recompute-college"),
+  // Scoring-config (M11): resolved weights + history for a profile (staff only).
+  getConfig: (profile) => client.get("/config", { params: { profile } }),
+  // Save a new weight version for the caller's college (ANO only).
+  putConfig: (profile, weights) => client.put("/config", { profile, weights }),
 };
 
 export default intelApi;

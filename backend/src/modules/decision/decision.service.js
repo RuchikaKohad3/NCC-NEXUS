@@ -8,6 +8,7 @@
 
 const intelligenceService = require("../intelligence/intelligence.service");
 const decisionRepo = require("./decision.repository");
+const runsRepo = require("./decisionRuns.repository");
 const { assessRisk } = require("./recipes/atRisk");
 const { selectForCamp } = require("./recipes/campSelection");
 
@@ -168,11 +169,20 @@ function normalizeSelectionParams(raw = {}) {
   return { slots, reserves, profile, minReadiness };
 }
 
-/** Live camp/RDC selection over a college's latest snapshots (nothing persisted). */
+/**
+ * Live camp/RDC selection over a college's latest snapshots (nothing persisted).
+ * M11: the cohort is re-weighed under the requested profile's ACTIVE weights
+ * (college override → system default → built-in) before ranking, so
+ * ?profile=rdc|promotion|certificate genuinely changes the board, not just a label.
+ */
 async function getCampSelection(collegeId, rawParams = {}) {
   const opts = normalizeSelectionParams(rawParams);
-  const cohort = await intelligenceService.getCollegeReadiness(collegeId);
-  return selectForCamp(cohort, opts);
+  const { cohort, weightsInfo } = await intelligenceService.getCollegeReadinessForProfile(
+    collegeId,
+    opts.profile
+  );
+  const selection = selectForCamp(cohort, opts);
+  return { ...selection, weights: weightsInfo };
 }
 
 /** Persisted active flags (open + acknowledged) for a college. */
@@ -191,6 +201,87 @@ async function acknowledgeFlag(id, collegeId, userId) {
   return decisionRepo.acknowledgeFlag(id, userId);
 }
 
+// ── Auditable board rosters (M8.2b) ──
+
+/**
+ * Pure: flatten a live selection result into decision_selections row shapes.
+ * Identity is denormalised deliberately (ADL-013) — the roster is a point-in-time
+ * record that must survive later cadet edits/deletions.
+ */
+function buildRosterRows(selection) {
+  const tiers = [
+    ["selected", selection.selected || []],
+    ["standby", selection.standby || []],
+    ["not_selected", selection.notSelected || []],
+    ["unranked", selection.unranked || []],
+  ];
+  const rows = [];
+  for (const [tier, list] of tiers) {
+    for (const c of list) {
+      rows.push({
+        regimental_no: c.regimental_no,
+        full_name: c.full_name ?? null,
+        rank_name: c.rank_name ?? null,
+        tier,
+        rank_position: c.rank ?? null,
+        overall_score: c.overall_score ?? null,
+        overall_confidence: c.overall_confidence ?? null,
+        reasons: c.reasons || [],
+        caveats: c.caveats || [],
+        strengths: c.strengths || [],
+      });
+    }
+  }
+  return rows;
+}
+
+/**
+ * Confirm a board: recompute the live selection under the requested profile's
+ * active weights, then persist the whole roster atomically. The persisted run
+ * stores params + weights + summary, so the decision is reproducible on record.
+ */
+async function confirmCampSelection(collegeId, userId, rawParams = {}) {
+  const selection = await getCampSelection(collegeId, rawParams);
+  const rows = buildRosterRows(selection);
+  if (!rows.length) {
+    const err = new Error("Nothing to confirm — the cohort is empty.");
+    err.status = 409;
+    throw err;
+  }
+  return runsRepo.insertRunWithSelections({
+    run: {
+      college_id: collegeId,
+      run_type: "camp_selection",
+      profile: selection.profile,
+      params: {
+        slots: selection.slots,
+        reserves: selection.reserves,
+        minReadiness: selection.summary?.minReadiness ?? null,
+      },
+      weights: selection.weights || null,
+      summary: selection.summary,
+      confirmed_by: userId ?? null,
+    },
+    selections: rows,
+  });
+}
+
+/** Confirmed-run history for a college (list view, newest first). */
+async function listRuns(collegeId) {
+  return runsRepo.listRunsByCollege(collegeId);
+}
+
+/** One confirmed run with its full roster, college-scoped (404 outside scope). */
+async function getRun(collegeId, runId) {
+  const result = await runsRepo.getRunWithSelections(runId, collegeId);
+  if (!result) {
+    const err = new Error("Run not found");
+    err.status = 404;
+    throw err;
+  }
+  return result;
+}
+
 module.exports = {
   assessCohort,
   reconcilePlan,
@@ -198,6 +289,10 @@ module.exports = {
   scanCollege,
   normalizeSelectionParams,
   getCampSelection,
+  buildRosterRows,
+  confirmCampSelection,
+  listRuns,
+  getRun,
   listFlags,
   acknowledgeFlag,
 };

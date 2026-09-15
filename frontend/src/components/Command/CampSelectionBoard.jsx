@@ -10,7 +10,9 @@
 //
 // The board never decides — it ranks and explains. Every cadet carries a reason
 // and any caveats (limited data, outstanding fine, declining trend) so the officer
-// makes the call. Nothing here is persisted (the endpoint is read-only).
+// makes the call. The live board is read-only; "Confirm roster" (M8.2b) persists
+// the current board as an auditable decision_runs record, and both the live board
+// and any confirmed run export as an officer-ready PDF (M10).
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -23,8 +25,13 @@ import {
   Users,
   Scale,
   HelpCircle,
+  ClipboardCheck,
+  FileDown,
+  History,
+  Loader2,
 } from "lucide-react";
 import { decisionApi } from "../../api/decisionApi";
+import { exportSelectionSheet } from "./commandPdfExport";
 import "./campSelectionBoard.css";
 
 const PROFILES = [
@@ -135,6 +142,135 @@ function Tier({ icon, title, tierClass, rows, onOpen, defaultOpen = true, collap
   );
 }
 
+/** Rebuild the recipe's selection shape from a persisted run, for PDF export. */
+function runToSelection(run, selections) {
+  const byTier = { selected: [], standby: [], not_selected: [], unranked: [] };
+  for (const s of selections) {
+    (byTier[s.tier] || byTier.unranked).push({
+      regimental_no: s.regimental_no,
+      full_name: s.full_name,
+      rank_name: s.rank_name,
+      rank: s.rank_position,
+      overall_score: s.overall_score,
+      overall_confidence: s.overall_confidence,
+      reasons: s.reasons || [],
+      caveats: s.caveats || [],
+      strengths: s.strengths || [],
+    });
+  }
+  return {
+    profile: run.profile,
+    slots: run.params?.slots,
+    reserves: run.params?.reserves,
+    selected: byTier.selected,
+    standby: byTier.standby,
+    notSelected: byTier.not_selected,
+    unranked: byTier.unranked,
+    summary: run.summary,
+    weights: run.weights,
+  };
+}
+
+/** Confirmed-roster history (M8.2b): list runs, export any run's sheet. */
+function RostersPanel({ refreshTick }) {
+  const [runs, setRuns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [exportingId, setExportingId] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await decisionApi.listRuns();
+        if (alive) setRuns(Array.isArray(res.data) ? res.data : []);
+      } catch {
+        if (alive) setError("Could not load confirmed rosters.");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [refreshTick]);
+
+  const exportRun = async (run) => {
+    setExportingId(run.run_id);
+    setError("");
+    try {
+      const res = await decisionApi.getRun(run.run_id);
+      const { run: fullRun, selections } = res.data;
+      exportSelectionSheet({
+        selection: runToSelection(fullRun, selections),
+        runMeta: {
+          run_id: fullRun.run_id,
+          confirmed_at: fullRun.confirmed_at,
+          profile: fullRun.profile,
+        },
+      });
+    } catch {
+      setError("Could not export that roster.");
+    } finally {
+      setExportingId(null);
+    }
+  };
+
+  if (loading) return null;
+  if (!runs.length && !error) return null;
+
+  return (
+    <section className="csb-tier csb-runs">
+      <header className="csb-tier-head">
+        <span className="csb-tier-title">
+          <History size={16} /> Confirmed rosters — on the record
+        </span>
+        <span className="csb-tier-count">{runs.length}</span>
+      </header>
+      {error && (
+        <div className="csb-state csb-state-error">
+          <AlertTriangle size={16} /> {error}
+        </div>
+      )}
+      <div className="csb-runs-list">
+        {runs.map((run) => (
+          <div key={run.run_id} className="csb-run-row">
+            <div className="csb-run-main">
+              <b>Run #{run.run_id}</b>
+              <span className="csb-run-meta">
+                {String(run.profile || "").toUpperCase()} · {run.summary?.selectedCount ?? "—"}/
+                {run.params?.slots ?? "—"} selected · {run.summary?.standbyCount ?? 0} standby
+              </span>
+              <span className="csb-run-date">
+                {new Date(run.confirmed_at).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+            <button
+              className="csb-link-btn"
+              disabled={exportingId === run.run_id}
+              onClick={() => exportRun(run)}
+            >
+              {exportingId === run.run_id ? (
+                <Loader2 size={14} className="csb-spin" />
+              ) : (
+                <FileDown size={14} />
+              )}
+              Export sheet
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function CampSelectionBoard() {
   const navigate = useNavigate();
 
@@ -146,6 +282,9 @@ export default function CampSelectionBoard() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirming, setConfirming] = useState(false);
+  const [confirmMsg, setConfirmMsg] = useState("");
+  const [runsTick, setRunsTick] = useState(0);
 
   const run = useCallback(
     async (params) => {
@@ -188,7 +327,42 @@ export default function CampSelectionBoard() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setConfirmMsg("");
     run({ profile, slots, reserves, minReadiness });
+  };
+
+  // M8.2b — persist the current board as an auditable, reproducible run.
+  const confirmRoster = async () => {
+    if (!result || confirming) return;
+    const ok = window.confirm(
+      `Confirm this board on the record?\n\n${result.summary.selectedCount} selected / ${result.slots} slot(s), ` +
+        `${result.summary.standbyCount} standby, profile ${String(result.profile).toUpperCase()}.\n\n` +
+        "A confirmed roster is immutable and appears in the history below."
+    );
+    if (!ok) return;
+    setConfirming(true);
+    setError("");
+    try {
+      const body = {
+        slots: result.slots,
+        reserves: result.reserves,
+        profile: result.profile,
+      };
+      if (result.summary?.minReadiness != null) body.minReadiness = result.summary.minReadiness;
+      const res = await decisionApi.confirmSelection(body);
+      const runId = res.data?.run?.run_id;
+      setConfirmMsg(`Roster confirmed on the record${runId ? ` — Run #${runId}` : ""}.`);
+      setRunsTick((t) => t + 1);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to confirm the roster.");
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  // M10 — export the LIVE board (clearly watermarked as not yet confirmed).
+  const exportLive = () => {
+    if (result) exportSelectionSheet({ selection: result });
   };
 
   const summary = result?.summary;
@@ -252,12 +426,37 @@ export default function CampSelectionBoard() {
           <button className="csb-btn" type="submit" disabled={loading}>
             <Play size={15} /> {loading ? "Running…" : "Run selection"}
           </button>
+          <button
+            className="csb-btn csb-btn-confirm"
+            type="button"
+            disabled={!result || loading || confirming}
+            onClick={confirmRoster}
+            title="Persist this board as an immutable, auditable run"
+          >
+            {confirming ? <Loader2 size={15} className="csb-spin" /> : <ClipboardCheck size={15} />}
+            Confirm roster
+          </button>
+          <button
+            className="csb-btn csb-btn-ghost"
+            type="button"
+            disabled={!result || loading}
+            onClick={exportLive}
+            title="Export the current board as a PDF selection sheet"
+          >
+            <FileDown size={15} /> Export PDF
+          </button>
         </form>
       </div>
 
       {error && (
         <div className="csb-state csb-state-error">
           <AlertTriangle size={18} /> {error}
+        </div>
+      )}
+
+      {confirmMsg && (
+        <div className="csb-state csb-state-ok">
+          <ClipboardCheck size={18} /> {confirmMsg}
         </div>
       )}
 
@@ -331,6 +530,9 @@ export default function CampSelectionBoard() {
           </>
         )
       ) : null}
+
+      {/* M8.2b — confirmed-roster history */}
+      <RostersPanel refreshTick={runsTick} />
     </div>
   );
 }

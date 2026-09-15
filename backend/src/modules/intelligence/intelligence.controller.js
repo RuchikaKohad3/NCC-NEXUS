@@ -93,4 +93,51 @@ async function recomputeCollege(req, res, next) {
   }
 }
 
-module.exports = { getCadetReadiness, recompute, getCollegeReadiness, recomputeCollege };
+// ── Scoring-config (M11) ──
+
+const scoringConfig = require("./scoringConfig.service");
+
+// GET /api/intel/config?profile= — resolved weights + version history (staff only).
+async function getScoringConfig(req, res, next) {
+  try {
+    const collegeId = req.user.college_id;
+    if (collegeId == null) {
+      return res.status(400).json({ message: "No college context for this user" });
+    }
+    const profile = String(req.query.profile || "general").trim().toLowerCase();
+    const view = await scoringConfig.getConfigView(collegeId, profile);
+    return res.json(view);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// PUT /api/intel/config { profile, weights } — save a new version (ANO only; the
+// route layer enforces the role, this handler enforces college context + validity).
+async function putScoringConfig(req, res, next) {
+  try {
+    const collegeId = req.user.college_id;
+    if (collegeId == null) {
+      return res.status(400).json({ message: "No college context for this user" });
+    }
+    const profile = String(req.body?.profile || "general").trim().toLowerCase();
+    const result = await scoringConfig.saveWeights({
+      collegeId,
+      profile,
+      weights: req.body?.weights,
+      userId: req.user.user_id,
+    });
+    return res.status(201).json(result);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = {
+  getCadetReadiness,
+  recompute,
+  getCollegeReadiness,
+  recomputeCollege,
+  getScoringConfig,
+  putScoringConfig,
+};
