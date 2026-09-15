@@ -1,14 +1,18 @@
 // Responsibility: Orchestrate the full readiness pipeline —
 //   read all pillar signals (legacy, SELECT-only) -> build composite snapshot (pure)
-//   -> persist (new table).
+//   -> persist (new table). Also the profile-weighting surface (M11): resolve
+//   tunable weights and re-aggregate stored pillars under a decision profile.
 // Layer: Intelligence (Layer 1) service.
 // Depends on: intelligence.repository (legacy read), snapshot.builder (pure),
-//   snapshot.repository (new-table read/write).
+//   snapshot.repository (new-table read/write), scoringConfig.service (weights),
+//   scoring/aggregate (pure).
 // Must never be depended on by: any existing/legacy module.
 
 const legacyRepo = require("./intelligence.repository");
 const snapshotRepo = require("./snapshot.repository");
 const { buildSnapshot } = require("./snapshot.builder");
+const scoringConfig = require("./scoringConfig.service");
+const { aggregate } = require("./scoring/aggregate");
 
 /**
  * Recompute and persist the latest readiness snapshot for one cadet.
@@ -120,10 +124,53 @@ async function recomputeCollege(collegeId, options = {}) {
   return { recomputed, total: cadets.length };
 }
 
+/**
+ * Pure: re-aggregate a cohort's STORED pillars under a different weight profile.
+ * Snapshots are always computed/stored under "general" (stable history); a
+ * profile-specific view re-weighs at read time instead of exploding the
+ * snapshot table per profile (ADL-012). Rows without a snapshot pass through
+ * unchanged — the fairness rule (ADL-005) is preserved because aggregate()
+ * itself is confidence-aware.
+ *
+ * @param {Array<object>} cohort output of getCollegeReadiness
+ * @param {Object<string,number>} weights normalised weight fractions
+ */
+function applyProfileWeights(cohort = [], weights) {
+  if (!weights) return cohort;
+  return cohort.map((row) => {
+    if (!row.has_snapshot || !row.pillars) return row;
+    const overall = aggregate(row.pillars, weights);
+    return { ...row, overall_score: overall.score, overall_confidence: overall.confidence };
+  });
+}
+
+/**
+ * Cohort readiness re-weighed under a decision profile's active weights.
+ * Chain per scoringConfig.service: college override → system default → built-in.
+ * For "general" with no stored override this is byte-identical to
+ * getCollegeReadiness (zero behaviour change for existing callers).
+ *
+ * @returns {{cohort:Array<object>, weightsInfo:{profile,source,version,weights}}}
+ */
+async function getCollegeReadinessForProfile(collegeId, profile = "general") {
+  const [cohort, resolved] = await Promise.all([
+    getCollegeReadiness(collegeId),
+    scoringConfig.resolveWeights(collegeId, profile),
+  ]);
+  if (profile === "general" && resolved.source === "builtin") {
+    // Stored snapshots were aggregated under exactly these weights already.
+    return { cohort, weightsInfo: resolved };
+  }
+  return { cohort: applyProfileWeights(cohort, resolved.weights), weightsInfo: resolved };
+}
+
 module.exports = {
   recomputeCadet,
   getCadetReadiness,
   mergeCohort,
   getCollegeReadiness,
   recomputeCollege,
+  applyProfileWeights,
+  getCollegeReadinessForProfile,
+  resolveWeights: scoringConfig.resolveWeights,
 };

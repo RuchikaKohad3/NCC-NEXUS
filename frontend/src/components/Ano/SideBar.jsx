@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FaUserPlus, FaUsers, FaComments, FaClipboardList, FaTachometerAlt, FaVideo, FaBullhorn, FaHandHoldingHeart, FaChartLine, FaShieldAlt, FaAward } from "react-icons/fa";
+import { FaUserPlus, FaUsers, FaComments, FaClipboardList, FaTachometerAlt, FaVideo, FaBullhorn, FaHandHoldingHeart, FaChartLine, FaShieldAlt, FaAward, FaRobot, FaSlidersH } from "react-icons/fa";
 import nccLogo from "../assets/ncc-logo.png";
 
 const Sidebar = ({ isOpen = true, onClose }) => {
@@ -67,6 +67,22 @@ const Sidebar = ({ isOpen = true, onClose }) => {
             onClick={() => (typeof onClose === "function" ? onClose() : undefined)}
           >
             <FaAward /> <span>Camp Selection</span>
+          </NavLink>
+
+          <NavLink
+            to="command/adjutant"
+            className="menu-item"
+            onClick={() => (typeof onClose === "function" ? onClose() : undefined)}
+          >
+            <FaRobot /> <span>AI Adjutant</span>
+          </NavLink>
+
+          <NavLink
+            to="command/weights"
+            className="menu-item"
+            onClick={() => (typeof onClose === "function" ? onClose() : undefined)}
+          >
+            <FaSlidersH /> <span>Scoring Weights</span>
           </NavLink>
 
           <NavLink

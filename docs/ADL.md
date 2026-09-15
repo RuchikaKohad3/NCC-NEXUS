@@ -94,3 +94,23 @@ Entries are append-only. Existing decisions are never rewritten; if a decision c
 - **Alternatives considered:** Integrate Intelligence by modifying existing modules.
 - **Rejected because:** Modifying production logic significantly increases regression risk and complicates testing, rollback, and team collaboration.
 - **Consequence:** Existing functionality must remain behaviourally identical throughout development. All Intelligence features are implemented as isolated modules with additive routes, migrations, and frontend pages. Any exception requires explicit architectural approval and must be documented in a future ADL entry.
+## ADL-012 — Profile weighting re-aggregates stored pillars at read time
+- **Decision:** Snapshots are always computed and stored under the `general` profile. A profile-specific view (`?profile=rdc|promotion|certificate`) resolves the active weights via `scoring_config` (college override → system default → built-in) and re-aggregates each cadet's STORED `pillars` JSONB at read time (`intelligence.service.applyProfileWeights`).
+- **Why:** Pillars are profile-independent facts; only the weighting is a decision-profile concern. Re-weighting a stored JSONB blob is O(cohort) cheap and needs no extra I/O.
+- **Alternatives considered:** Computing and persisting one snapshot per profile per cadet.
+- **Rejected because:** It multiplies snapshot volume by the number of profiles, forces a recompute whenever weights are tuned, and breaks the "one stable history" property of the snapshot table.
+- **Consequence:** Weight changes take effect immediately on profile-weighted views without rewriting history; `general` behaviour is byte-identical to before (zero regression). The camp-selection response now carries the exact `{profile, source, version, weights}` it ranked under.
+
+## ADL-013 — Confirmed rosters are immutable point-in-time records
+- **Decision:** `decision_runs` + `decision_selections` (M8.2b) persist a confirmed board with cadet identity DENORMALISED (`regimental_no`, `full_name`, `rank_name` copied, no FK to `cadet_profiles`) plus the exact `params`, `weights` and `summary` used.
+- **Why:** A board decision is an audit record. Deleting or renaming a cadet later must never rewrite or cascade away what the board decided; storing the weights makes every run reproducible.
+- **Alternatives considered:** FK to `cadet_profiles` with CASCADE (consistent with operational tables).
+- **Rejected because:** CASCADE would silently delete roster rows when a cadet is removed — an unacceptable property for an audit trail.
+- **Consequence:** Roster rows can outlive their cadets by design; the trade-off (a roster row can reference a regimental number that no longer resolves) is intended and documented in the migration header.
+
+## ADL-014 — Adjutant tool registry: read-only tools, proposal-gated writes
+- **Decision:** The AI Adjutant (M9) reaches data ONLY through `modules/adjutant/adjutant.tools.js`: five read-only tools over intelligence/decision services plus `propose_action`, which never executes — it creates an `adjutant_action_proposals` row that a human approves (`.../proposals/:id/approve`) before `executeApprovedAction` runs it against a second whitelist (`acknowledge_flag`, `scan_at_risk`, `recompute_college`). `college_id` is injected from the JWT context server-side; model-supplied arguments can never change tenancy, and a cross-college cadet lookup returns the same "no snapshot" answer as a missing cadet (no existence oracle).
+- **Why:** ADL-006 required whitelisted, college-scoped, read-only tools with human-in-the-loop execution; this is its concrete implementation.
+- **Alternatives considered:** Letting the model call decision endpoints directly with its own parameters, or executing "safe" actions without approval.
+- **Rejected because:** Both put an LLM inside the authorization boundary; prompt injection could then trigger writes or cross-tenant reads.
+- **Consequence:** The whitelist is enforced twice (at proposal and at execution), every executed/failed proposal stores its outcome for audit, and each assistant message records exactly which tools it consulted (`tool_calls` trace shown in the UI).

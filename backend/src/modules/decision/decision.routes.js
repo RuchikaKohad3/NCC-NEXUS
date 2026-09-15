@@ -30,4 +30,9 @@ router.get("/camp-selection", controller.campSelection);
 router.get("/flags", controller.listFlags);
 router.patch("/flags/:id/acknowledge", controller.acknowledge);
 
+// ── Auditable board rosters (M8.2b) ──
+router.post("/camp-selection/confirm", controller.confirmSelection);
+router.get("/runs", controller.listRuns);
+router.get("/runs/:id", controller.getRun);
+
 module.exports = router;

@@ -43,4 +43,15 @@ router.post(
   controller.recompute
 );
 
+// ── Scoring-config (M11) ──
+// Reading the active weights is staff-wide; TUNING them is an officer decision,
+// so writes are gated to ANO only.
+const anoOnly = (req, res, next) => {
+  if (String(req.user?.role || "").toUpperCase() === "ANO") return next();
+  return res.status(403).json({ message: "Only an ANO can change scoring weights." });
+};
+
+router.get("/config", staffOnly, controller.getScoringConfig);
+router.put("/config", anoOnly, controller.putScoringConfig);
+
 module.exports = router;

@@ -80,4 +80,56 @@ async function acknowledge(req, res, next) {
   }
 }
 
-module.exports = { getAtRisk, scan, campSelection, listFlags, acknowledge };
+// ── Auditable board rosters (M8.2b) ──
+
+// POST /api/decision/camp-selection/confirm — persist the current board as a run.
+// Body: { slots, reserves?, profile?, minReadiness? } (same params as the live board).
+async function confirmSelection(req, res, next) {
+  try {
+    const collegeId = requireCollege(req, res);
+    if (collegeId == null) return undefined;
+    const result = await service.confirmCampSelection(collegeId, req.user.user_id, req.body || {});
+    return res.status(201).json(result);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// GET /api/decision/runs — confirmed-run history for the caller's college.
+async function listRuns(req, res, next) {
+  try {
+    const collegeId = requireCollege(req, res);
+    if (collegeId == null) return undefined;
+    const rows = await service.listRuns(collegeId);
+    return res.json(rows);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// GET /api/decision/runs/:id — one confirmed run with its full roster.
+async function getRun(req, res, next) {
+  try {
+    const collegeId = requireCollege(req, res);
+    if (collegeId == null) return undefined;
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: "Invalid run id" });
+    }
+    const result = await service.getRun(collegeId, id);
+    return res.json(result);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = {
+  getAtRisk,
+  scan,
+  campSelection,
+  listFlags,
+  acknowledge,
+  confirmSelection,
+  listRuns,
+  getRun,
+};

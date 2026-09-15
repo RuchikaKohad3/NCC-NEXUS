@@ -14,11 +14,13 @@ import {
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
+  FileDown,
   Search,
   ArrowUpDown,
   ChevronRight,
 } from "lucide-react";
 import { intelApi } from "../../api/intelApi";
+import { exportReadinessBrief } from "./commandPdfExport";
 import "./commandCenter.css";
 
 function band(score) {
@@ -119,10 +121,20 @@ export default function CommandCenter() {
           <h1 className="cc-title">Command Center</h1>
           <p className="cc-sub">Unit readiness intelligence across your college</p>
         </div>
-        <button className="cc-btn" onClick={handleRecomputeAll} disabled={recomputing || loading}>
-          <RefreshCw size={15} className={recomputing ? "cc-spin" : ""} />
-          {recomputing ? "Recomputing…" : "Recompute all"}
-        </button>
+        <div className="cc-hero-actions">
+          <button
+            className="cc-btn cc-btn-ghost"
+            onClick={() => exportReadinessBrief({ rows: visibleRows })}
+            disabled={loading || rows.length === 0}
+            title="Export the cohort as an officer-ready PDF brief (current sort & filter)"
+          >
+            <FileDown size={15} /> Export brief
+          </button>
+          <button className="cc-btn" onClick={handleRecomputeAll} disabled={recomputing || loading}>
+            <RefreshCw size={15} className={recomputing ? "cc-spin" : ""} />
+            {recomputing ? "Recomputing…" : "Recompute all"}
+          </button>
+        </div>
       </div>
 
       {error && (

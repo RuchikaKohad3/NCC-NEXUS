@@ -213,3 +213,13 @@
   .cc-table td { border: none; padding: 4px 18px; }
   .cc-chev { display: none; }
 }
+
+/* ── M10 Readiness Brief export ── */
+.cc-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.cc-btn-ghost {
+  background: none !important;
+  color: var(--cc-text) !important;
+  border: 1px solid var(--cc-border) !important;
+  box-shadow: none !important;
+}
+.cc-btn-ghost:hover:not(:disabled) { border-color: var(--cc-primary) !important; color: var(--cc-primary) !important; }

@@ -1,0 +1,167 @@
+/*
+ * Responsibility: Styles for the Scoring Weights panel (M11) — profile tabs,
+ *   weight sliders with a live 100% guard, and the version-history rail.
+ * Layer: Command Center UI (Layer 4).
+ * Depends on: ANO design tokens (--a-*) with hard fallbacks; scoped under .scp-*.
+ * Must never be depended on by: any other component (scoped styles only).
+ */
+
+.scp-page {
+  --scp-surface: var(--a-surface, #ffffff);
+  --scp-text: var(--a-text, #1a1d2e);
+  --scp-muted: var(--a-text-muted, #8b90a8);
+  --scp-primary: var(--a-primary, #5c6bc0);
+  --scp-navy: var(--a-navy, #1a237e);
+  --scp-red: var(--a-red, #e53935);
+  --scp-border: var(--a-border, rgba(0, 0, 0, 0.06));
+  --scp-font: var(--a-font, "Poppins", sans-serif);
+  --scp-font-display: var(--a-font-display, "Marcellus", serif);
+
+  font-family: var(--scp-font);
+  color: var(--scp-text);
+  padding: 10px clamp(16px, 3vw, 32px) 44px;
+}
+
+.scp-hero {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+  background: var(--scp-surface);
+  border: 1px solid var(--scp-border);
+  border-radius: 16px; padding: 20px 24px; margin-bottom: 16px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(92, 107, 192, 0.05);
+}
+.scp-hero::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg,
+    var(--scp-red) 0%, var(--scp-red) 33%,
+    var(--scp-primary) 33%, var(--scp-primary) 66%,
+    var(--scp-navy) 66%, var(--scp-navy) 100%);
+}
+.scp-title {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--scp-font-display);
+  font-size: 22px; font-weight: 700; margin: 0;
+}
+.scp-sub { margin: 4px 0 0; font-size: 12.5px; color: var(--scp-muted); }
+
+.scp-profiles { display: flex; gap: 6px; background: #f0f1f8; border-radius: 12px; padding: 5px; }
+.scp-profile-btn {
+  border: none; background: none; border-radius: 9px;
+  padding: 8px 16px; font-family: var(--scp-font);
+  font-size: 12.5px; font-weight: 600; color: var(--scp-muted);
+  cursor: pointer; transition: all 0.25s ease;
+}
+.scp-profile-btn.scp-active {
+  background: var(--scp-surface); color: var(--scp-navy);
+  box-shadow: 0 2px 8px rgba(26, 35, 126, 0.12);
+}
+
+.scp-error {
+  display: flex; align-items: center; gap: 9px;
+  background: rgba(229, 57, 53, 0.07); color: #c62828;
+  border: 1px solid rgba(229, 57, 53, 0.2);
+  border-radius: 12px; padding: 11px 15px;
+  font-size: 13px; margin-bottom: 14px;
+}
+.scp-loading {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--scp-muted); font-size: 13.5px; padding: 30px 6px;
+}
+.scp-spin { animation: scpSpin 0.9s linear infinite; }
+
+.scp-layout { display: grid; grid-template-columns: 1fr 290px; gap: 16px; align-items: start; }
+
+.scp-card {
+  background: var(--scp-surface);
+  border: 1px solid var(--scp-border);
+  border-radius: 16px; padding: 20px 22px;
+  box-shadow: 0 2px 10px rgba(92, 107, 192, 0.04);
+}
+.scp-card-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 16px;
+}
+.scp-card-head h2 {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--scp-font-display); font-size: 16px; margin: 0;
+}
+.scp-source {
+  display: flex; align-items: center; gap: 5px;
+  margin: 5px 0 0; font-size: 11.5px; color: var(--scp-muted);
+}
+.scp-total {
+  font-size: 13px; font-weight: 700; border-radius: 999px;
+  padding: 7px 14px; white-space: nowrap;
+}
+.scp-total-ok { background: rgba(46, 125, 50, 0.1); color: #2e7d32; }
+.scp-total-bad { background: rgba(229, 57, 53, 0.09); color: var(--scp-red); }
+
+.scp-rows { display: flex; flex-direction: column; gap: 13px; }
+.scp-row {
+  display: grid;
+  grid-template-columns: 116px 1fr 84px;
+  grid-template-rows: auto 5px;
+  align-items: center; column-gap: 14px; row-gap: 6px;
+}
+.scp-pillar { font-size: 13px; font-weight: 600; }
+.scp-slider { width: 100%; accent-color: var(--scp-primary); cursor: pointer; }
+.scp-numwrap {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12.5px; color: var(--scp-muted);
+}
+.scp-num {
+  width: 54px; border: 1px solid var(--scp-border); border-radius: 8px;
+  padding: 6px 8px; font-family: var(--scp-font); font-size: 13px;
+  text-align: right; color: var(--scp-text); outline: none;
+}
+.scp-num:focus { border-color: var(--scp-primary); }
+.scp-bar {
+  grid-column: 1 / -1; height: 5px; border-radius: 999px;
+  background: #eef0f8; overflow: hidden;
+}
+.scp-bar-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--scp-primary), var(--scp-navy));
+  transition: width 0.25s ease;
+}
+
+.scp-hint { margin: 14px 0 0; font-size: 12px; color: var(--scp-red); }
+.scp-actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 18px; }
+.scp-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  border-radius: 11px; padding: 10px 16px;
+  font-family: var(--scp-font); font-size: 12.5px; font-weight: 600;
+  cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.scp-btn:disabled { opacity: 0.55; cursor: default; }
+.scp-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.scp-btn-primary {
+  border: none; color: #fff;
+  background: linear-gradient(135deg, var(--scp-primary), var(--scp-navy));
+  box-shadow: 0 4px 12px rgba(92, 107, 192, 0.24);
+}
+.scp-btn-ghost { border: 1px solid var(--scp-border); background: none; color: var(--scp-text); }
+.scp-note { margin: 14px 0 0; font-size: 11.5px; color: var(--scp-muted); line-height: 1.55; }
+
+/* history rail */
+.scp-hist-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.scp-hist-list li {
+  border: 1px solid var(--scp-border); border-radius: 11px; padding: 10px 13px;
+}
+.scp-hist-list li.scp-hist-active { border-color: rgba(92, 107, 192, 0.45); background: rgba(92, 107, 192, 0.05); }
+.scp-hist-top { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.scp-hist-badge {
+  background: rgba(46, 125, 50, 0.12); color: #2e7d32;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  border-radius: 999px; padding: 2px 8px;
+}
+.scp-hist-date { margin-left: auto; font-size: 11px; color: var(--scp-muted); }
+.scp-hist-weights { margin: 6px 0 0; font-size: 11px; color: var(--scp-muted); line-height: 1.5; }
+.scp-hist-empty { font-size: 12px; color: var(--scp-muted); line-height: 1.6; }
+
+@keyframes scpSpin { to { transform: rotate(360deg); } }
+
+@media (max-width: 900px) {
+  .scp-layout { grid-template-columns: 1fr; }
+}
