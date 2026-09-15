@@ -13,13 +13,15 @@ import {
   Square,
 } from "lucide-react";
 import WaveSurfer from "wavesurfer.js";
+// import { VOICE_AI_BASE_URL } from "../../api/config";
 import VoiceCommandCard from "./VoiceCommandCard";
 import { VOICE_COMMANDS, VOICE_COMMAND_TYPES } from "./voiceCommandsData";
 import commandAudio from "./assets/command-sample.mp3";
+import { API_BASE_URL } from "../../api/config";
 import "./voiceCommands.css";
 
 const LEARNED_STORAGE_KEY = "voice_commands_learned_v1";
-const VOICE_ANALYZE_URL = "http://localhost:5000/api/voice/analyze";
+const VOICE_ANALYZE_URL = `${API_BASE_URL}/api/voice/analyze`;
 
 const safeReadLearned = () => {
   try {
@@ -160,12 +162,29 @@ const normalizeConfidence = (value) => {
   return Math.max(0, Math.min(100, value));
 };
 
+const getBackendErrorMessage = (data) => {
+  if (!data) return "Voice analysis failed.";
+  if (typeof data.detail === "string") return data.detail;
+  if (typeof data.message === "string") return data.message;
+  return "Voice analysis failed.";
+};
+
+const isVoiceAnalysisResponse = (data) =>
+  data &&
+  typeof data === "object" &&
+  typeof data.overall_score === "number" &&
+  data.command &&
+  data.delivery &&
+  data.raw_audio_metrics &&
+  data.ai_feedback;
+
 export default function VoiceCommandsModule() {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
   const [learnedOnly, setLearnedOnly] = useState(false);
   const [expanded, setExpanded] = useState({});
   const [learned, setLearned] = useState(() => safeReadLearned());
+  const [practiceCommandId, setPracticeCommandId] = useState(VOICE_COMMANDS[0]?.id || "");
   const [nowPlaying, setNowPlaying] = useState({ id: null, speed: 1 });
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -301,9 +320,15 @@ export default function VoiceCommandsModule() {
     });
   }, [query, typeFilter, learnedOnly, learned]);
 
-  const scoreMeta = useMemo(() => getScoreMeta(result?.score), [result]);
-  const scoreValue = typeof result?.score === "number" ? Math.max(0, Math.min(100, result.score)) : 0;
-  const confidenceValue = normalizeConfidence(result?.ai_confidence);
+  const selectedPracticeCommand = useMemo(
+    () => VOICE_COMMANDS.find((command) => command.id === practiceCommandId) || VOICE_COMMANDS[0],
+    [practiceCommandId]
+  );
+  const expectedCommand = selectedPracticeCommand?.name || "";
+  const overallScore = result?.overall_score;
+  const scoreMeta = useMemo(() => getScoreMeta(overallScore), [overallScore]);
+  const scoreValue = typeof overallScore === "number" ? Math.max(0, Math.min(100, overallScore)) : 0;
+  const confidenceValue = normalizeConfidence(result?.delivery?.confidence);
   const confidenceMeta = useMemo(() => getConfidenceMeta(confidenceValue), [confidenceValue]);
 
   const registerAudioRef = (id, node) => {
@@ -373,9 +398,15 @@ export default function VoiceCommandsModule() {
   };
 
   const analyzeAudio = async (blob) => {
+    if (!expectedCommand) {
+      setError("Select an NCC command before recording.");
+      return;
+    }
+
     const formData = new FormData();
     const extension = blob.type === "audio/wav" ? "wav" : blob.type.includes("mp4") ? "m4a" : "webm";
-    formData.append("audio", blob, `voice-command.${extension}`);
+    formData.append("file", blob, `voice-command.${extension}`);
+    formData.append("expectedCommand", expectedCommand);
 
     setIsLoading(true);
     setError("");
@@ -388,7 +419,11 @@ export default function VoiceCommandsModule() {
 
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(data?.message || "Voice analysis failed.");
+        throw new Error(getBackendErrorMessage(data));
+      }
+
+      if (!isVoiceAnalysisResponse(data)) {
+        throw new Error("Voice analysis returned an invalid response.");
       }
 
       setResult(data);
@@ -606,6 +641,10 @@ export default function VoiceCommandsModule() {
             <p className="voice-analysis-subtitle">
               Capture your voice, upload it automatically, and compare clarity and command delivery.
             </p>
+            <div className="voice-expected-command">
+              <span>Expected Command</span>
+              <strong>{expectedCommand || "Select a command"}</strong>
+            </div>
           </div>
 
           <div className="voice-analysis-actions">
@@ -661,7 +700,7 @@ export default function VoiceCommandsModule() {
 
         <div className="voice-analysis-content">
           <div className="voice-score-card">
-            <div className="voice-score-value">{typeof result?.score === "number" ? Math.round(result.score) : "--"}</div>
+            <div className="voice-score-value">{typeof overallScore === "number" ? Math.round(overallScore) : "--"}</div>
             <div
               style={{
                 marginTop: -6,
@@ -827,31 +866,71 @@ export default function VoiceCommandsModule() {
 
           <div className="voice-metrics-grid">
             <div className="voice-metric-card">
-              <span>Pitch</span>
-              <strong>{formatMetric(result?.pitch)}</strong>
+              <span>Pronunciation</span>
+              <strong>{formatMetric(result?.delivery?.pronunciation, 0)}</strong>
             </div>
             <div className="voice-metric-card">
-              <span>Amplitude</span>
-              <strong>{formatMetric(result?.amplitude)}</strong>
+              <span>Clarity</span>
+              <strong>{formatMetric(result?.delivery?.clarity, 0)}</strong>
             </div>
             <div className="voice-metric-card">
-              <span>Energy</span>
-              <strong>{formatMetric(result?.energy)}</strong>
+              <span>Volume</span>
+              <strong>{formatMetric(result?.delivery?.volume, 0)}</strong>
             </div>
             <div className="voice-metric-card">
-              <span>Duration</span>
-              <strong>{formatDuration(result?.duration)}</strong>
+              <span>Pace</span>
+              <strong>{formatMetric(result?.delivery?.pace, 0)}</strong>
+            </div>
+            <div className="voice-metric-card">
+              <span>Expected</span>
+              <strong>{result?.command?.expected || "--"}</strong>
+            </div>
+            <div className="voice-metric-card">
+              <span>Recognized</span>
+              <strong>{result?.command?.recognized || "--"}</strong>
+            </div>
+            <div className="voice-metric-card">
+              <span>Accuracy</span>
+              <strong>{formatMetric(result?.command?.accuracy, 0)}%</strong>
+            </div>
+            <div className={`voice-metric-card ${result?.command?.correct ? "correct" : result ? "incorrect" : ""}`}>
+              <span>Status</span>
+              <strong>{result ? (result.command.correct ? "Correct" : "Incorrect") : "--"}</strong>
             </div>
           </div>
 
           <div className="voice-feedback-card">
-            <h4>Feedback</h4>
-            {result?.feedback?.length ? (
-              <ul className="voice-feedback-list">
-                {result.feedback.map((item, index) => (
-                  <li key={`${item}-${index}`}>{item}</li>
-                ))}
-              </ul>
+            <h4>AI Feedback</h4>
+            {result?.ai_feedback ? (
+              <div className="voice-feedback-sections">
+                {result.ai_feedback.summary ? <p>{result.ai_feedback.summary}</p> : null}
+
+                {result.ai_feedback.strengths?.length ? (
+                  <>
+                    <h5>Strengths</h5>
+                    <ul className="voice-feedback-list">
+                      {result.ai_feedback.strengths.map((item, index) => (
+                        <li key={`strength-${index}`}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+
+                {result.ai_feedback.improvements?.length ? (
+                  <>
+                    <h5>Improvements</h5>
+                    <ul className="voice-feedback-list">
+                      {result.ai_feedback.improvements.map((item, index) => (
+                        <li key={`improvement-${index}`}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+
+                {result.ai_feedback.coach_tip ? (
+                  <p className="voice-coach-tip">{result.ai_feedback.coach_tip}</p>
+                ) : null}
+              </div>
             ) : (
               <p className="voice-feedback-empty">
                 {isLoading ? "Preparing feedback..." : "Record a command to receive analysis feedback."}
@@ -922,6 +1001,12 @@ export default function VoiceCommandsModule() {
             onToggleLearned={() => toggleLearned(command.id)}
             onPlay={(speed) => playCommandAudio(command.id, speed)}
             onAudioRef={(node) => registerAudioRef(command.id, node)}
+            onPractice={() => {
+              if (isRecording || isLoading) return;
+              setPracticeCommandId(command.id);
+              clearRecorderState();
+            }}
+            isPracticeTarget={command.id === practiceCommandId}
           />
         ))}
 

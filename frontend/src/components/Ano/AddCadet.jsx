@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { addCadetToAttendance } from "../attendanceStore";
+import { API_BASE_URL } from "../../api/config";
 
 const ROLES = ["Cadet", "SUO", "Alumni"];
 
@@ -56,7 +57,7 @@ const AddCadet = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch("http://localhost:5000/api/ano/cadets", {
+      const response = await fetch(`${API_BASE_URL}/api/ano/cadets`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

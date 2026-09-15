@@ -166,6 +166,30 @@
   max-width: 680px;
 }
 
+.voice-expected-command {
+  margin-top: 12px;
+  display: inline-grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8f9ff;
+  border: 1px solid rgba(92, 107, 192, 0.14);
+}
+
+.voice-expected-command span {
+  color: #62709d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.voice-expected-command strong {
+  color: #1f2a52;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
 .voice-analysis-actions {
   display: flex;
   align-items: center;
@@ -407,6 +431,23 @@
 .voice-metric-card strong {
   font-size: 21px;
   color: #24315c;
+  overflow-wrap: anywhere;
+}
+
+.voice-metric-card.correct {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.voice-metric-card.correct strong {
+  color: #0f766e;
+}
+
+.voice-metric-card.incorrect {
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.voice-metric-card.incorrect strong {
+  color: #b91c1c;
 }
 
 .voice-feedback-card,
@@ -429,6 +470,34 @@
   color: #37416a;
   font-size: 13px;
   line-height: 1.55;
+}
+
+.voice-feedback-sections {
+  display: grid;
+  gap: 10px;
+}
+
+.voice-feedback-sections p {
+  margin: 0;
+  color: #37416a;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.voice-feedback-sections h5 {
+  margin: 4px 0 -4px;
+  color: #1f2a52;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.voice-coach-tip {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(92, 107, 192, 0.14);
 }
 
 .voice-feedback-empty,
@@ -507,6 +576,7 @@
 
 .voice-audio-btn,
 .voice-learned-btn,
+.voice-practice-btn,
 .voice-expand-btn {
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
@@ -524,6 +594,7 @@
 
 .voice-audio-btn:hover,
 .voice-learned-btn:hover,
+.voice-practice-btn:hover,
 .voice-expand-btn:hover {
   border-color: rgba(92, 107, 192, 0.35);
   box-shadow: 0 6px 14px rgba(92, 107, 192, 0.14);
@@ -539,6 +610,12 @@
   background: rgba(16, 185, 129, 0.14);
   border-color: rgba(16, 185, 129, 0.35);
   color: #0f766e;
+}
+
+.voice-practice-btn.active {
+  background: rgba(92, 107, 192, 0.14);
+  border-color: rgba(92, 107, 192, 0.35);
+  color: #1f2f76;
 }
 
 .voice-expand-btn.open svg {

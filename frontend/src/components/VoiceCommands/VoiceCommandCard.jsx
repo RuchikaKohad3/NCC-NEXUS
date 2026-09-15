@@ -12,6 +12,8 @@ export default function VoiceCommandCard({
   onToggleLearned,
   onPlay,
   onAudioRef,
+  onPractice,
+  isPracticeTarget,
 }) {
   return (
     <article className={`voice-card ${isExpanded ? "expanded" : ""}`} role="listitem">
@@ -49,6 +51,14 @@ export default function VoiceCommandCard({
           >
             <Star size={14} />
             {isLearned ? "Learned" : "Mark Learned"}
+          </button>
+
+          <button
+            type="button"
+            className={`voice-practice-btn ${isPracticeTarget ? "active" : ""}`}
+            onClick={onPractice}
+          >
+            {isPracticeTarget ? "Practicing" : "Practice"}
           </button>
 
           <button
